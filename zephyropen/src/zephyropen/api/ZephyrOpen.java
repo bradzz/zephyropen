@@ -696,21 +696,22 @@ public class ZephyrOpen {
 	/** track open loggers */
 	public void addLogger(DataLogger dataLogger) {
 
-		// optional creation , build if called
+		// optional creation , build only if called
 		if (dataLoggers == null)
 			dataLoggers = new Vector<DataLogger>();
 
 		dataLoggers.add(dataLogger);
-
-		/*
-		 * @SuppressWarnings("rawtypes") Enumeration e = dataLoggers.elements();
-		 * while(e.hasMoreElements()) System.out.println("logger registered: " +
-		 * e.nextElement());
-		 */
 	}
 
-	public void lock() {
+	public synchronized void lock() {
 		locked = true;
 	}
-
+	
+	public synchronized void unlock() {
+		locked = false;
+	}
+	
+	public synchronized boolean isLocked() {
+		return locked;
+	}
 }

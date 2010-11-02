@@ -455,7 +455,6 @@ public class ControlGUI extends JPanel implements Runnable {
 		this.setLayout(new GridLayout(5, 1, 5, 5));
 		this.add(deviceList);
 		this.add(userList);
-		this.add(new StatusTextArea());
 		this.add(portList);
 
 		/** TODO: nag or put an add here, load image */
@@ -466,6 +465,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		
 		JLabel copy = new JLabel(text);
 		copy.setHorizontalAlignment(JLabel.CENTER);
+		
+		// this.add(new StatusTextArea());
 		this.add(copy);
 
 		/** add menu */
