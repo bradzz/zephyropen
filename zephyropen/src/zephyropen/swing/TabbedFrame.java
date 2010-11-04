@@ -86,8 +86,14 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 		/** see is ftp is available */ 
 		ftpManager = FTPManager.getReference();
 		
-		if(!constants.get(ZephyrOpen.os).endsWith("OS X"))
-			isOSX  = true;
+		if(!constants.get(ZephyrOpen.os).endsWith("OS X")){
+			
+				constants.info("is osx... ");
+				constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
+				constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
+				isOSX  = true;
+		
+		}
 	}
 
 	/** place in tabs with icons */
