@@ -33,9 +33,9 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 	/** add space around the icon image */
 	public static final int X_EDGE = 16;
 	public static final int Y_EDGE = 50;
-	
+
 	public static final int X_EDGE_OSX = 20;
-	public static final int Y_EDGE_OSX = 70;
+	public static final int Y_EDGE_OSX = 60;
 
 	/** how often to send an ftp update or recording */
 	private static final int MOD = 30;
@@ -45,10 +45,10 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 	private final JTabbedPane tabbedPane = new JTabbedPane();
 
 	private GoogleChart[] components = null;
-	
+
 	private FTPManager ftpManager = null;
 
-	private boolean isOSX = false; 
+	private boolean isOSX = false;
 
 	/**
 	 * place the 'parts' onto tabbed frame
@@ -59,7 +59,7 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 		setLayout(new GridLayout(1, 1));
 		components = parts;
-		
+
 		// start with defaults
 		setPreferredSize(new Dimension(GoogleChart.DEFAULT_X_SIZE, GoogleChart.DEFAULT_Y_SIZE));
 		setSize(new Dimension(GoogleChart.DEFAULT_X_SIZE, GoogleChart.DEFAULT_Y_SIZE));
@@ -82,17 +82,16 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 				updateSelected();
 			}
 		});
-		
-		/** see is ftp is available */ 
+
+		/** see is ftp is available */
 		ftpManager = FTPManager.getReference();
-		
-		if(!constants.get(ZephyrOpen.os).endsWith("OS X")){
-			
-				constants.info("is osx... ");
-				constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
-				constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
-				isOSX  = true;
-		
+
+		if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
+
+			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
+			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
+			isOSX = true;
+
 		}
 	}
 
@@ -156,19 +155,19 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 	/** manage re-size events here */
 	public void componentResized(ComponentEvent e) {
-		
-		if(isOSX){
-				
+
+		if (isOSX) {
+
 			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
 			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
-		
-		}else{
-			
+
+		} else {
+
 			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE));
 			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE));
-		
+
 		}
-			
+
 		updateSelected();
 	}
 
@@ -177,44 +176,43 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 	 */
 	public void keyTyped(KeyEvent e) {
 		if (e.getID() == KeyEvent.KEY_TYPED) {
-				
+
 			char c = Character.toLowerCase(e.getKeyChar());
 
-			if (c == ' '){
+			if (c == ' ') {
 				new ScreenShot(components[tabbedPane.getSelectedIndex()]);
 				return;
 			}
-			
-			if (c == 'x'){
+
+			if (c == 'x') {
 				components[tabbedPane.getSelectedIndex()].getState().reset();
 				return;
 			}
-					
-	
+
 			// don't let several proc's do this at once
 			if (constants.getBoolean(ZephyrOpen.filelock)) {
-			
+
 				if (c == 'r')
 					constants.put(ZephyrOpen.recording, "true");
-				
+
 				else if (c == 's')
 					constants.put(ZephyrOpen.recording, "false");
-				
+
 				else if (c == 'd')
 					constants.put(ZephyrOpen.ftpEnabled, "false");
-				
-				else if (c == 'o'){
+
+				else if (c == 'o') {
 					constants.put(ZephyrOpen.loggingEnabled, "false");
 					constants.info("logging off, still have locked file", this);
 				}
-				
-				else if (c == 'p'){
+
+				else if (c == 'p') {
 					constants.put(ZephyrOpen.loggingEnabled, "true");
 					constants.info("logging on, still have locked file", this);
 				}
-				
+
 				else if (c == 'f')
-					if(ftpManager.ftpConfigured())
+					if (ftpManager.ftpConfigured())
 						constants.put(ZephyrOpen.ftpEnabled, "true");
 
 			}

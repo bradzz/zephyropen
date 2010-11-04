@@ -133,7 +133,7 @@ public abstract class GoogleChart extends JLabel {
 		return state.toString();
 	}  
 	
-	/** @return a URL String that google can turn into an image */
+	/** @return a URL String that google can turn into an image 
 	public String toString() {	
 		try {
 			return getURLString(DEFAULT_X_SIZE, DEFAULT_Y_SIZE);
@@ -141,4 +141,5 @@ public abstract class GoogleChart extends JLabel {
 			return null;
 		}
 	}
+	*/
 }
