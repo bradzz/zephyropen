@@ -32,8 +32,10 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 	/** add space around the icon image */
 	public static final int X_EDGE = 16;
-
 	public static final int Y_EDGE = 50;
+	
+	public static final int X_EDGE_OSX = 20;
+	public static final int Y_EDGE_OSX = 70;
 
 	/** how often to send an ftp update or recording */
 	private static final int MOD = 30;
@@ -44,7 +46,9 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 	private GoogleChart[] components = null;
 	
-	private FTPManager ftpManager = null; 
+	private FTPManager ftpManager = null;
+
+	private boolean isOSX = false; 
 
 	/**
 	 * place the 'parts' onto tabbed frame
@@ -81,6 +85,9 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 		
 		/** see is ftp is available */ 
 		ftpManager = FTPManager.getReference();
+		
+		if(!constants.get(ZephyrOpen.os).endsWith("OS X"))
+			isOSX  = true;
 	}
 
 	/** place in tabs with icons */
@@ -143,8 +150,19 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 	/** manage re-size events here */
 	public void componentResized(ComponentEvent e) {
-		constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE));
-		constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE));
+		
+		if(isOSX){
+				
+			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
+			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
+		
+		}else{
+			
+			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE));
+			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE));
+		
+		}
+			
 		updateSelected();
 	}
 
