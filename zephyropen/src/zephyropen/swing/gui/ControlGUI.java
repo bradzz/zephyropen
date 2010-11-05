@@ -30,7 +30,6 @@ import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-import zephyropen.swing.StatusTextArea;
 
 /**
  * Open a basic SWING based tool to manage connections and views
@@ -47,16 +46,13 @@ public class ControlGUI extends JPanel implements Runnable {
 	static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/** file name to hold search results */
-	// static final String SEARCH_FILE_NAME = "search.properties";
-
-	/** file name to hold search results */
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
 	/** size of GUI window */
 	static final int XSIZE = 300;
 
-	static final int YSIZE = 400;
-
+	static final int YSIZE = 250;
+	
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
 
