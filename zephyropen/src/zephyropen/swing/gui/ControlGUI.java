@@ -421,18 +421,18 @@ public class ControlGUI extends JPanel implements Runnable {
 		debugOffItem.addActionListener(listen);
 
 		if (bluetoothEnabled()) {
-			userMenue.add(searchItem);
+			device.add(searchItem);
 		}
-		
-		userMenue.add(viewerItem);
-		userMenue.add(serverItem);
-		userMenue.add(newUserItem);
 		
 		device.add(debugOnItem);
 		device.add(debugOffItem);
 		device.add(killDeviceItem);
 		device.add(killItem);
 
+		userMenue.add(viewerItem);
+		userMenue.add(serverItem);
+		userMenue.add(newUserItem);
+		
 		/** Create the menu bar */
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(userMenue);
