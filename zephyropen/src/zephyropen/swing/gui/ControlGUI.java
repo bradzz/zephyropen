@@ -110,16 +110,16 @@ public class ControlGUI extends JPanel implements Runnable {
 	private void updatePorts() {
 
 		// bluetooth
-		if (deviceList.getSelectedItem().equals(PrototypeFactory.hxm)
-				|| deviceList.getSelectedItem().equals(PrototypeFactory.hrm)
-				|| deviceList.getSelectedItem().equals(PrototypeFactory.bioharness)) {
+		//if (deviceList.getSelectedItem().equals(PrototypeFactory.hxm)
+			//	|| deviceList.getSelectedItem().equals(PrototypeFactory.hrm)
+				//|| deviceList.getSelectedItem().equals(PrototypeFactory.bioharness)) {
 
 			portList.removeAllItems();
 			for (int i = 0; i < bluetootDevices.size(); i++)
 				portList.addItem(bluetootDevices.get(i));
 
 			// comm port
-		} else
+		//} else
 			initPorts();
 	}
 
@@ -127,7 +127,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	private void initPorts() {
 
 		// clean start
-		portList.removeAllItems();
+		// portList.removeAllItems();
 
 		// add all avail
 		@SuppressWarnings("rawtypes")
@@ -207,8 +207,15 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** Look for BT devices, blocking call, hold GUI captive */
 	public void search() {
+		
+		constants.info("start");
 
-		// blocking call, wipe devices not found this time
+		//new Thread() {
+			//public void run(){
+				
+				
+				
+				// blocking call, wipe devices not found this time
 		bluetoothDevices = new Discovery().getDevices();
 		if (!bluetoothDevices.isEmpty()) {
 
@@ -227,6 +234,12 @@ public class ControlGUI extends JPanel implements Runnable {
 				}
 			}
 		}
+				
+		//	}
+			
+	//	}.start();
+		
+		constants.info("stop");
 	}
 
 	/** Listen for menu events and send XML messages */
