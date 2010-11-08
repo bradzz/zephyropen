@@ -118,8 +118,8 @@ public class MulticastChannel extends AbstractOutputChannel implements OutputCha
             /** get sending node's addr */
             String sendersIp = ((InetAddress) packet.getAddress()).getHostAddress();
             
-            // if( constants.getBoolean(ZephyrOpen.showInput) ) 
-               //  System.out.println("multicast: " + sendersIp + " : " + input);
+            //if( constants.getBoolean(ZephyrOpen.frameworkDebug))
+            	//constants.info("sender: " + sendersIp + " : " + input);
             
             /** test the input */
             if( valid(input, sendersIp) ) {  

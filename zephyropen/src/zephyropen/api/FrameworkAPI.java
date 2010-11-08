@@ -4,7 +4,6 @@ import zephyropen.api.API;
 import zephyropen.api.ApiFactory;
 import zephyropen.api.FrameworkAPI;
 import zephyropen.command.Command;
-import zephyropen.util.Utils;
 
 /**
  * <p>
@@ -42,9 +41,6 @@ public class FrameworkAPI implements API {
         apiFactory.add(this);
 
         time = System.currentTimeMillis();
-        
-        // duhhh
-       // constants.put(ZephyrOpen.infoEnable, "true");
     }
 
     /** execute the command */
@@ -59,33 +55,23 @@ public class FrameworkAPI implements API {
 
         /** Terminate the Process, All of them that are listening */
         if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown)) {
-            constants.info("shutdown command received", this);
-           
-            Utils.delay(300);
+            constants.info("shutdown command received", this); 
             constants.shutdown();
         }
 
-        /** Terminate the Process, All of them that are listening */
-        if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown)) {
-            constants.info("shutdown command received", this);
-           
-            Utils.delay(300);
-            constants.shutdown();
-            Utils.delay(300);
-        }
-        
         /** Terminate the Process, All of them that are listening */
         if (command.get(ZephyrOpen.action).equals(ZephyrOpen.kill)) {
             
         	constants.info("kill command received: " + command, this);
+            
+        	if(command.get(ZephyrOpen.com).equals(constants.get(ZephyrOpen.com))/* &&
+        			command.get(ZephyrOpen.deviceName).equals(constants.get(ZephyrOpen.deviceName))*/)
+            	constants.shutdown(new Exception("port = " + constants.get(ZephyrOpen.com)));
+            
+            //if(command.get(ZephyrOpen.deviceName).equals(constants.get(ZephyrOpen.deviceName)))
+            	//constants.shutdown(new Exception("kill via deviceName = " + constants.get(ZephyrOpen.com)));
            
-            //Utils.delay(300);
-            if(command.get(ZephyrOpen.deviceName).equals(constants.get(ZephyrOpen.deviceName)))
-            	constants.shutdown();
-            else 
-            	constants.info("kill command for not this device:" + constants.get(ZephyrOpen.deviceName));
         }
-
         
         /** Terminate the Process, All of them that are listening */
         if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {

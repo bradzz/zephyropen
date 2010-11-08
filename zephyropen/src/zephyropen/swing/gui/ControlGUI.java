@@ -207,13 +207,11 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** Look for BT devices, blocking call, hold GUI captive */
 	public void search() {
-		
-		constants.info("start");
 
 		new Thread() {
 			public void run(){
 				
-				
+				constants.info("searching...", this);
 				
 				// blocking call, wipe devices not found this time
 		bluetoothDevices = new Discovery().getDevices();
@@ -237,7 +235,7 @@ public class ControlGUI extends JPanel implements Runnable {
 				
 			}}.start();
 		
-		constants.info("stop");
+		
 	}
 
 	/** Listen for menu events and send XML messages */
@@ -285,9 +283,9 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			} else if (source.equals(killDeviceItem)) {
 
-				String device = (String) deviceList.getSelectedItem();
+				String port = (String) portList.getSelectedItem();
 				if (device != null)
-					constants.killDevice(device);
+					constants.killPort(port);
 
 			} else if (source.equals(serverItem)) {
 
@@ -487,8 +485,8 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		constants.put(ZephyrOpen.frameworkDebug, "false");
-		ApiFactory.getReference().remove("zephyropen");
+		//constants.put(ZephyrOpen.frameworkDebug, "false");
+		//ApiFactory.getReference().remove("zephyropen");
 		constants.lock();
 
 		/** find devices for prop files */

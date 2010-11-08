@@ -325,7 +325,7 @@ public class ZephyrOpen {
 		
 		/** all set */
 		configured = true;
-		info(props.get(userHome) + " " + props.get(deviceName) + " started, version " + VERSION);
+		info("started, version " + VERSION);
 	}
 
 	/** setup framework to debug */
@@ -643,6 +643,20 @@ public class ZephyrOpen {
 		kill.add(deviceName, device);
 		kill.send();
 	}
+	
+	/** send a "kill" command to the given port name */
+	public void killPort(String port) {
+
+		if (!configured) {
+			System.err.println("not configured, terminate.");
+			System.exit(0);
+		}
+
+		Command kill = new Command();
+		kill.add(action, ZephyrOpen.kill);
+		kill.add(com, port);
+		kill.send();
+	}
 
 	/** send shutdown messages to group */
 	public void shutdownFramework() {
@@ -655,6 +669,8 @@ public class ZephyrOpen {
 		Command command = new Command();
 		command.add(action, shutdown);
 		command.send();
+		
+		Utils.delay(300);
 	}
 
 	/** terminate the application, but clean up first */
