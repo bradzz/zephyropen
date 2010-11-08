@@ -210,8 +210,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		
 		constants.info("start");
 
-		//new Thread() {
-			//public void run(){
+		new Thread() {
+			public void run(){
 				
 				
 				
@@ -235,9 +235,7 @@ public class ControlGUI extends JPanel implements Runnable {
 			}
 		}
 				
-		//	}
-			
-	//	}.start();
+			}}.start();
 		
 		constants.info("stop");
 	}
