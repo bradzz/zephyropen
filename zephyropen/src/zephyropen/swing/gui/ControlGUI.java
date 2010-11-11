@@ -54,6 +54,8 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** file name to hold search results */
 	static final String LAUNCH_FILE_NAME = "launch.properties";
+	
+	static Boolean searching = false;
 
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
@@ -66,9 +68,6 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** choose from discovered devices */
 	JComboBox userList = new JComboBox();
-
-	/** get back a hash of device */
-	// Vector<RemoteDevice> bluetoothDevices = null;
 
 	/** Add items with icons each to each menu item */
 	JMenuItem killItem = new JMenuItem("Kill All");
@@ -84,32 +83,13 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** add devices that require com port mapping, not searching */
 	private void initDevices() {
-
 		addDevice(PrototypeFactory.polar);
 		addDevice(PrototypeFactory.elevation);
-
-		/*
-		 * no search for them if (bluetoothEnabled()) {
-		 * addDevice(PrototypeFactory.hxm); addDevice(PrototypeFactory.hrm);
-		 * addDevice(PrototypeFactory.bioharness); }
-		 */
-	}
-
-	private void updatePorts() {
-		Object selected = portList.getSelectedItem();
-		constants.info("was: " + selected, this);
-		portList.removeAllItems();
-
-		// for (int i = 0; i < bluetootDevices.size(); i++)
-		// portList.addItem(bluetootDevices.get(i));
-
-		initPorts();
-		portList.setSelectedItem(selected);
-		constants.info("now: " + portList.getSelectedItem(), this);
 	}
 
 	/** get list of ports available on this particular computer */
 	private void initPorts() {
+		portList.removeAllItems();
 		@SuppressWarnings("rawtypes")
 		Enumeration pList = CommPortIdentifier.getPortIdentifiers();
 		while (pList.hasMoreElements()) {
@@ -189,19 +169,26 @@ public class ControlGUI extends JPanel implements Runnable {
 	public void search() {
 		new Thread() {
 			public void run() {
+				
+				synchronized (searching) {
+					if(searching){
+						constants.info("busy", this);
+						return;
+					}
+				}
 
 				constants.info("searching...", this);
 
+				searching = true;
 				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
+				searching = false;
+				
 				if (!bluetoothDevices.isEmpty()) {
-
 					Enumeration<RemoteDevice> list = bluetoothDevices.elements();
 					while (list.hasMoreElements()) {
 						RemoteDevice target = list.nextElement();
 						try {
-
 							addDevice((String) target.getFriendlyName(false));
-
 						} catch (Exception e) {
 							constants.error(e.getMessage(), this);
 						}
@@ -500,8 +487,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		public void run() {
 
 			constants.info("updatePorts: ", this);
-			updatePorts();
-			// search();
+			initPorts();
+			search();
 
 		}
 	}
