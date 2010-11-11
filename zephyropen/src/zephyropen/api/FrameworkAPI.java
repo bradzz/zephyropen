@@ -64,12 +64,11 @@ public class FrameworkAPI implements API {
             
         	constants.info("kill command received: " + command, this);
             
-        	if(command.get(ZephyrOpen.com).equals(constants.get(ZephyrOpen.com))/* &&
-        			command.get(ZephyrOpen.deviceName).equals(constants.get(ZephyrOpen.deviceName))*/)
-            	constants.shutdown(new Exception("port = " + constants.get(ZephyrOpen.com)));
-            
-            //if(command.get(ZephyrOpen.deviceName).equals(constants.get(ZephyrOpen.deviceName)))
-            	//constants.shutdown(new Exception("kill via deviceName = " + constants.get(ZephyrOpen.com)));
+        	if(command.get(ZephyrOpen.com).equals(constants.get(ZephyrOpen.com))){
+        		constants.info(command.get(ZephyrOpen.com) + " = " + constants.get(ZephyrOpen.com));
+        		constants.shutdown(new Exception("port = " + constants.get(ZephyrOpen.com)));
+        	}
+            	
            
         }
         

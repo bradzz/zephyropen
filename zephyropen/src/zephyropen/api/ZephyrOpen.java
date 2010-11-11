@@ -656,6 +656,8 @@ public class ZephyrOpen {
 		kill.add(action, ZephyrOpen.kill);
 		kill.add(com, port);
 		kill.send();
+		
+		info(kill.toString());
 	}
 
 	/** send shutdown messages to group */

@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.bluetooth.BluetoothStateException;
@@ -47,14 +48,13 @@ public class ControlGUI extends JPanel implements Runnable {
 	static final int XSIZE = 300;
 
 	static final int YSIZE = 250;
-	
+
 	/** framework configuration */
 	static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/** file name to hold search results */
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
-	
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
 
@@ -64,72 +64,52 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** choose from discovered devices */
 	JComboBox portList = new JComboBox();
 
-	/** object to hold found in BT Search */
-	Vector<String> bluetootDevices = new Vector<String>();
-
 	/** choose from discovered devices */
 	JComboBox userList = new JComboBox();
 
 	/** get back a hash of device */
-	Vector<RemoteDevice> bluetoothDevices = null;
+	// Vector<RemoteDevice> bluetoothDevices = null;
 
 	/** Add items with icons each to each menu item */
 	JMenuItem killItem = new JMenuItem("Kill All");
-
 	JMenuItem serverItem = new JMenuItem("Connect", null);
-
 	JMenuItem newUserItem = new JMenuItem("New User");
-
 	JMenuItem killDeviceItem = new JMenuItem("Close device");
-
 	JMenuItem debugOnItem = new JMenuItem("Debug ON");
-
 	JMenuItem debugOffItem = new JMenuItem("Debug OFF");
-
 	JMenuItem searchItem = new JMenuItem("Search");
-
 	JMenuItem viewerItem = new JMenuItem("Viewer");
-
 	JMenu userMenue = new JMenu("User");
-
 	JMenu device = new JMenu("Device");
 
-	/** Try to save searching, use last search results */
+	/** add devices that require com port mapping, not searching */
 	private void initDevices() {
 
 		addDevice(PrototypeFactory.polar);
 		addDevice(PrototypeFactory.elevation);
 
-		if (bluetoothEnabled()) {
-			addDevice(PrototypeFactory.hxm);
-			addDevice(PrototypeFactory.hrm);
-			addDevice(PrototypeFactory.bioharness);
-		}
+		/*
+		 * no search for them if (bluetoothEnabled()) {
+		 * addDevice(PrototypeFactory.hxm); addDevice(PrototypeFactory.hrm);
+		 * addDevice(PrototypeFactory.bioharness); }
+		 */
 	}
 
 	private void updatePorts() {
+		Object selected = portList.getSelectedItem();
+		constants.info("was: " + selected, this);
+		portList.removeAllItems();
 
-		// bluetooth
-		//if (deviceList.getSelectedItem().equals(PrototypeFactory.hxm)
-			//	|| deviceList.getSelectedItem().equals(PrototypeFactory.hrm)
-				//|| deviceList.getSelectedItem().equals(PrototypeFactory.bioharness)) {
+		// for (int i = 0; i < bluetootDevices.size(); i++)
+		// portList.addItem(bluetootDevices.get(i));
 
-			portList.removeAllItems();
-			for (int i = 0; i < bluetootDevices.size(); i++)
-				portList.addItem(bluetootDevices.get(i));
-
-			// comm port
-		//} else
-			initPorts();
+		initPorts();
+		portList.setSelectedItem(selected);
+		constants.info("now: " + portList.getSelectedItem(), this);
 	}
 
 	/** get list of ports available on this particular computer */
 	private void initPorts() {
-
-		// clean start
-		// portList.removeAllItems();
-
-		// add all avail
 		@SuppressWarnings("rawtypes")
 		Enumeration pList = CommPortIdentifier.getPortIdentifiers();
 		while (pList.hasMoreElements()) {
@@ -183,7 +163,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		if (deviceExists(dev))
 			return false;
 
-		deviceList.addItem(dev);
+		deviceList.addItem(dev.trim());
 		return true;
 	}
 
@@ -207,42 +187,34 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** Look for BT devices, blocking call, hold GUI captive */
 	public void search() {
-
 		new Thread() {
-			public void run(){
-				
+			public void run() {
+
 				constants.info("searching...", this);
-				
-				// blocking call, wipe devices not found this time
-		bluetoothDevices = new Discovery().getDevices();
-		if (!bluetoothDevices.isEmpty()) {
 
-			Enumeration<RemoteDevice> list = bluetoothDevices.elements();
-			while (list.hasMoreElements()) {
-				RemoteDevice target = list.nextElement();
-				try {
+				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
+				if (!bluetoothDevices.isEmpty()) {
 
-					if (!bluetootDevices.contains((String) target.getFriendlyName(false))) {
-						bluetootDevices.add((String) target.getFriendlyName(false));
-						portList.addItem((String) target.getFriendlyName(false));
+					Enumeration<RemoteDevice> list = bluetoothDevices.elements();
+					while (list.hasMoreElements()) {
+						RemoteDevice target = list.nextElement();
+						try {
+
+							addDevice((String) target.getFriendlyName(false));
+
+						} catch (Exception e) {
+							constants.error(e.getMessage(), this);
+						}
 					}
-
-				} catch (Exception e) {
-					constants.info(e.getMessage(), this);
 				}
 			}
-		}
-				
-			}}.start();
-		
-		
+		}.start();
 	}
 
 	/** Listen for menu events and send XML messages */
-	private final ActionListener listen = new ActionListener() {
+	private final ActionListener listener = new ActionListener() {
 		public void actionPerformed(ActionEvent event) {
 
-			/** get item source */
 			Object source = event.getSource();
 
 			if (source.equals(searchItem)) {
@@ -255,23 +227,20 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			} else if (source.equals(killItem)) {
 
-				// send command to kill group
 				constants.shutdownFramework();
 
-			} else if (source.equals(debugOffItem)
-					|| source.equals(debugOnItem)) {
+			} else if (source.equals(debugOffItem) || source.equals(debugOnItem)) {
 
-				/** framework command */
+				/** build framework command */
 				Command command = new Command();
 				command.add(ZephyrOpen.action, ZephyrOpen.frameworkDebug);
-
+				command.add(ZephyrOpen.action, ZephyrOpen.frameworkDebug);
 				if (source.equals(debugOnItem))
 					command.add(ZephyrOpen.value, ZephyrOpen.enable);
 				else
 					command.add(ZephyrOpen.value, ZephyrOpen.disable);
 
 				command.send();
-				return;
 
 			} else if (source.equals(viewerItem)) {
 
@@ -281,22 +250,33 @@ public class ControlGUI extends JPanel implements Runnable {
 							"zephyropen.swing.gui.viewer.DeviceViewer",
 							(String) userList.getSelectedItem());
 
-			} else if (source.equals(killDeviceItem)) {
-
-				String port = (String) portList.getSelectedItem();
-				if (device != null)
-					constants.killPort(port);
-
 			} else if (source.equals(serverItem)) {
 
-				/* if create config file, launch this class to use it */
 				if (createLaunch())
 					new Loader(constants.get(ZephyrOpen.path),
 							"zephyropen.device.DeviceServer",
 							(String) userList.getSelectedItem());
 
+			} else if (source.equals(killDeviceItem)) {
+
+				String port = (String) portList.getSelectedItem();
+
+				port = port.trim();
+
+				constants.info("port: " + port);
+
+				int i = port.indexOf('*');
+				if (i > 1)
+					port = port.substring(0, i);
+
+				constants.info("port: " + port);
+
+				if (device != null)
+					constants.killPort(port);
+
 			}
 		}
+
 	};
 
 	/**
@@ -310,31 +290,15 @@ public class ControlGUI extends JPanel implements Runnable {
 		String usr = null;
 		String port = null;
 
-		// bluetooth
-		if (deviceList.getSelectedItem().equals(PrototypeFactory.hxm)
-				|| deviceList.getSelectedItem().equals(PrototypeFactory.hrm)
-				|| deviceList.getSelectedItem().equals(PrototypeFactory.bioharness)) {
-
-			// get gui values
-			dev = (String)portList.getSelectedItem();
-			usr = (String) userList.getSelectedItem();
-			// port = (String) portList.getSelectedItem();
-
-		} else {
-
-			// get gui values
-			dev = (String) deviceList.getSelectedItem();
-			usr = (String) userList.getSelectedItem();
-			port = (String) portList.getSelectedItem();
-		}
+		// get gui values
+		dev = (String) deviceList.getSelectedItem();
+		usr = (String) userList.getSelectedItem();
+		port = (String) portList.getSelectedItem();
 
 		if (dev == null)
 			return false;
 		if (usr == null)
 			return false;
-		
-		////if (port == null)
-			//return false;
 
 		// user/deviceName.prperties
 		File propFile = new File(constants.get(ZephyrOpen.root) + ZephyrOpen.fs
@@ -358,7 +322,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		// overwrite if existed
 		userProps.put(ZephyrOpen.userName, usr);
 		userProps.put(ZephyrOpen.deviceName, dev);
-		if(port != null)
+		if (port != null)
 			userProps.put(ZephyrOpen.com, port);
 
 		try {
@@ -374,20 +338,6 @@ public class ControlGUI extends JPanel implements Runnable {
 		}
 
 		return true;
-	}
-
-	/**/
-	class DeviceListener implements ItemListener {
-		public void itemStateChanged(ItemEvent evt) {
-
-			if (deviceList.getSelectedItem() == null)
-				return;
-
-			updatePorts();
-
-			constants.info(" device :: " + deviceList.getSelectedItem(), this);
-
-		}
 	}
 
 	// user drop box changed
@@ -406,7 +356,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			if (userList.isEditable()) {
 				userList.setEditable(false);
-				
+
 				String newUsr = (String) userList.getSelectedItem();
 				addUser(newUsr.trim());
 			}
@@ -416,23 +366,22 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** add the menu items to the frame */
 	public void addMenu() {
 
-		deviceList.addItemListener(new DeviceListener());
 		userList.addItemListener(new UserListener());
 
 		/** Add the lit to each menu item */
-		viewerItem.addActionListener(listen);
-		newUserItem.addActionListener(listen);
-		searchItem.addActionListener(listen);
-		killItem.addActionListener(listen);
-		killDeviceItem.addActionListener(listen);
-		serverItem.addActionListener(listen);
-		debugOnItem.addActionListener(listen);
-		debugOffItem.addActionListener(listen);
+		viewerItem.addActionListener(listener);
+		newUserItem.addActionListener(listener);
+		searchItem.addActionListener(listener);
+		killItem.addActionListener(listener);
+		killDeviceItem.addActionListener(listener);
+		serverItem.addActionListener(listener);
+		debugOnItem.addActionListener(listener);
+		debugOffItem.addActionListener(listener);
 
 		if (bluetoothEnabled()) {
 			device.add(searchItem);
 		}
-		
+
 		device.add(debugOnItem);
 		device.add(debugOffItem);
 		device.add(killDeviceItem);
@@ -441,12 +390,11 @@ public class ControlGUI extends JPanel implements Runnable {
 		userMenue.add(viewerItem);
 		userMenue.add(serverItem);
 		userMenue.add(newUserItem);
-		
+
 		/** Create the menu bar */
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(userMenue);
 		menuBar.add(device);
-
 		frame.setJMenuBar(menuBar);
 	}
 
@@ -485,8 +433,8 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		//constants.put(ZephyrOpen.frameworkDebug, "false");
-		//ApiFactory.getReference().remove("zephyropen");
+		constants.put(ZephyrOpen.frameworkDebug, "false");
+		ApiFactory.getReference().remove("zephyropen");
 		constants.lock();
 
 		/** find devices for prop files */
@@ -495,8 +443,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		initUsers();
 
 		/** TODO: nag or put an add here, load image */
-		String text = "<html><font color=\"#0e1f5b\"> &#169; 2009 Brad Zdanivsky</font>";
-
+		String text = "<html><font color=\"#0e1f5b\"> &#169; 2010 Brad Zdanivsky</font>";
 		// if(!bluetoothEnabled()) text += " (BT disabled)";
 
 		JLabel copy = new JLabel(text);
@@ -515,6 +462,10 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** show window */
 		javax.swing.SwingUtilities.invokeLater(this);
+
+		/** update on timer */
+		java.util.Timer timer = new java.util.Timer();
+		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.TWO_MINUTES);
 	}
 
 	/** Create the GUI and show it. */
@@ -542,6 +493,17 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** display the window */
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	private class RefreshTask extends TimerTask {
+		@Override
+		public void run() {
+
+			constants.info("updatePorts: ", this);
+			updatePorts();
+			// search();
+
+		}
 	}
 
 	/** Launch the search GUI -- no args needed */
