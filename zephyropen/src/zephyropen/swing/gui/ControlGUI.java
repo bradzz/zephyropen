@@ -44,17 +44,17 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** swing needs it */
 	private static final long serialVersionUID = 1L;
 
-	/** size of GUI window */
-	static final int XSIZE = 300;
-
-	static final int YSIZE = 250;
-
 	/** framework configuration */
 	static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/** file name to hold search results */
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 	
+	/** size of GUI window */
+	static final int XSIZE = 300;
+	static final int YSIZE = 250;
+	
+	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
 
 	/** create and set up the window with start up title */
@@ -263,7 +263,6 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			}
 		}
-
 	};
 
 	/**
