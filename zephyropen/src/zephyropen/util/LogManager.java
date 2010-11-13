@@ -13,9 +13,6 @@ import java.util.Date;
  */
 public class LogManager {
 	
-	/** framework configuration */
-	// public static ZephyrOpen constants = ZephyrOpen.getReference();
-
     public static final String CRLF = "\r\n";
     
     private RandomAccessFile logfile = null;
@@ -37,15 +34,13 @@ public class LogManager {
             return ;
         }
               
-        // filename = constants.get(ZephyrOpen.userLog) + System.getProperty("file.separator") + filename; 
-
         try {
 
             logfile = new RandomAccessFile(filename, "rw");
 
         } catch (Exception e) {
         	System.err.println("can't open: " + filename);
-            e.printStackTrace();
+        	logfile = null;
         }
     }
 
@@ -54,12 +49,13 @@ public class LogManager {
      */
     public void close() {
     	
+    	if(logfile == null) return;
+    	
         try {
         	if(isOpen())
         		logfile.close();
         } catch (Exception e) {
-        	System.err.println("error on close?");
-            e.printStackTrace();
+        	logfile = null;
         }
     }
 
@@ -91,8 +87,9 @@ public class LogManager {
             logfile.writeBytes(data + CRLF);
 
         } catch (Exception e) {
-        	System.err.println("error on append?");
-            e.printStackTrace();
+        	
+        	logfile = null;
+        	//System.err.println("error on append, closed file", this);
         }
     }
 
