@@ -57,6 +57,8 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
 
+	boolean searchEnabled = false;
+	
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
 
@@ -95,11 +97,11 @@ public class ControlGUI extends JPanel implements Runnable {
 		while (pList.hasMoreElements()) {
 			CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
 			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				if (cpi.isCurrentlyOwned()) {
-					portList.addItem(cpi.getName() + "*");
-				} else {
+				//if (cpi.isCurrentlyOwned()) {
+				//	portList.addItem(cpi.getName() + "*");
+				//} else {
 					portList.addItem(cpi.getName());
-				}
+				//}
 			}
 		}
 	}
@@ -169,20 +171,19 @@ public class ControlGUI extends JPanel implements Runnable {
 	public void search() {
 		new Thread() {
 			public void run() {
-				
 				synchronized (searching) {
 					if(searching){
-						constants.info("busy", this);
+						constants.info("search(), radio is busy", this);
 						return;
 					}
 				}
-
-				constants.info("searching...", this);
+				
+				// constants.info("searching...", this);
 
 				searching = true;
 				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
-				searching = false;
 				
+				// if new device, add to the list 
 				if (!bluetoothDevices.isEmpty()) {
 					Enumeration<RemoteDevice> list = bluetoothDevices.elements();
 					while (list.hasMoreElements()) {
@@ -194,6 +195,7 @@ public class ControlGUI extends JPanel implements Runnable {
 						}
 					}
 				}
+				searching = false;
 			}
 		}.start();
 	}
@@ -206,6 +208,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			if (source.equals(searchItem)) {
 
+				searchEnabled = true;
 				search();
 
 			} else if (source.equals(newUserItem)) {
@@ -230,7 +233,6 @@ public class ControlGUI extends JPanel implements Runnable {
 				command.send();
 
 			} else if (source.equals(viewerItem)) {
-
 				if (createLaunch())
 					new Loader(
 							constants.get(ZephyrOpen.path),
@@ -238,29 +240,13 @@ public class ControlGUI extends JPanel implements Runnable {
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(serverItem)) {
-
 				if (createLaunch())
 					new Loader(constants.get(ZephyrOpen.path),
 							"zephyropen.device.DeviceServer",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(killDeviceItem)) {
-
-				String port = (String) portList.getSelectedItem();
-
-				port = port.trim();
-
-				constants.info("port: " + port);
-
-				int i = port.indexOf('*');
-				if (i > 1)
-					port = port.substring(0, i);
-
-				constants.info("port: " + port);
-
-				if (device != null)
-					constants.killPort(port);
-
+				constants.killPort((String) portList.getSelectedItem());
 			}
 		}
 	};
@@ -485,9 +471,11 @@ public class ControlGUI extends JPanel implements Runnable {
 		@Override
 		public void run() {
 
-			constants.info("updatePorts: ", this);
+			// constants.info("updatePorts: ", this);
 			initPorts();
-			search();
+			
+			if(searchEnabled)
+				search();
 
 		}
 	}

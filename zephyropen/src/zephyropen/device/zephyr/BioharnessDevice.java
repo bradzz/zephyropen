@@ -53,19 +53,12 @@ public class BioharnessDevice extends AbstractPort implements Device {
 	public BioharnessDevice(String name) {
 
 		port = new SearchSPP(name);
-			
-			//new SerialPortProfile("00078088F38E");
 
 		command = new Command(PrototypeFactory.bioharness);
 
 		command.add(ZephyrOpen.deviceName, name);
 
 	}
-
-	/*
-	 * public String trimName(String name) { int space = name.indexOf(' ');
-	 * return name.substring(space + 1); }
-	 */
 
 	/** Loop on BT input */
 	public void readDevice() {
@@ -90,12 +83,14 @@ public class BioharnessDevice extends AbstractPort implements Device {
 
 				/** parse data, send to listening devices */
 				if (type == DATA_PACKET) {
+					
+					constants.info("datat packet");
 
-					command = ZephyrUtils
-							.parseBioharnessPacket(packet, command);
-
+					command = ZephyrUtils.parseBioharnessPacket(packet, command);
 					command.send();
 
+					constants.info(command.toString());
+					
 					/** parse R to R to same command */
 
 				}
@@ -172,19 +167,19 @@ public class BioharnessDevice extends AbstractPort implements Device {
 		 */
 
 		if (packet[1] == 0x20) {
-			// constants.info("data packet", this);
+			constants.info("data packet", this);
 			return DATA_PACKET;
 		}
 		if (packet[1] == 0x24) {
-			// constants.info("r to r packet", this);
+			constants.info("r to r packet", this);
 			return RTOR_PACKET;
 		}
 		if (packet[1] == 0x23) {
-			// constants.info("life packet", this);
+			constants.info("life packet", this);
 			return LIFE_PACKET;
 		}
 		if (packet[1] == 0x26) {
-			// constants.info("HXM packet", this);
+			constants.info("HXM packet", this);
 			return HXM_PACKET;
 		}
 		
