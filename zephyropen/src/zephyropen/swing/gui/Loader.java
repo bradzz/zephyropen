@@ -25,21 +25,20 @@ public class Loader extends Thread implements Runnable {
 			return;
 		}
 
-		this.setDaemon(true);
+		// this.setDaemon(true);
 		this.start();
 	}
 
 	public void run() {
-		// constants.info("<!-- launching: " + code, this);
+		
+		constants.info("<!-- launching: " + code, this);
 		
 		startProc();
 		
-		// constants.info("<!-- launched: " + code, this);
+		constants.info("<!-- launched: " + code, this);
 	}
 
 	public void startProc() {
-
-		//System.out.println("sartProc()..");
 
 		/** need to launch new proc */
 		Runtime runtime = Runtime.getRuntime();
@@ -55,12 +54,13 @@ public class Loader extends Thread implements Runnable {
 			/** launch and don't wait for reply */
 			Process proc = runtime.exec(args);
 
-			BufferedReader procReader = new BufferedReader(
-					new InputStreamReader(proc.getInputStream()));
+			// BufferedReader procReader = new BufferedReader(
+					
+			new InputStreamReader(proc.getInputStream());
 
-			String line = null;
-			while ((line = procReader.readLine()) != null)
-				constants.info("proc : " + line);
+			// String line = null;
+			// while ((line = procReader.readLine()) != null)
+			//	constants.info("proc : " + line);
 
 		} catch (Exception e) {
 			constants.error("fatal runtime.exec() error: " + e.getMessage());

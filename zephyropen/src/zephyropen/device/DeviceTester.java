@@ -55,22 +55,7 @@ public class DeviceTester implements API {
 		Command out = new Command(
 				PrototypeFactory.getDeviceTypeString(deviceName));
 		
-		
-		/**
-		*
-	
-		while (true) {
-			out = generate(out);
-			if (FilterFactory.filter(out)) {
-				
-				out.send();
-				Utils.delay(delay);
-
-				// System.out.println("out: " + out);
-			} else System.err.println(out);
-		}	*/
-		
-		
+		// do it 
 		run(out);
 	}
 
@@ -84,35 +69,26 @@ public class DeviceTester implements API {
             double y = 60;
             double peroid = 0.1;
            
-            //Random rand = new Random();
             while (true) {
 
                 j += peroid;
                 i = (float) ((float) (Math.sin(j) * y) + y);
-               // i = (float) ((float)(Math.cos(j + rand.nextDouble()) * y) + y)+1;	
 
-                //i += rand.nextDouble() * 5;
-
-             // get this API's command prototype to test against this command
+                // get this API's command prototype to test against this command
         		String[] commandPrototype = PrototypeFactory.create(feedback.getType());
 
-        		String tag = null;
-
         		// index into the prototype
+        		String tag = null;
         		for (int index = 0; index < commandPrototype.length; index++) {
-
         			tag = commandPrototype[index];
-
-        			feedback.add(tag, Utils.formatFloat(i, 2));
-
+        			
+        			feedback.add(tag, Utils.formatFloat(i, 3));
+        			
+        			// feedback.add(tag, Utils.formatFloat(getRandom(tag), 3));
         		}
 
-                
                 feedback.send();
-
-                // System.out.println(feedback.toString());
-                Utils.delay(delay); // + Math.abs((random.nextInt()%400)));
-
+                Utils.delay(delay); 
             }
         } catch (Exception e) {
             constants.shutdown(e);
@@ -125,7 +101,7 @@ public class DeviceTester implements API {
 	 * @param command
 	 *            to perform rage checks on
 	 * @return true if this command have vauld rang4s of data
-	 */
+	 
 	public Command generate(Command command) {
 
 		// get this API's command prototype to test against this command
@@ -137,14 +113,13 @@ public class DeviceTester implements API {
 		for (int index = 0; index < commandPrototype.length; index++) {
 
 			tag = commandPrototype[index];
-
 			command.add(tag, Utils.formatFloat(getRandom(tag), 2));
-
 		}
 
 		return command;
-	}
+	}*/
 
+	/**/
 	private double getRandom(String tag) {
 
 		double value = 0;
@@ -162,6 +137,8 @@ public class DeviceTester implements API {
 		return value;
 	}
 	
+	
+	/*
 	public Command generateSin(Command command) {
 
 		// get this API's command prototype to test against this command
@@ -180,6 +157,7 @@ public class DeviceTester implements API {
 
 		return command;
 	}
+	*/
 		
 
 	@Override

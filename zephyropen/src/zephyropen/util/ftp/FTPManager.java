@@ -59,7 +59,10 @@ public class FTPManager {
     		}
     	}
     	
-    	if(configured && constants.getBoolean(ZephyrOpen.frameworkDebug)){
+    	if(configured){
+    		
+    		constants.info("------------- ftp configured ");
+    		
     		log = new LogManager();
     		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_ftp.log");
     	}
@@ -68,23 +71,25 @@ public class FTPManager {
     /** Create an ftp thread to send this google report to the hosted server */
     public void upload(GoogleChart report) {
     	
-    	// constants.info("ftp thread called: " + report.getTitle(), this);
+    	constants.info("ftp thread called: " + report.getTitle(), this);
     	
     	if( ! configured){
-    		// System.err.println("ftp not configured");
+    		System.err.println("ftp not configured");
     		return;
     	}
     	
     	if( ! constants.getBoolean(ZephyrOpen.ftpEnabled)){
-    		// System.err.println("ftp not enabled");
+    		System.err.println("ftp not enabled");
     		return;
     	}
     	
+    	/*
     	if( ! constants.getBoolean(ZephyrOpen.filelock)){
-    		// System.err.println("do not have the lock file");
-    		// System.out.println(constants.toString());
+    		System.err.println("do not have the lock file");
+    		System.out.println(constants.toString());
     		return;
     	}
+    	*/
     	
     	String data = report.getURLString();
     	if( data != null){
@@ -100,7 +105,9 @@ public class FTPManager {
     private boolean ftpFile(String data, String fileName) {
 
     	FTP ftp = new FTP();
-    	
+    	 
+    	constants.info("----------------------- ftp name: " + fileName);
+    	 
         try {
 
             ftp.connect(ftpURL, port, userName, password);
@@ -111,7 +118,7 @@ public class FTPManager {
             return false;
         }
         
-        // constants.info("ftp name: " + fileName);
+       
         
         try {
 

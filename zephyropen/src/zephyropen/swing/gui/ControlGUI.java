@@ -80,6 +80,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	JMenuItem debugOffItem = new JMenuItem("Debug OFF");
 	JMenuItem searchItem = new JMenuItem("Search");
 	JMenuItem viewerItem = new JMenuItem("Viewer");
+	JMenuItem testerItem = new JMenuItem("Tester");
 	JMenu userMenue = new JMenu("User");
 	JMenu device = new JMenu("Device");
 
@@ -229,7 +230,7 @@ public class ControlGUI extends JPanel implements Runnable {
 					command.add(ZephyrOpen.value, ZephyrOpen.enable);
 				else
 					command.add(ZephyrOpen.value, ZephyrOpen.disable);
-
+				
 				command.send();
 
 			} else if (source.equals(viewerItem)) {
@@ -243,6 +244,13 @@ public class ControlGUI extends JPanel implements Runnable {
 				if (createLaunch())
 					new Loader(constants.get(ZephyrOpen.path),
 							"zephyropen.device.DeviceServer",
+							(String) userList.getSelectedItem());
+
+			} else if (source.equals(testerItem)) {
+				if (createLaunch())
+					new Loader(
+							constants.get(ZephyrOpen.path),
+							"zephyropen.device.DeviceTester",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(killDeviceItem)) {
@@ -349,11 +357,13 @@ public class ControlGUI extends JPanel implements Runnable {
 		serverItem.addActionListener(listener);
 		debugOnItem.addActionListener(listener);
 		debugOffItem.addActionListener(listener);
+		testerItem.addActionListener(listener);
 
 		if (bluetoothEnabled()) {
 			device.add(searchItem);
 		}
 
+		device.add(testerItem);
 		device.add(debugOnItem);
 		device.add(debugOffItem);
 		device.add(killDeviceItem);
