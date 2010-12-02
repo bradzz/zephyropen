@@ -19,7 +19,6 @@ import zephyropen.util.DataLogger;
 import zephyropen.util.ExternalNetwork;
 import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
-import zephyropen.util.ftp.FTPManager;
 
 /**
  * <p>
@@ -32,7 +31,7 @@ import zephyropen.util.ftp.FTPManager;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.3";
+	public static final String VERSION = "2.3.1";
 
 	public static final String DEFAULT_PORT = "4444";
 
@@ -96,10 +95,6 @@ public class ZephyrOpen {
 	public static final String os = "os";
 
 	public static final String log = "log";
-
-	public static final String graph = "graph";
-
-	// public static final String table = "table";
 
 	public static final String value = "value";
 
@@ -215,10 +210,8 @@ public class ZephyrOpen {
 		/** load minimal defaults, ensure version is avail to all */
 		props.put(frameworkVersion, VERSION);
 		props.put(os, System.getProperty("os.name"));
-		
 		props.put(home, System.getProperty("java.home"));
 		props.put(path, System.getProperty("java.class.path"));
-		
 		props.put(root, System.getProperty("user.home") + fs + zephyropen);
 		props.put(networkService, multicast);
 		props.put(address, DEFAULT_ADDRESS);
@@ -309,10 +302,6 @@ public class ZephyrOpen {
 		if (getBoolean(externalLookup))
 			props.put(externalAddress, ExternalNetwork.getExternalIPAddress());
 
-		/** see if ftp is configured, enable in props if it is */
-		//if (FTPManager.getReference().ftpConfigured())
-			//props.put(ZephyrOpen.ftpEnabled, "true");
-	
 		/** register this API with the framework */
 		FrameworkAPI.getReference();
 		
