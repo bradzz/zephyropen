@@ -136,8 +136,8 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setSize(x, y);
             chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
 
-            final String titleText = "[" + constants.get(ZephyrOpen.userName) + "]  " 
-            + title.toUpperCase() + " = " 
+            final String titleText = // "[" + constants.get(ZephyrOpen.userName) + "]  " 
+            title.toUpperCase() + " = " 
             + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
             + new Date().toString() ;
             //	" D:" + getState().getDelta() + ")";  

@@ -189,33 +189,35 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 				return;
 			}
 
+			// TODO: REVIEW this!
 			// don't let several proc's do this at once
-			if (constants.getBoolean(ZephyrOpen.filelock)) {
+			// if (constants.getBoolean(ZephyrOpen.filelock)) {
 
-				if (c == 'r')
-					constants.put(ZephyrOpen.recording, "true");
+			// put this in some command or keyboard manager
 
-				else if (c == 's')
-					constants.put(ZephyrOpen.recording, "false");
+			if (c == 'r')
+				constants.put(ZephyrOpen.recording, "true");
 
-				else if (c == 'd')
-					constants.put(ZephyrOpen.ftpEnabled, "false");
+			else if (c == 's')
+				constants.put(ZephyrOpen.recording, "false");
 
-				else if (c == 'o') {
-					constants.put(ZephyrOpen.loggingEnabled, "false");
-					constants.info("logging off, still have locked file", this);
-				}
+			else if (c == 'd')
+				constants.put(ZephyrOpen.ftpEnabled, "false");
 
-				else if (c == 'p') {
-					constants.put(ZephyrOpen.loggingEnabled, "true");
-					constants.info("logging on, still have locked file", this);
-				}
-
-				else if (c == 'f')
-					if (ftpManager.ftpConfigured())
-						constants.put(ZephyrOpen.ftpEnabled, "true");
-
+			else if (c == 'o') {
+				constants.put(ZephyrOpen.loggingEnabled, "false");
+				constants.info("logging off, still have locked file", this);
 			}
+
+			else if (c == 'p') {
+				constants.put(ZephyrOpen.loggingEnabled, "true");
+				constants.info("logging on, still have locked file", this);
+			}
+
+			else if (c == 'f')
+				if (ftpManager.ftpConfigured())
+					constants.put(ZephyrOpen.ftpEnabled, "true");
+
 		}
 	}
 

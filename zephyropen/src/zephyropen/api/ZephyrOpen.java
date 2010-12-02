@@ -115,7 +115,7 @@ public class ZephyrOpen {
 
 	final public static String folder = "folder";
 
-	final public static String ftpUser = "user";
+	final public static String ftpUser = "ftpUser";
 
 	final public static String home = "home";
 
@@ -310,8 +310,8 @@ public class ZephyrOpen {
 			props.put(externalAddress, ExternalNetwork.getExternalIPAddress());
 
 		/** see if ftp is configured, enable in props if it is */
-		if (FTPManager.getReference().ftpConfigured())
-			props.put(ZephyrOpen.ftpEnabled, "true");
+		//if (FTPManager.getReference().ftpConfigured())
+			//props.put(ZephyrOpen.ftpEnabled, "true");
 	
 		/** register this API with the framework */
 		FrameworkAPI.getReference();
