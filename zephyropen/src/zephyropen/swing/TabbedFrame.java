@@ -143,9 +143,10 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 		// count updates
 		counter++;
 
-		if (counter % MOD == 0)
-			for (int i = 0; i < tabbedPane.getTabCount() - 1; i++)
-				ftpManager.upload(components[i]);
+		if (ftpManager.ftpConfigured())
+			if (counter % MOD == 0)
+				for (int i = 0; i < tabbedPane.getTabCount() - 1; i++)
+					ftpManager.upload(components[i]);
 
 		if (constants.getBoolean(ZephyrOpen.recording))
 			if (counter % MOD == 0)
@@ -189,35 +190,29 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 				return;
 			}
 
-			// TODO: REVIEW this!
 			// don't let several proc's do this at once
-			// if (constants.getBoolean(ZephyrOpen.filelock)) {
+			if (constants.getBoolean(ZephyrOpen.filelock)) {
 
-			// put this in some command or keyboard manager
+				// put this in some command or keyboard manager
 
-			if (c == 'r')
-				constants.put(ZephyrOpen.recording, "true");
+				if (c == 'r')
+					constants.put(ZephyrOpen.recording, "true");
 
-			else if (c == 's')
-				constants.put(ZephyrOpen.recording, "false");
+				else if (c == 's') {
+					constants.put(ZephyrOpen.recording, "false");
+					constants.put(ZephyrOpen.ftpEnabled, "false");
+				}
 
-			else if (c == 'd')
-				constants.put(ZephyrOpen.ftpEnabled, "false");
+				else if (c == 'o') {
+					constants.put(ZephyrOpen.loggingEnabled, "false");
+					constants.info("logging off, still have locked file", this);
+				}
 
-			else if (c == 'o') {
-				constants.put(ZephyrOpen.loggingEnabled, "false");
-				constants.info("logging off, still have locked file", this);
+				else if (c == 'p') {
+					constants.put(ZephyrOpen.loggingEnabled, "true");
+					constants.info("logging on, still have locked file", this);
+				}
 			}
-
-			else if (c == 'p') {
-				constants.put(ZephyrOpen.loggingEnabled, "true");
-				constants.info("logging on, still have locked file", this);
-			}
-
-			else if (c == 'f')
-				if (ftpManager.ftpConfigured())
-					constants.put(ZephyrOpen.ftpEnabled, "true");
-
 		}
 	}
 

@@ -88,13 +88,12 @@ public class PolarSerialPort implements Port {
         return true;
     }
 
-    /*
-    @Override */
+    /**/
+    @Override 
     public String getAddress() {
         return address;
     }
    
-
     /**
      * Wrapper the InputStream method
      * 

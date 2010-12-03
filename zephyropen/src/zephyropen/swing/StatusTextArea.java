@@ -6,7 +6,6 @@ import zephyropen.api.API;
 import zephyropen.api.ApiFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-import zephyropen.util.Utils;
 
 public class StatusTextArea extends JTextArea implements API {
 

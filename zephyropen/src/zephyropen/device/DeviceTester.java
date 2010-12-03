@@ -119,7 +119,7 @@ public class DeviceTester implements API {
 		return command;
 	}*/
 
-	/**/
+	/*
 	private double getRandom(String tag) {
 
 		double value = 0;
@@ -135,7 +135,7 @@ public class DeviceTester implements API {
 			value = (Math.abs(random.nextDouble() * 1000) % filter.getMax()) + filter.getMin();
 
 		return value;
-	}
+	}*/
 	
 	
 	/*

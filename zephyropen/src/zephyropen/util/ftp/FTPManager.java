@@ -106,7 +106,6 @@ public class FTPManager {
 			ftp.connect(ftpURL, port, userName, password);
 
 		} catch (Exception e) {
-			constants.error(e.toString());
 			constants.error("FTP can not connect to: " + ftpURL + " user: " + userName, this);
 			return false;
 		}
@@ -154,29 +153,25 @@ public class FTPManager {
 				port = test;
 
 			ftpURL = props.getProperty(ZephyrOpen.host);
-			// if (ftpURL == null)
-			// return false;
+			if (ftpURL == null)
+				return false;
 
 			userName = props.getProperty(ZephyrOpen.ftpUser);
-			// if (userName == null)
-			// return false;
+			if (userName == null)
+				return false;
 
 			folderName = props.getProperty(ZephyrOpen.folder);
-			// if (folderName == null)
-			// return false;
+			if (folderName == null)
+				return false;
 
 			password = props.getProperty(ZephyrOpen.password);
-			// if (password == null)
-			// return false;
+			if (password == null)
+				return false;
 
 		} catch (Exception e) {
-			constants.info(e.toString(), this);
-			constants.info("can't parse FTP config file: " + path, this);
+			constants.error("can't parse FTP config file: " + path, this);
 			return false;
 		}
-
-		// System.err.println("parsed FTP config file: " + path);
-		constants.info("parsed FTP config file: " + path);
 
 		// all set
 		return true;

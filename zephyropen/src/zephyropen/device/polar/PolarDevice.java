@@ -59,7 +59,7 @@ public class PolarDevice extends AbstractPort implements Device {
         }
 
         // wait for whole massage
-        Utils.delay(300);
+        Utils.delay(400);
 
         try {
 
@@ -84,7 +84,7 @@ public class PolarDevice extends AbstractPort implements Device {
     public void readDevice() {
         while (true) {
             getHR();
-            Utils.delay(700);
+            Utils.delay(500);
         }
     }
 

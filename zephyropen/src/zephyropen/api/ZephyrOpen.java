@@ -41,7 +41,6 @@ public class ZephyrOpen {
 
 	public static final String TIME_MS = "time";
 
-	/** Known types, names and default values */
 	public static final String frameworkVersion = "frameworkVersion";
 
 	public static final String networkService = "networkService";
@@ -102,9 +101,9 @@ public class ZephyrOpen {
 
 	public static final String disable = "disable";
 
-	public static final String delta = "delta";
+	// public static final String delta = "delta";
 
-	public static final String elapsed = "elapsed";
+	//public static final String elapsed = "elapsed";
 
 	public static final String dropped = "dropped";
 
@@ -114,19 +113,19 @@ public class ZephyrOpen {
 
 	final public static String home = "home";
 
-	final public static String lock = "lock";
-	
+	// final public static String lock = "lock";
+
 	final public static String path = "path";
-	
+
 	final public static String password = "password";
 
 	final public static String host = "host";
 
 	final public static String ftpPort = "ftpPort";
 
-	final public static String file = "file";
+	// final public static String file = "file";
 
-	public static final String failed = "failed";
+	// public static final String failed = "failed";
 
 	public static final String com = "com";
 
@@ -203,7 +202,7 @@ public class ZephyrOpen {
 		}
 		return singleton;
 	}
-	
+
 	/** private constructor for this singleton class */
 	private ZephyrOpen() {
 
@@ -224,13 +223,13 @@ public class ZephyrOpen {
 
 	/** Configure the Framework with given properties file */
 	public void init(String file) {
-		
+
 		if (configured)
 			return;
 
 		// find userName/launch.properties
 		props.put(userName, file);
-		
+
 		// home dir
 		props.put(userHome, props.getProperty(root) + fs + file);
 
@@ -238,15 +237,15 @@ public class ZephyrOpen {
 		props.put(userLog, props.getProperty(userHome) + fs + log);
 
 		// the full path to the properties file
-		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties" );
+		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties");
 
-		// add all given properites 
+		// add all given properites
 		parseConfigFile();
-		
+
 		// will bring down system on fail
-		createHome();	
-		
-		// boot me 
+		createHome();
+
+		// boot me
 		startFramework();
 	}
 
@@ -264,7 +263,7 @@ public class ZephyrOpen {
 
 		// will bring down system on fail
 		createHome();
-	
+
 		/** boot me */
 		startFramework();
 	}
@@ -304,14 +303,14 @@ public class ZephyrOpen {
 
 		/** register this API with the framework */
 		FrameworkAPI.getReference();
-		
+
 		/** register shutdown hook */
 		Runtime.getRuntime().addShutdownHook(new CleanUpThread());
 
 		/** open log file and register the frame work for debugging */
 		if (getBoolean(frameworkDebug))
 			enableDebug();
-		
+
 		/** all set */
 		configured = true;
 		info("started, version " + VERSION);
@@ -332,9 +331,7 @@ public class ZephyrOpen {
 		try {
 
 			props.store(new FileWriter(new File(props.getProperty(userLog) + fs
-					+ props.getProperty(deviceName) + "_config.log")),
-					"Created by : " + this.getClass().getName() + " "
-							+ get(deviceName));
+					+ props.getProperty(deviceName) + "_config.log")), null);
 
 		} catch (IOException e) {
 			System.err.println("couldn't write debug file");
@@ -343,11 +340,11 @@ public class ZephyrOpen {
 
 	/** ready the folders needed for this user */
 	private void createHome() {
-		
+
 		// create user_home/zephyropen/userName directory if not there
-		if(new File(props.getProperty(userLog)).mkdirs())
+		if (new File(props.getProperty(userLog)).mkdirs())
 			System.err.println("created log: " + log);
-		
+
 		// be sure are there
 		testFolders();
 	}
@@ -381,7 +378,8 @@ public class ZephyrOpen {
 	 */
 	private void parseConfigFile() {
 
-		// System.err.println("config file [" + props.getProperty(propFile) + "]");
+		// System.err.println("config file [" + props.getProperty(propFile) +
+		// "]");
 
 		final String path = props.getProperty(propFile);
 
@@ -403,10 +401,9 @@ public class ZephyrOpen {
 			Enumeration<Object> keys = props.keys();
 			while (keys.hasMoreElements()) {
 				String key = (String) keys.nextElement();
-				String value = (String) props.get(key);		
+				String value = (String) props.get(key);
 				props.put(key, value.trim());
 			}
-			
 
 		} catch (Exception e) {
 			System.err.println("can't parse config file [" + path + "], terminate.");
@@ -632,7 +629,7 @@ public class ZephyrOpen {
 		kill.add(deviceName, device);
 		kill.send();
 	}
-	
+
 	/** send a "kill" command to the given port name */
 	public void killPort(String port) {
 
@@ -645,7 +642,7 @@ public class ZephyrOpen {
 		kill.add(action, ZephyrOpen.kill);
 		kill.add(com, port);
 		kill.send();
-		
+
 		info(kill.toString());
 	}
 
@@ -660,7 +657,7 @@ public class ZephyrOpen {
 		Command command = new Command();
 		command.add(action, shutdown);
 		command.send();
-		
+
 		Utils.delay(300);
 	}
 
@@ -713,11 +710,11 @@ public class ZephyrOpen {
 	public synchronized void lock() {
 		locked = true;
 	}
-	
+
 	public synchronized void unlock() {
 		locked = false;
 	}
-	
+
 	public synchronized boolean isLocked() {
 		return locked;
 	}

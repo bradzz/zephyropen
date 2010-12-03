@@ -1,6 +1,5 @@
 package zephyropen.swing.gui;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import zephyropen.api.ZephyrOpen;
