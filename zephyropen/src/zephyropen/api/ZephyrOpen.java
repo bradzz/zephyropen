@@ -429,13 +429,15 @@ public class ZephyrOpen {
 	 */
 	public synchronized void put(String key, String value) {
 
+		/*
 		if (!configured) {
 			System.err.println("can't put(" + key + ", " + value + "), framework is not configured!");
 			return;
 		}
+		*/
 
 		if (locked) {
-			info("framework constants locked, key = " + key);
+			info("framework constants locked, can't put(): " + key);
 			return;
 		}
 
@@ -581,8 +583,7 @@ public class ZephyrOpen {
 
 		if (getBoolean(infoEnable)) {
 			if (logger != null)
-				logger.append("INFO, " + clazz.getClass().getName() + ", "
-						+ line);
+				logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
 
 			System.out.println(Utils.getTime() + " "
 					+ clazz.getClass().getName() + " " + line);

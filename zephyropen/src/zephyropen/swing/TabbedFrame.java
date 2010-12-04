@@ -197,7 +197,10 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 				if (c == 'r')
 					constants.put(ZephyrOpen.recording, "true");
-
+				
+				else if (c == 'f')
+					constants.put(ZephyrOpen.ftpEnabled, "true");
+				
 				else if (c == 's') {
 					constants.put(ZephyrOpen.recording, "false");
 					constants.put(ZephyrOpen.ftpEnabled, "false");
