@@ -95,7 +95,7 @@ public class AbstractViewer {
 		if (ftpManager.ftpConfigured()) {
 			text += " -ftp";
 
-			if (constants.getBoolean(ZephyrOpen.filelock) && constants.getBoolean(ZephyrOpen.ftpEnabled))
+			if (constants.getBoolean(ZephyrOpen.filelock) && constants.getBoolean(FTPManager.ftpEnabled))
 				text += "*";
 		}
 

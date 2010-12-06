@@ -16,12 +16,24 @@ import zephyropen.util.google.GoogleChart;
 public class FTPManager {
 
 	private final ZephyrOpen constants = ZephyrOpen.getReference();
+	
+	public final static String ftpEnabled = "ftpEnabled";
+	
+	public final static String host = "host";
+
+	public final static String ftpPort = "ftpPort";
+	
+	final public static String ftpUser = "ftpUser";
 
 	private final String FTP_PROPERTIES = "ftp.properties";
 
 	private static FTPManager singleton = null;
 
 	private int port = 21;
+
+	private int xSize = 450;
+
+	private int ySize = 130;
 
 	private String folderName = null;
 
@@ -54,15 +66,20 @@ public class FTPManager {
 
 			// try root if nothing else
 			configured = parseFile(constants.get(ZephyrOpen.root));
-			
+
 		}
 
 		if (configured) {
-			constants.put(ZephyrOpen.ftpEnabled, "true");
+
+			// set global flag
+			constants.put(ftpEnabled, "true");
+
+			// toggle from props file
 			log = new LogManager();
 			log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_ftp.log");
-		} else{
-			constants.put(ZephyrOpen.ftpEnabled, "false");
+
+		} else {
+			constants.put(ftpEnabled, "false");
 		}
 	}
 
@@ -76,7 +93,7 @@ public class FTPManager {
 			return;
 		}
 
-		if (!constants.getBoolean(ZephyrOpen.ftpEnabled)) {
+		if (!constants.getBoolean(ftpEnabled)) {
 			constants.error("ftp not enabled", this);
 			return;
 		}
@@ -86,9 +103,10 @@ public class FTPManager {
 			return;
 		}
 
-		String data = report.getURLString();
+		String data = report.getURLString(xSize, ySize);
 		if (data != null) {
 
+			// example: heart.php
 			new ftpThread(data, report.getTitle() + ".php").start();
 
 			if (log != null)
@@ -148,15 +166,11 @@ public class FTPManager {
 			props.load(propFile);
 			propFile.close();
 
-			int test = Integer.parseInt(props.getProperty(ZephyrOpen.ftpPort));
-			if (test != ZephyrOpen.ERROR)
-				port = test;
-
-			ftpURL = props.getProperty(ZephyrOpen.host);
+			ftpURL = props.getProperty(host);
 			if (ftpURL == null)
 				return false;
 
-			userName = props.getProperty(ZephyrOpen.ftpUser);
+			userName = props.getProperty(ftpUser);
 			if (userName == null)
 				return false;
 
@@ -173,8 +187,34 @@ public class FTPManager {
 			return false;
 		}
 
+		int x = getInt(props.getProperty("xSize"));
+		if (x > ZephyrOpen.ERROR)
+			xSize = x;
+
+		int y = getInt(props.getProperty("ySize"));
+		if (y > ZephyrOpen.ERROR)
+			ySize = y;
+
+		// override default
+		int ftp = getInt(props.getProperty("ftpPort"));
+		if (ftp > ZephyrOpen.ERROR)
+			ySize = y;
+
 		// all set
 		return true;
+	}
+
+	private int getInt(String value) {
+
+		int ans = ZephyrOpen.ERROR;
+
+		try {
+			ans = Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return ZephyrOpen.ERROR;
+		}
+
+		return ans;
 	}
 
 	/** is the ftp configuration valid */

@@ -109,8 +109,6 @@ public class ZephyrOpen {
 
 	final public static String folder = "folder";
 
-	final public static String ftpUser = "ftpUser";
-
 	final public static String home = "home";
 
 	// final public static String lock = "lock";
@@ -118,14 +116,6 @@ public class ZephyrOpen {
 	final public static String path = "path";
 
 	final public static String password = "password";
-
-	final public static String host = "host";
-
-	final public static String ftpPort = "ftpPort";
-
-	// final public static String file = "file";
-
-	// public static final String failed = "failed";
 
 	public static final String com = "com";
 
@@ -154,9 +144,7 @@ public class ZephyrOpen {
 	public static final String userLog = "userLog";
 
 	public static final String root = "root";
-
-	public final static String ftpEnabled = "ftpEnabled";
-
+	
 	/** decimal points truncated for display, not rounded */
 	public static final int PRECISION = 2;
 
