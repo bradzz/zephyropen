@@ -32,6 +32,7 @@ import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.port.bluetooth.Discovery;
+import zephyropen.util.Loader;
 
 /**
  * Open a basic SWING based tool to manage connections and views

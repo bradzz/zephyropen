@@ -89,7 +89,7 @@ public class LogManager {
         } catch (Exception e) {
         	
         	logfile = null;
-        	//System.err.println("error on append, closed file", this);
+        	// System.err.println("error on append, closed file", this);
         }
     }
 

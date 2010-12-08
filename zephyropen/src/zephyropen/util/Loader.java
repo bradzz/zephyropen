@@ -1,4 +1,4 @@
-package zephyropen.swing.gui;
+package zephyropen.util;
 
 import java.io.InputStreamReader;
 
@@ -13,7 +13,7 @@ public class Loader extends Thread implements Runnable {
 	private String code = null;
 	private String arg = null;
 
-	Loader(String p, String c, String a) {
+	public Loader(String p, String c, String a) {
 
 		path = p;
 		code = c;
@@ -30,11 +30,11 @@ public class Loader extends Thread implements Runnable {
 
 	public void run() {
 		
-		constants.info("<!-- launching: " + code, this);
+		// constants.info("launching: " + code, this);
 		
 		startProc();
 		
-		constants.info("<!-- launched: " + code, this);
+		// constants.info("<!-- launched: " + code, this);
 	}
 
 	public void startProc() {

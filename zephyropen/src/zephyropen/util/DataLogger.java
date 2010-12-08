@@ -20,10 +20,8 @@ public class DataLogger extends Thread implements Runnable {
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	//private final String  fs = System.getProperty("file.separator");
-	
 	public static final String CRLF = "\r\n";
 
-	//private String folder = null;
 	private String fileName = null;
 	private RandomAccessFile logfile = null;
 	private FileChannel fileChannel = null;
@@ -62,14 +60,11 @@ public class DataLogger extends Thread implements Runnable {
 				return;
 			}
 			
-			constants.put(ZephyrOpen.filelock, "false");
-			constants.info("waiting on lock file", this);
+			// constants.put(ZephyrOpen.filelock, "false");
+			// constants.info("waiting on lock file", this);
 
 			// blocking call
 			lock = fileChannel.lock();
-
-			// use in other classes 
-			constants.info("have the lock file", this);
 			constants.put(ZephyrOpen.filelock, "true");
 			
 			// register with framework for shut down -- clear locked files on shutdown
@@ -88,7 +83,7 @@ public class DataLogger extends Thread implements Runnable {
 	/** Closes the logfile and clears the lock */
 	public void close() {
 		
-		constants.info("unlocked file: " + fileName, this);
+		// constants.info("unlocked file: " + fileName, this);
 
 		try {
 			lock.release();

@@ -73,9 +73,6 @@ public class State {
 		list = new Vector<TimedEntry>(size);
 		name = text;
 		filter = FilterFactory.create(name);
-
-		// if (filter != null) 
-		constants.error(name + " -- " + filter.getClass().getName(), this);
 	}
 
 	/** */
@@ -83,9 +80,6 @@ public class State {
 		list = new Vector<TimedEntry>(DEFAULT_RECORDS);
 		name = text;
 		filter = FilterFactory.create(name);
-
-		// if (filter != null) 
-		constants.info(name + " -- " + filter.getClass().getName(), this);
 	}
 
 	/**

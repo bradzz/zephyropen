@@ -4,7 +4,6 @@ import com.googlecode.charts4j.Color;
 
 import zephyropen.api.API;
 import zephyropen.api.PrototypeFactory;
-import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.swing.TabbedFrame;
 import zephyropen.util.google.GoogleChart;
@@ -20,16 +19,8 @@ import zephyropen.util.google.GoogleLineGraph;
 public class PolarViewer extends AbstractViewer implements Viewer {
 
     public PolarViewer(API caller ) {
-    	
-    	//api = ApiFactory.getReference().create(constants.get(ZephyrOpen.deviceName));
-    	
-    	//constants.info("started: " + api.getDeviceName() + " : " + constants.get(ZephyrOpen.deviceName));
-    	
+    
     	api = caller;
-   
-    	
-    	constants.info("started: " + api.getDeviceName() + " : " + constants.get(ZephyrOpen.deviceName));
-    	
     	
         charts = new GoogleChart[3];
         charts[0] = new GoogleLineGraph(PrototypeFactory.heart, "BPM", Color.RED);

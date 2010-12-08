@@ -301,7 +301,7 @@ public class ZephyrOpen {
 
 		/** all set */
 		configured = true;
-		info("started, version " + VERSION);
+		info("started version " + VERSION);
 	}
 
 	/** setup framework to debug */
@@ -429,8 +429,8 @@ public class ZephyrOpen {
 			return;
 		}
 
-		if (props.containsKey(key))
-			info("refreshing property for: " + key + " = " + value);
+		//if (props.containsKey(key))
+			//info("refreshing property for: " + key + " = " + value);
 
 		props.put(key.trim(), value.trim());
 	}
