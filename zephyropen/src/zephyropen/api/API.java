@@ -24,7 +24,4 @@ public interface API {
     /** @return the physical address, be it comm or bluetooth */
     public abstract String getAddress();
 
-    /** Clear the state objects for this device */
-	// public abstract void reset();
-
 }
