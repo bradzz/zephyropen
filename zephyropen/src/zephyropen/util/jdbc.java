@@ -20,7 +20,7 @@ public class jdbc {
 			
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			String url = "jdbc:mysql://localhost/brad";
-			conn = DriverManager.getConnection(url, "brent", "zdy");
+			conn = DriverManager.getConnection(url, "brent", "dzzzxxxzd");
 
 			doInsertTest();
 			doSelectTest();
