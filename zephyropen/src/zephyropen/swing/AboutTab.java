@@ -47,8 +47,9 @@ public class AboutTab extends JPanel implements ActionListener {
 		zephyropen.setToolTipText("visit software progect home and download site");
 		zephyropen.setHorizontalTextPosition( JButton.RIGHT );
 		zephyropen.setBorder(BorderFactory.createEmptyBorder());
-		zephyropen.setText("<html><br><br><font color=\"333333\" size=\"-1\">&nbsp;&nbsp;&nbsp;Version " +
-				ZephyrOpen.VERSION + "<br>&nbsp;&nbsp;&nbsp;" + constants.get(ZephyrOpen.os) + "</font></html>");
+		zephyropen.setText("<html><font color=\"333333\" size=\"-1\">&nbsp;&nbsp;&nbsp;Version " +
+				ZephyrOpen.VERSION + "<br>&nbsp;&nbsp;&nbsp;" + constants.get(ZephyrOpen.os) + 
+				"</font></html>");
 		
 		brad = new JButton(new ImageIcon("images/brad.jpg")); 	
 		brad.addActionListener(this);
@@ -69,7 +70,7 @@ public class AboutTab extends JPanel implements ActionListener {
 		celia.setBorder( BorderFactory.createEmptyBorder() ); 
 		
 		/** License note */
-		JLabel release = new JLabel("<html><br><br><br><font color=\"333333\">&nbsp;&nbsp;&nbsp;released and distributed under </font>"
+		JLabel release = new JLabel("<html><br />&nbsp;&nbsp;&nbsp;&#169;&nbsp;2011&nbsp;Brad&nbsp;Zdanivsky<br /><br /><font color=\"333333\">&nbsp;&nbsp;&nbsp;released and distributed under </font>"
 				+"<font color=\"blue\">GPLv2</font></html>");
 		release.setFont( new Font("Arial", Font.PLAIN, 10));
 		

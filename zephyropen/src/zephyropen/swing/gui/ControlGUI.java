@@ -20,7 +20,6 @@ import javax.bluetooth.RemoteDevice;
 import javax.comm.CommPortIdentifier;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -52,8 +51,8 @@ public class ControlGUI extends JPanel implements Runnable {
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 	
 	/** size of GUI window */
-	static final int XSIZE = 300;
-	static final int YSIZE = 250;
+	static final int XSIZE = 280;
+	static final int YSIZE = 180;
 	
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
@@ -425,19 +424,20 @@ public class ControlGUI extends JPanel implements Runnable {
 		initPorts();
 		initUsers();
 
-		/** TODO: nag or put an add here, load image */
-		String text = "<html><font color=\"#0e1f5b\"> &#169; 2010 Brad Zdanivsky</font>";
-		// if(!bluetoothEnabled()) text += " (BT disabled)";
+		/** TODO: nag or put an add here, load image 
+		String text = "<html><font color=\"#0e1f5b\"> &#169; 2011 Brad Zdanivsky</font>";
+			if(!bluetoothEnabled()) text += " (BT disabled)";
 
 		JLabel copy = new JLabel(text);
-		copy.setHorizontalAlignment(JLabel.CENTER);
+		copy.setHorizontalAlignment(JLabel.CENTER);*/
 
 		/** add to grid */
-		this.setLayout(new GridLayout(5, 1, 5, 5));
+		this.setLayout(new GridLayout(3, 1, 5, 5));
 		this.add(deviceList);
 		this.add(userList);
 		this.add(portList);
-		this.add(copy);
+		
+		// this.add(copy);
 		// this.add(new StatusTextArea());
 
 		/** add menu */
