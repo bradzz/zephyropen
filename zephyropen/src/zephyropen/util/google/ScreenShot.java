@@ -28,15 +28,11 @@ public class ScreenShot extends Thread {
 			return;
 		}
 		
-		String path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "screenshots" 
-			+ ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
-		
-		System.out.println( "user " + constants.get(ZephyrOpen.userHome) );
-		
+		String path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "screenshots" + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
 
 		// create log dir if not there
 		if((new File(path)).mkdirs())
-			System.err.println("created: " + path);
+			constants.info("created: " + path, this);
 
 		// create file name that will be unique 
 		filename = path + ZephyrOpen.fs + googleLabel.getTitle() + "_" + System.currentTimeMillis() + ".png";
@@ -47,8 +43,6 @@ public class ScreenShot extends Thread {
 
 	@Override
 	public void run() {
-
-		constants.info("snip to: " + filename, this);
 
 		try {
 

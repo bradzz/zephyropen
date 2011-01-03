@@ -354,10 +354,10 @@ public class MergeLogs {
 	/** Find log file by naming convention given in args[] */
 	public static void main(String[] args) throws Exception {
 
-		constants.init("brad"); // args[0]);
+		constants.init(args[0]);
 
 		// username 
-		new MergeLogs("brad"); // args[0]);
+		new MergeLogs(args[0]);
 
 		System.out.println("... done");
 
