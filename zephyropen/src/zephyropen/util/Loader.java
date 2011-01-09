@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.swing.gui.BluetoothGUI;
 
 public class Loader extends Thread implements Runnable {
 
@@ -53,7 +54,7 @@ public class Loader extends Thread implements Runnable {
 		Runtime runtime = Runtime.getRuntime();
 
 		/** javaw for no screen */
-		String[] args = new String[] {"/bin/sh", "-c", "java -classpath " + path + " " + code + " " + arg, "&"};
+		String[] args = new String[] {"/bin/sh", "-c", "java -d32 -classpath " + path + " " + code + " " + arg, "&"};
 
 		try {
 
@@ -107,5 +108,17 @@ public class Loader extends Thread implements Runnable {
 			constants.error("fatal runtime.exec() error: " + e.getMessage());
 			constants.shutdown(e);
 		}
+	}
+	
+
+
+	/** Launch the search GUI -- no args needed */
+	public static void main(String[] args) {
+		
+		ZephyrOpen constants = ZephyrOpen.getReference();
+		
+		constants.init();
+		
+		new Loader("zephyropen.swing.gui.BluetoothGUI", "brad");
 	}
 }

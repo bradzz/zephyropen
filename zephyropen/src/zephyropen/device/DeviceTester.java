@@ -162,7 +162,7 @@ public class DeviceTester implements API {
 
 	@Override
 	public void execute(Command command) {
-		System.out.println(getDelta() + " exec: " + command.toXML());
+		// System.out.println(getDelta() + " exec: " + command.toXML());
 		last = System.currentTimeMillis();
 	}
 
