@@ -171,6 +171,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** Look for BT devices, blocking call, hold GUI captive */
 	public void search() {
 		new Thread() {
+			@Override
 			public void run() {
 				synchronized (searching) {
 					if(searching){
@@ -190,7 +191,7 @@ public class ControlGUI extends JPanel implements Runnable {
 					while (list.hasMoreElements()) {
 						RemoteDevice target = list.nextElement();
 						try {
-							addDevice((String) target.getFriendlyName(false));
+							addDevice(target.getFriendlyName(false));
 						} catch (Exception e) {
 							constants.error(e.getMessage(), this);
 						}
@@ -203,6 +204,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** Listen for menu events and send XML messages */
 	private final ActionListener listener = new ActionListener() {
+		@Override
 		public void actionPerformed(ActionEvent event) {
 
 			Object source = event.getSource();
@@ -236,21 +238,17 @@ public class ControlGUI extends JPanel implements Runnable {
 			} else if (source.equals(viewerItem)) {
 				if (createLaunch())
 					new Loader(
-							constants.get(ZephyrOpen.path),
 							"zephyropen.swing.gui.viewer.DeviceViewer",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(serverItem)) {
 				if (createLaunch())
-					new Loader(constants.get(ZephyrOpen.path),
-							"zephyropen.device.DeviceServer",
+					new Loader("zephyropen.device.DeviceServer",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(testerItem)) {
 				if (createLaunch())
-					new Loader(
-							constants.get(ZephyrOpen.path),
-							"zephyropen.device.DeviceTester",
+					new Loader("zephyropen.device.DeviceTester",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(killDeviceItem)) {
@@ -322,12 +320,13 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	// user drop box changed
 	class UserListener implements ItemListener {
+		@Override
 		public void itemStateChanged(ItemEvent evt) {
 
 			if (userList.getSelectedItem() == null)
 				return;
 
-			constants.info(" user :: " + userList.getSelectedItem(), this);
+			// constants.info(" user :: " + userList.getSelectedItem(), this);
 
 			if (userList.getSelectedItem() == null) {
 				initUsers();
@@ -452,6 +451,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	}
 
 	/** Create the GUI and show it. */
+	@Override
 	public void run() {
 
 		/** make sure we have nice window decorations. */

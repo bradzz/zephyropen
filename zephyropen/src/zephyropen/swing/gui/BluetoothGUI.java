@@ -19,13 +19,10 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-
 import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
@@ -51,14 +48,14 @@ public class BluetoothGUI extends JPanel implements Runnable {
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
 	/** size of GUI window */
-	static final int XSIZE = 240;
-	static final int YSIZE = 140;
+	static final int XSIZE = 170;
+	static final int YSIZE = 100;
 
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
 
 	/** create and set up the window with start up title */
-	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
+	JFrame frame = new JFrame("v" + ZephyrOpen.VERSION);
 
 	/** choose from discovered devices */
 	JComboBox deviceList = new JComboBox();
@@ -163,7 +160,6 @@ public class BluetoothGUI extends JPanel implements Runnable {
 						RemoteDevice target = list.nextElement();
 						try {
 							addDevice((String) target.getFriendlyName(false));
-
 						} catch (Exception e) {
 							constants.error(e.getMessage(), this);
 						}
@@ -174,7 +170,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		}.start();
 	}
 
-	/** Listen for menu events and send XML messages */
+	/** Listen for menu events and send XML messages or Launch new proc */
 	private final ActionListener listener = new ActionListener() {
 		public void actionPerformed(ActionEvent event) {
 
@@ -185,7 +181,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 				userList.setEditable(true);
 
 			} else if (source.equals(killItem)) {
-
+				
 				constants.shutdownFramework();
 
 			} else if (source.equals(debugOffItem) || source.equals(debugOnItem)) {
@@ -203,22 +199,17 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 			} else if (source.equals(viewerItem)) {
 				if (createLaunch())
-					new Loader(
-							constants.get(ZephyrOpen.path),
-							"zephyropen.swing.gui.viewer.DeviceViewer",
+					new Loader("zephyropen.swing.gui.viewer.DeviceViewer",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(serverItem)) {
 				if (createLaunch())
-					new Loader(constants.get(ZephyrOpen.path),
-							"zephyropen.device.DeviceServer",
+					new Loader("zephyropen.device.DeviceServer",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(testerItem)) {
 				if (createLaunch())
-					new Loader(
-							constants.get(ZephyrOpen.path),
-							"zephyropen.device.DeviceTester",
+					new Loader("zephyropen.device.DeviceTester",
 							(String) userList.getSelectedItem());
 
 			}
@@ -238,8 +229,6 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		// get gui values
 		dev = (String) deviceList.getSelectedItem();
 		usr = (String) userList.getSelectedItem();
-
-		// port = (String) portList.getSelectedItem();
 
 		if (dev == null)
 			return false;
@@ -263,7 +252,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 			}
 		}
 
-		constants.info("creating launch file: " + propFile.getPath(), this);
+		// constants.info("creating launch file: " + propFile.getPath(), this);
 
 		// overwrite if existed
 		userProps.put(ZephyrOpen.userName, usr);
@@ -291,7 +280,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 			if (userList.getSelectedItem() == null)
 				return;
 
-			constants.info(" user :: " + userList.getSelectedItem(), this);
+			// constants.info(" user :: " + userList.getSelectedItem(), this);
 
 			if (userList.getSelectedItem() == null) {
 				initUsers();
@@ -355,17 +344,15 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 		/** radio better be on */
 		if (local == null) {
-
 			constants.error("Blue Tooth Radio is not ready, terminate!", this);
 			return false;
 
 		} else if (!LocalDevice.isPowerOn()) {
-
 			constants.error("Blue Tooth Radio is not ready, terminate!", this);
 			return false;
 		}
 
-		constants.info("Blue Tooth Radio is configured", this);
+		// constants.info("Blue Tooth Radio is configured", this);
 		return true;
 	}
 
@@ -374,41 +361,39 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
+		
+		/** ignore framework */
 		constants.put(ZephyrOpen.frameworkDebug, "false");
-		ApiFactory.getReference().remove("zephyropen");
+		ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		constants.lock();
 
 		/** find devices for prop files */
 		initUsers();
-
-		/** TODO: nag or put an add here, load image */
-		String text = "<html><font color=\"#0e1f5b\"> &#169; 2010 Brad Zdanivsky</font>";
-		if (!bluetoothEnabled())
-			text += "<br />Bluetooth is <b>disabled</b>";
-		else search();
-
-		JLabel copy = new JLabel(text);
-		copy.setHorizontalAlignment(JLabel.CENTER);
-
+		initDevices();
+		
 		/** add to grid */
-		this.setLayout(new GridLayout(3, 1, 10, 10));
+		this.setLayout(new GridLayout(2, 1, 7, 7));
 		this.add(deviceList);
 		this.add(userList);
 
-		this.add(copy);
-		// this.add(new StatusTextArea());
-
 		/** add menu */
 		addMenu();
-
+		
 		/** show window */
 		javax.swing.SwingUtilities.invokeLater(this);
 
 		/** update on timer */
 		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.TWO_MINUTES);
+		timer.scheduleAtFixedRate(new RefreshTask(), 120000, ZephyrOpen.TWO_MINUTES);
 	}
 
+
+	/** add devices that require com port mapping, not searching */
+	private void initDevices() {
+		addDevice(PrototypeFactory.polar);
+		addDevice(PrototypeFactory.elevation);
+	}
+	
 	/** Create the GUI and show it. */
 	public void run() {
 
@@ -416,7 +401,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 
 		/** Turn off metal's use of bold fonts */
-		UIManager.put("swing.boldMetal", Boolean.FALSE);
+		//UIManager.put("swing.boldMetal", Boolean.FALSE);
 
 		/** float on top of all other windows */
 		frame.setAlwaysOnTop(true);
