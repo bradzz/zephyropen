@@ -31,7 +31,7 @@ import zephyropen.util.Utils;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.3.1";
+	public static final String VERSION = "2.3.2";
 
 	public static final String DEFAULT_PORT = "4444";
 
