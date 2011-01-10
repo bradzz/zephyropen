@@ -390,7 +390,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 		/** update on timer */
 		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.TWO_MINUTES);
+		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.TWO_MINUTES);
 	}
 
 
