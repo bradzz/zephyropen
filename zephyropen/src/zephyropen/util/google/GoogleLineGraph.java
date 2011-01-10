@@ -6,6 +6,7 @@ import java.util.Date;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.state.State;
 import zephyropen.state.TimedEntry;
+import zephyropen.util.Utils;
 
 import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.Color;
@@ -72,10 +73,10 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setSize(x, y);
             chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
 
-            final String titleText = "[" + constants.get(ZephyrOpen.userName) + "]  " 
-            + title.toUpperCase() + " = " 
+            final String titleText = /* "[" + constants.get(ZephyrOpen.userName) + "]  " 
+            + */  title.toUpperCase() + " = " 
             + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
-            + new Date().toString() ;
+            + Utils.getDate(); //new Date().toString() ;
       
             chart.setTitle(titleText);
 

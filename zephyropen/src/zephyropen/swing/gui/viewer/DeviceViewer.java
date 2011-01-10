@@ -59,7 +59,7 @@ public class DeviceViewer implements API {
 
     	// not for us
         if( ! constants.get(ZephyrOpen.userName).equals(command.get(ZephyrOpen.userName))){
-        	constants.error("wrong userName: " + command.get(ZephyrOpen.userName), this);
+        	// constants.error("wrong userName: " + command.get(ZephyrOpen.userName), this);
         	return;
         } 
         

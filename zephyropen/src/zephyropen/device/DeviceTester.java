@@ -1,10 +1,10 @@
 package zephyropen.device;
 
-import java.util.Random;
+// import java.util.Random;
 
 import zephyropen.command.Command;
-import zephyropen.state.Filter;
-import zephyropen.state.FilterFactory;
+// import zephyropen.state.Filter;
+// import zephyropen.state.FilterFactory;
 import zephyropen.util.Utils;
 import zephyropen.api.API;
 import zephyropen.api.ApiFactory;
@@ -31,7 +31,7 @@ public class DeviceTester implements API {
 
 	private long last = 0;
 
-	private Random random = new Random();
+	// private Random random = new Random();
 
 
 	/**
@@ -162,7 +162,7 @@ public class DeviceTester implements API {
 
 	@Override
 	public void execute(Command command) {
-		// System.out.println(getDelta() + " exec: " + command.toXML());
+		System.out.println(getDelta() + " " + command.toXML());
 		last = System.currentTimeMillis();
 	}
 
@@ -183,7 +183,6 @@ public class DeviceTester implements API {
 
 	/** Find log file by naming convention given in args[] */
 	public static void main(String[] args) throws Exception {
-
 		constants.init(args[0]);
 		new DeviceTester();
 	}

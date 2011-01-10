@@ -27,12 +27,6 @@ public class ElevationViewer extends AbstractViewer implements Viewer {
     /** */
     public void update(Command command) {
     	
-    	//constants.info(" update : " + command.toString());
-    	
-    	//constants.info(charts[0].getName() + " : " + charts[0].getState().getStats());
-    	//constants.info(charts[1].getName() + " : " + charts[1].getState().getStats());
-    	//onstants.info(charts[2].getName() + " : " + charts[2].getState().getStats());
-    	
         charts[0].add(command.get(PrototypeFactory.back));
         charts[1].add(command.get(PrototypeFactory.seat));
         charts[2].add(command.get(PrototypeFactory.heart));

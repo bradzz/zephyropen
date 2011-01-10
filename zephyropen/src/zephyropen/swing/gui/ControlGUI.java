@@ -202,26 +202,26 @@ public class ControlGUI extends JPanel implements Runnable {
 		}.start();
 	}
 
-	/** Listen for menu events and send XML messages */
+
+
+	/** Listen for menu events and send XML messages or Launch new proc */
 	private final ActionListener listener = new ActionListener() {
-		@Override
 		public void actionPerformed(ActionEvent event) {
 
 			Object source = event.getSource();
 
-			if (source.equals(searchItem)) {
-
-				searchEnabled = true;
-				search();
-
-			} else if (source.equals(newUserItem)) {
+			if (source.equals(newUserItem)) {
 
 				userList.setEditable(true);
 
 			} else if (source.equals(killItem)) {
-
+				
 				constants.shutdownFramework();
 
+			} else if(source.equals(killDeviceItem)){
+				
+				constants.killDevice((String) deviceList.getSelectedItem(), (String) userList.getSelectedItem());
+				
 			} else if (source.equals(debugOffItem) || source.equals(debugOnItem)) {
 
 				/** build framework command */
@@ -232,13 +232,12 @@ public class ControlGUI extends JPanel implements Runnable {
 					command.add(ZephyrOpen.value, ZephyrOpen.enable);
 				else
 					command.add(ZephyrOpen.value, ZephyrOpen.disable);
-				
+
 				command.send();
 
 			} else if (source.equals(viewerItem)) {
 				if (createLaunch())
-					new Loader(
-							"zephyropen.swing.gui.viewer.DeviceViewer",
+					new Loader("zephyropen.swing.gui.viewer.DeviceViewer",
 							(String) userList.getSelectedItem());
 
 			} else if (source.equals(serverItem)) {
@@ -251,11 +250,10 @@ public class ControlGUI extends JPanel implements Runnable {
 					new Loader("zephyropen.device.DeviceTester",
 							(String) userList.getSelectedItem());
 
-			} else if (source.equals(killDeviceItem)) {
-				constants.killPort((String) portList.getSelectedItem());
 			}
 		}
 	};
+	
 
 	/**
 	 * 

@@ -118,19 +118,12 @@ public class MulticastChannel extends AbstractOutputChannel implements OutputCha
             /** get sending node's addr */
             String sendersIp = ((InetAddress) packet.getAddress()).getHostAddress();
             
-            //if( constants.getBoolean(ZephyrOpen.frameworkDebug))
-            	//constants.info("sender: " + sendersIp + " : " + input);
-            
             /** test the input */
             if( valid(input, sendersIp) ) {  
             	
            		/** build a command and dispatch it to the API */
             	Command command = xmlParser.parse(input); 
             	
-            	// TODO: don't over write existing one? 
-            	/** stamp on creation */ 
-            	command.add(ZephyrOpen.TIME_MS, String.valueOf(System.currentTimeMillis()));
-		    
             	/** dispatch the command */
             	CommandDispatcher.dispatch(command); 	
                 	
@@ -187,9 +180,8 @@ public class MulticastChannel extends AbstractOutputChannel implements OutputCha
 		if( constants.getBoolean(ZephyrOpen.externalLookup))
 			command.add(ZephyrOpen.externalAddress, constants.get(ZephyrOpen.externalAddress));
 		
-		// TODO: review this
-		// required since 2.0.1
-		command.add(ZephyrOpen.userName, constants.get(ZephyrOpen.userName));
+		if(command.get(ZephyrOpen.userName) == null)
+			command.add(ZephyrOpen.userName, constants.get(ZephyrOpen.userName));
 		
 		write(command.toString());
 	}

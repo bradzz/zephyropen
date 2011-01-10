@@ -467,4 +467,21 @@ public class Utils {
         return true;
     }
 
+	public static String getDate() {
+
+        //  Sat May 03 15:33:11 PDT 2008
+        String date = new Date().toString();
+
+        int index1 = date.indexOf(' ', 0);
+        int index2 = date.indexOf(' ', index1 + 1);
+        int index3 = date.indexOf(' ', index2 + 1);
+        int index4 = date.indexOf(' ', index3 + 1);
+
+        //System.out.println("1: " + index1 + " 2: " + index2 + " 3: " + index3 + " 4: " + index4);
+
+        String time = date.substring(index1 + 1, index4);
+
+        return time;
+	}
+
 }

@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
 
+import com.mysql.jdbc.Constants;
+
 import zephyropen.command.Command;
 import zephyropen.device.Device;
 import zephyropen.socket.InputChannel;
@@ -594,7 +596,7 @@ public class ZephyrOpen {
 		}
 	}
 
-	/** send a "kill" command to the given device */
+	/** send a "kill" command to the given device 
 	public void killDevice(Device device) {
 
 		if (!configured) {
@@ -603,38 +605,47 @@ public class ZephyrOpen {
 		}
 
 		killDevice(device.getDeviceName());
-	}
+	} */
 
-	/** send a "kill" command to the given device name */
+	/** send a "kill" command to the given device name 
 	public void killDevice(String device) {
 
 		if (!configured) {
-			System.err.println("not configured, terminate.");
-			System.exit(0);
+			System.err.println("not configured, ignored.");
+			return;
 		}
 
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.kill);
+		kill.add(userName, get(userName));
 		kill.add(deviceName, device);
 		kill.send();
-	}
 
-	/** send a "kill" command to the given port name */
-	public void killPort(String port) {
+		info("sent: " + kill.toString());
+	
+	} */
+
+
+
+	public void killDevice(String dev, String usr) {
 
 		if (!configured) {
-			System.err.println("not configured, terminate.");
-			System.exit(0);
+			System.err.println("not configured, ignored.");
+			return;
 		}
-
+		
+		info("dev: " + dev + " user: " + usr , this);
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.kill);
-		kill.add(com, port);
+		kill.add(userName, usr);
+		kill.add(deviceName, dev);
 		kill.send();
 
-		info(kill.toString());
+		info("sent: " + kill.toString());
+			
 	}
-
+	
+	
 	/** send shutdown messages to group */
 	public void shutdownFramework() {
 
@@ -647,7 +658,14 @@ public class ZephyrOpen {
 		command.add(action, shutdown);
 		command.send();
 
-		Utils.delay(300);
+		// Utils.delay(300);
+		// shutdown()? 
+	}
+
+	/** terminate the application, but clean up first */
+	public void shutdown(String line) {
+		info(line, this);
+		shutdown();
 	}
 
 	/** terminate the application, but clean up first */
@@ -661,7 +679,7 @@ public class ZephyrOpen {
 	public void shutdown(Exception e) {
 		if (logger != null)
 			logger.append(e.getMessage());
-
+		
 		e.printStackTrace(System.err);
 		shutdown();
 	}

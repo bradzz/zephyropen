@@ -1,5 +1,7 @@
 package zephyropen.api;
 
+import java.util.Enumeration;
+
 import zephyropen.api.API;
 import zephyropen.api.ApiFactory;
 import zephyropen.api.FrameworkAPI;
@@ -16,92 +18,86 @@ import zephyropen.command.Command;
  */
 public class FrameworkAPI implements API {
 
-    /** framework configuration */
-    private final ZephyrOpen constants = ZephyrOpen.getReference();
+	/** framework configuration */
+	private final ZephyrOpen constants = ZephyrOpen.getReference();
 
-    private final ApiFactory apiFactory = ApiFactory.getReference();
+	private final ApiFactory apiFactory = ApiFactory.getReference();
 
-    private static FrameworkAPI singleton = null;
+	private static FrameworkAPI singleton = null;
 
-    private long time = 0;
+	private long time = 0;
 
-    /** @return a reference to this singleton class */
-    public static FrameworkAPI getReference() {
+	/** @return a reference to this singleton class */
+	public static FrameworkAPI getReference() {
 
-        if (singleton == null) {
-            singleton = new FrameworkAPI();
-        }
-        return singleton;
-    }
+		if (singleton == null) {
+			singleton = new FrameworkAPI();
+		}
+		return singleton;
+	}
 
-    /** Constructs the framework API */
-    private FrameworkAPI() {
+	/** Constructs the framework API */
+	private FrameworkAPI() {
 
-        /** register this API only once per process */
-        apiFactory.add(this);
+		/** register this API only once per process */
+		apiFactory.add(this);
 
-        time = System.currentTimeMillis();
-    }
+		time = System.currentTimeMillis();
+	}
 
-    /** execute the command */
-    public void execute(Command command) {
+	/** execute the command */
+	public void execute(Command command) {
 
-        if (command.get(ZephyrOpen.action) == null) {
-        	constants.error("no action: " + command);
-            return;
-        }
+		if (command.get(ZephyrOpen.action) == null) {
+			constants.error("no action: " + command);
+			return;
+		}
 
-        constants.info("delta = " + getDelta() + " in : " + command.list(), this);
+		// constants.info("delta = " + getDelta() + " in : " + command.list(), this);
 
-        /** Terminate the Process, All of them that are listening */
-        if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown)) {
-            constants.info("shutdown command received", this); 
-            constants.shutdown();
-        }
+		/** Terminate the Process, All of them that are listening */
+		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown))
+			constants.shutdown("Kill Command Received");
 
-        /** Terminate the Process, All of them that are listening */
-        if (command.get(ZephyrOpen.action).equals(ZephyrOpen.kill)) {
-            
-        	constants.info("kill command received: " + command, this);
-            
-        	if(command.get(ZephyrOpen.com).equals(constants.get(ZephyrOpen.com))){
-        		constants.info(command.get(ZephyrOpen.com) + " = " + constants.get(ZephyrOpen.com));
-        		constants.shutdown(new Exception("port = " + constants.get(ZephyrOpen.com)));
-        	}
-            	
-           
-        }
-        
-        /** Terminate the Process, All of them that are listening */
-        if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
+		/** Terminate the Process of matching userName and deviceName */
+		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.kill)) {
+			for (Enumeration<String> e = apiFactory.getApiList(); e.hasMoreElements();) {
+				String tag = (String) e.nextElement();
+				if (tag.equals(command.get(ZephyrOpen.deviceName))) {
+					if (constants.get(ZephyrOpen.userName).equalsIgnoreCase(command.get(ZephyrOpen.userName))) 
+						constants.shutdown("kill command receieved");	
+				}
+			}
+		}
 
-            if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable)) {
+		/** Terminate the Process, All of them that are listening */
+		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
 
-                constants.info("debug enabled", this);
-                constants.put(ZephyrOpen.infoEnable, "true");
-                
+			if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable)) {
 
-            } else if (command.get(ZephyrOpen.value).equals(ZephyrOpen.disable)) {
+				constants.info("debug enabled", this);
+				constants.put(ZephyrOpen.infoEnable, "true");
 
-                constants.info("debug disabled", this);
-                constants.put(ZephyrOpen.infoEnable, "false");
-                
-            }
-        }
+			} else if (command.get(ZephyrOpen.value).equals(ZephyrOpen.disable)) {
 
-        // mark last input for get delta()
-        time = System.currentTimeMillis();
-    }
+				constants.info("debug disabled", this);
+				constants.put(ZephyrOpen.infoEnable, "false");
+			}
+		}
 
-    public String getDeviceName() {
-        return ZephyrOpen.zephyropen;
-    }
+		// mark last input for getDelta()
+		time = System.currentTimeMillis();
+	}
 
-    public String getAddress() {
-        return constants.get(ZephyrOpen.address);
-    }
+	public String getDeviceName() {
+		return ZephyrOpen.zephyropen;
+	}
 
-    public long getDelta() {
-        return System.currentTimeMillis() - time;
-    }
+	public String getAddress() {
+		return constants.get(ZephyrOpen.address);
+	}
+
+	public long getDelta() {
+		return System.currentTimeMillis() - time;
+	}
 }

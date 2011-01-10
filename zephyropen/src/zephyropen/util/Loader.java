@@ -25,50 +25,40 @@ public class Loader extends Thread implements Runnable {
 			return;
 		}
 
-		// this.setDaemon(true);
 		this.start();
 	}
 
 	public void run() {
-		
-		constants.info("launching: " + code, this);
-		
 		if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
-
 			macProc();
-
 		} else {
-			
-			winProc();
-			
+			winProc();		
 		}
-		
-		constants.info("exit: " + code, this);
 	}
 
 	public void macProc() {
 		
-		constants.info("launching mac: ", this);
-
 		/** need to launch new proc */
 		Runtime runtime = Runtime.getRuntime();
 
-		/** javaw for no screen */
+		/** java started as a shell script, note 32 bit mode used on mac */
 		String[] args = new String[] {"/bin/sh", "-c", "java -d32 -classpath " + path + " " + code + " " + arg, "&"};
 
 		try {
 
-			for (int i = 0; i < args.length; i++)
-				constants.info("Launch args [" + i + "] " + args[i]);
+			// for (int i = 0; i < args.length; i++)
+				//constants.info("Launch args [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
-			Process proc = runtime.exec(args);
+			// Process proc = 
+			
+			runtime.exec(args);
 				
-			BufferedReader procReader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			// BufferedReader procReader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-			String line = null;
-			while ((line = procReader.readLine()) != null)
-				constants.info("proc : " + line);
+			// String line = null;
+			// while ((line = procReader.readLine()) != null)
+				// constants.info("proc : " + line);
 
 		} catch (Exception e) {
 			constants.error("fatal runtime.exec() error: " + e.getMessage());
@@ -90,15 +80,17 @@ public class Loader extends Thread implements Runnable {
 
 		try {
 
-			for (int i = 0; i < args.length; i++)
-				constants.info("Launch [" + i + "] " + args[i]);
+			// for (int i = 0; i < args.length; i++)
+				// constants.info("Launch [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
-			Process proc = runtime.exec(args);
+			// Process proc = 
+			
+			runtime.exec(args);
 
 			// BufferedReader procReader = new BufferedReader(
 					
-			new InputStreamReader(proc.getInputStream());
+			// new InputStreamReader(proc.getInputStream());
 
 			// String line = null;
 			// while ((line = procReader.readLine()) != null)
@@ -118,7 +110,6 @@ public class Loader extends Thread implements Runnable {
 		ZephyrOpen constants = ZephyrOpen.getReference();
 		
 		constants.init();
-		
 		new Loader("zephyropen.swing.gui.BluetoothGUI", "brad");
 	}
 }

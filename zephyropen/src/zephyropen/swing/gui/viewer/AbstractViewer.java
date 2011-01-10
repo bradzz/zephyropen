@@ -91,6 +91,9 @@ public class AbstractViewer {
 		if (constants.getBoolean(State.pack))
 			text += " -p";
 
+		if (constants.getBoolean(ZephyrOpen.frameworkDebug))
+			text += " -d";
+
 		if( ftpManager != null )
 		if (ftpManager.ftpConfigured()) {
 			text += " -ftp";
@@ -130,20 +133,26 @@ public class AbstractViewer {
 			// chart = charts[i].getName();
 			if (charts[i].getName().equals(PrototypeFactory.connection)) {
 
-				if(i%5==0){
+				if(api.getDelta() > ZephyrOpen.TIME_OUT){
 					
 					// don't fill chart with empty space
 					charts[i].getState().update((double) api.getDelta());
+					
+					// done 
+					return;
 
 				} else {
 					
 					charts[i].add(String.valueOf(api.getDelta()));
 					
+					// done
+					return;
+					
 				}
 				
 				
 				// look no further
-				return;
+				// return;
 			}
 		}
 	}

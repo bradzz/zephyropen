@@ -23,6 +23,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+
 import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
@@ -184,6 +186,10 @@ public class BluetoothGUI extends JPanel implements Runnable {
 				
 				constants.shutdownFramework();
 
+			} else if(source.equals(killDeviceItem)){
+				
+				constants.killDevice((String) deviceList.getSelectedItem(), (String) userList.getSelectedItem());
+				
 			} else if (source.equals(debugOffItem) || source.equals(debugOnItem)) {
 
 				/** build framework command */
@@ -384,7 +390,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 		/** update on timer */
 		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), 120000, ZephyrOpen.TWO_MINUTES);
+		timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.TWO_MINUTES);
 	}
 
 
@@ -401,7 +407,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 
 		/** Turn off metal's use of bold fonts */
-		//UIManager.put("swing.boldMetal", Boolean.FALSE);
+		UIManager.put("swing.boldMetal", Boolean.FALSE);
 
 		/** float on top of all other windows */
 		frame.setAlwaysOnTop(true);
