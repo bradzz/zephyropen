@@ -1,10 +1,6 @@
 package zephyropen.util;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 import zephyropen.api.ZephyrOpen;
-import zephyropen.swing.gui.BluetoothGUI;
 
 public class Loader extends Thread implements Runnable {
 
@@ -102,8 +98,6 @@ public class Loader extends Thread implements Runnable {
 		}
 	}
 	
-
-
 	/** Launch the search GUI -- no args needed */
 	public static void main(String[] args) {
 		

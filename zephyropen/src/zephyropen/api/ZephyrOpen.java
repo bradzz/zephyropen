@@ -573,11 +573,6 @@ public class ZephyrOpen {
 
 	/** send a "close" message */
 	public void killDevice(String dev, String usr) {
-
-		if (!configured) {
-			System.err.println("not configured, ignored.");
-			return;
-		}
 		
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.kill);
@@ -590,11 +585,6 @@ public class ZephyrOpen {
 
 	/** send a "close" message */
 	public void closeServer(String dev, String usr) {
-
-		if (!configured) {
-			System.err.println("not configured, ignored.");
-			return;
-		}
 		
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.close);

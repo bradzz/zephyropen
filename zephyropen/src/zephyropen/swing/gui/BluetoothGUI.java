@@ -66,15 +66,19 @@ public class BluetoothGUI extends JPanel implements Runnable {
 	JComboBox userList = new JComboBox();
 
 	/** Add items with icons each to each menu item */
-	JMenuItem killItem = new JMenuItem("Kill All");
-	JMenuItem serverItem = new JMenuItem("Connect", null);
-	JMenuItem newUserItem = new JMenuItem("New User");
-	JMenuItem killDeviceItem = new JMenuItem("Close device");
-	JMenuItem debugOnItem = new JMenuItem("Debug ON");
-	JMenuItem debugOffItem = new JMenuItem("Debug OFF");
+	JMenuItem killItem = new JMenuItem("kill all");
+	JMenuItem closeSeverItem = new JMenuItem("close server(s)");
+
+	JMenuItem serverItem = new JMenuItem("connect", null);
+	JMenuItem newUserItem = new JMenuItem("new user");
+	JMenuItem killDeviceItem = new JMenuItem("close device");
+	JMenuItem debugOnItem = new JMenuItem("debug ON");
+	JMenuItem debugOffItem = new JMenuItem("debug OFF");
 	// JMenuItem searchItem = new JMenuItem("Search");
-	JMenuItem viewerItem = new JMenuItem("Viewer");
-	JMenuItem testerItem = new JMenuItem("Tester");
+	JMenuItem viewerItem = new JMenuItem("viewer");
+	JMenuItem testerItem = new JMenuItem("test pattern");
+	
+	/** Main menu */
 	JMenu userMenue = new JMenu("User");
 	JMenu device = new JMenu("Device");
 
@@ -150,7 +154,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 					}
 				}
 
-				constants.info("searching...", this);
+				// constants.info("searching...", this);
 
 				searching = true;
 				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
@@ -182,8 +186,12 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 				userList.setEditable(true);
 
-			} else if (source.equals(killItem)) {
+			} else if(source.equals(closeSeverItem)){
+		
+				constants.closeServer((String)deviceList.getSelectedItem(), (String)userList.getSelectedItem());
 				
+			} else if (source.equals(killItem)) {
+		
 				constants.shutdownFramework();
 
 			} else if(source.equals(killDeviceItem)){
@@ -316,10 +324,12 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		debugOnItem.addActionListener(listener);
 		debugOffItem.addActionListener(listener);
 		testerItem.addActionListener(listener);
-
+		closeSeverItem.addActionListener(listener);
+		
 		device.add(testerItem);
 		device.add(debugOnItem);
 		device.add(debugOffItem);
+		device.add(closeSeverItem);
 		device.add(killDeviceItem);
 		device.add(killItem);
 
@@ -390,7 +400,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 		/** update on timer */
 		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.TWO_MINUTES);
+		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.FIVE_MINUTES);
 	}
 
 

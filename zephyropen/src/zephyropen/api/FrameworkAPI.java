@@ -57,7 +57,7 @@ public class FrameworkAPI implements API {
 
 		/** Terminate the Process, All of them that are listening */
 		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown))
-			constants.shutdown("Kill Command Received");
+			constants.shutdown("shutdown command received");
 
 		/** Terminate the Process of matching userName and deviceName */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.kill)) {
