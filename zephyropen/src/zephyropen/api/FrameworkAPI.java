@@ -53,7 +53,7 @@ public class FrameworkAPI implements API {
 			return;
 		}
 
-		// constants.info("delta = " + getDelta() + " in : " + command.list(), this);
+		constants.info("delta = " + getDelta() + " in : " + command.list(), this);
 
 		/** Terminate the Process, All of them that are listening */
 		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown))
@@ -63,15 +63,24 @@ public class FrameworkAPI implements API {
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.kill)) {
 			for (Enumeration<String> e = apiFactory.getApiList(); e.hasMoreElements();) {
 				String tag = (String) e.nextElement();
-				if (tag.equals(command.get(ZephyrOpen.deviceName))) {
+				if (tag.equals(command.get(ZephyrOpen.deviceName))) 
 					if (constants.get(ZephyrOpen.userName).equalsIgnoreCase(command.get(ZephyrOpen.userName))) 
 						constants.shutdown("kill command receieved");	
-				}
 			}
 		}
 
+		/** Terminate the Process of matching userName and deviceName */
+		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.close)) {
+			for (Enumeration<String> e = apiFactory.getApiList(); e.hasMoreElements();) {
+				String tag = (String) e.nextElement();
+				
+				System.out.println(tag);
+			
+			}
+		}
+		
 		/** Terminate the Process, All of them that are listening */
-		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
+		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
 
 			if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable)) {
 
