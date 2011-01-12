@@ -55,6 +55,8 @@ public class ZephyrOpen {
 
 	public static final String localAddress = "lan";
 
+	public static final String close = "close";
+
 	public static final String frameworkDebug = "frameworkDebug";
 
 	public static final String loopback = "loopback";
@@ -316,16 +318,6 @@ public class ZephyrOpen {
 
 		/** messages on */
 		props.put(ZephyrOpen.infoEnable, "true");
-
-		/** create startup config debug file */
-		try {
-
-			props.store(new FileWriter(new File(props.getProperty(userLog) + fs
-					+ props.getProperty(deviceName) + "_config.log")), null);
-
-		} catch (IOException e) {
-			System.err.println("couldn't write debug file");
-		}
 	}
 
 	/** ready the folders needed for this user */
@@ -367,9 +359,6 @@ public class ZephyrOpen {
 	 *            is the properties file to configure the framework
 	 */
 	private void parseConfigFile() {
-
-		// System.err.println("config file [" + props.getProperty(propFile) +
-		// "]");
 
 		final String path = props.getProperty(propFile);
 
@@ -419,20 +408,14 @@ public class ZephyrOpen {
 	 */
 	public synchronized void put(String key, String value) {
 
-		/*
-		if (!configured) {
-			System.err.println("can't put(" + key + ", " + value + "), framework is not configured!");
-			return;
-		}
-		*/
-
 		if (locked) {
 			info("framework constants locked, can't put(): " + key);
 			return;
 		}
 
-		//if (props.containsKey(key))
-			//info("refreshing property for: " + key + " = " + value);
+		if(getBoolean(frameworkDebug))
+			if (props.containsKey(key))
+				info("refreshing property for: " + key + " = " + value);
 
 		props.put(key.trim(), value.trim());
 	}
@@ -445,12 +428,6 @@ public class ZephyrOpen {
 	 * @return the matching value from properties file (or null if not found)
 	 */
 	public synchronized String get(String key) {
-
-		// if (! configured){
-		// System.err.println("dangerous get(): " + key);
-		// System.err.println("can't put(), framework is not configured!");
-		// return null;
-		// }
 
 		String ans = null;
 
@@ -544,7 +521,6 @@ public class ZephyrOpen {
 				logger.append("ERROR, " + clazz.getClass().getName() + ", " + line);
 
 		System.err.println(Utils.getTime() + " " + clazz.getClass().getName() + ", " + line);
-
 	}
 
 	/** */
@@ -560,7 +536,6 @@ public class ZephyrOpen {
 				logger.append("ERROR, " + zephyropen + ", " + line);
 
 		System.err.println(Utils.getTime() + " " + line);
-
 	}
 
 	/** */
@@ -596,37 +571,7 @@ public class ZephyrOpen {
 		}
 	}
 
-	/** send a "kill" command to the given device 
-	public void killDevice(Device device) {
-
-		if (!configured) {
-			System.err.println("not configured, terminate.");
-			System.exit(0);
-		}
-
-		killDevice(device.getDeviceName());
-	} */
-
-	/** send a "kill" command to the given device name 
-	public void killDevice(String device) {
-
-		if (!configured) {
-			System.err.println("not configured, ignored.");
-			return;
-		}
-
-		Command kill = new Command();
-		kill.add(action, ZephyrOpen.kill);
-		kill.add(userName, get(userName));
-		kill.add(deviceName, device);
-		kill.send();
-
-		info("sent: " + kill.toString());
-	
-	} */
-
-
-
+	/** send a "close" message */
 	public void killDevice(String dev, String usr) {
 
 		if (!configured) {
@@ -634,7 +579,6 @@ public class ZephyrOpen {
 			return;
 		}
 		
-		info("dev: " + dev + " user: " + usr , this);
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.kill);
 		kill.add(userName, usr);
@@ -642,9 +586,24 @@ public class ZephyrOpen {
 		kill.send();
 
 		info("sent: " + kill.toString());
-			
 	}
-	
+
+	/** send a "close" message */
+	public void closeServer(String dev, String usr) {
+
+		if (!configured) {
+			System.err.println("not configured, ignored.");
+			return;
+		}
+		
+		Command kill = new Command();
+		kill.add(action, ZephyrOpen.close);
+		kill.add(userName, usr);
+		kill.add(deviceName, dev);
+		kill.send();
+
+		info("sent: " + kill.toString());
+	}
 	
 	/** send shutdown messages to group */
 	public void shutdownFramework() {
@@ -657,9 +616,6 @@ public class ZephyrOpen {
 		Command command = new Command();
 		command.add(action, shutdown);
 		command.send();
-
-		// Utils.delay(300);
-		// shutdown()? 
 	}
 
 	/** terminate the application, but clean up first */
@@ -707,7 +663,7 @@ public class ZephyrOpen {
 	/** track open loggers */
 	public void addLogger(DataLogger dataLogger) {
 
-		// optional creation , build only if called
+		// optional creation 
 		if (dataLoggers == null)
 			dataLoggers = new Vector<DataLogger>();
 
