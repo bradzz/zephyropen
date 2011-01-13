@@ -20,6 +20,9 @@ import java.util.Hashtable;
  * @author Peter Brandt-Erichsen
  */
 public class ApiFactory {
+	
+	/** framework configuration */
+	private final ZephyrOpen constants = ZephyrOpen.getReference();
 
 	// holds the API's recognised by the application
 	private static Hashtable<String, API> apiTable = null;
@@ -91,6 +94,27 @@ public class ApiFactory {
 		return apiTable.keys();
 	}
 
+	/**
+	 * @return true if the given class is in the api list 
+	 */
+	public boolean containsClass(String clazzName) {
+		
+		API api = null;
+		for (Enumeration<String> e = apiTable.keys(); e.hasMoreElements();) {
+			
+			api = apiTable.get(e.nextElement());
+				
+			constants.info(constants.get(ZephyrOpen.userName) + " :: " + api.getClass().getName(), this);
+			
+			if(clazzName.equals(api.getClass().getName()))
+				return true;
+			
+		}
+		
+		// not found
+		return false;
+	}
+	
 	/**
 	 * @return a string format of the API's in the list
 	 */

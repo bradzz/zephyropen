@@ -188,7 +188,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 			} else if(source.equals(closeSeverItem)){
 		
-				constants.closeServer((String)deviceList.getSelectedItem(), (String)userList.getSelectedItem());
+				constants.closeServers();
 				
 			} else if (source.equals(killItem)) {
 		
@@ -379,8 +379,8 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		constants.init();
 		
 		/** ignore framework */
-		constants.put(ZephyrOpen.frameworkDebug, "false");
-		ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
+		// constants.put(ZephyrOpen.frameworkDebug, "false");
+		// ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		constants.lock();
 
 		/** find devices for prop files */
@@ -400,9 +400,8 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 		/** update on timer */
 		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.FIVE_MINUTES);
+		timer.scheduleAtFixedRate(new RefreshTask(), ZephyrOpen.ONE_MINUTE/3, ZephyrOpen.FIVE_MINUTES);
 	}
-
 
 	/** add devices that require com port mapping, not searching */
 	private void initDevices() {

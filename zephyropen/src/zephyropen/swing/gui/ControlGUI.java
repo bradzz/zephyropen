@@ -98,11 +98,11 @@ public class ControlGUI extends JPanel implements Runnable {
 		while (pList.hasMoreElements()) {
 			CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
 			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				//if (cpi.isCurrentlyOwned()) {
-				//	portList.addItem(cpi.getName() + "*");
-				//} else {
+				if (cpi.isCurrentlyOwned()) {
+					portList.addItem(cpi.getName() + "*");
+				} else {
 					portList.addItem(cpi.getName());
-				//}
+				}
 			}
 		}
 	}
@@ -394,16 +394,16 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** radio better be on */
 		if (local == null) {
 
-			constants.error("Blue Tooth Radio is not ready, terminate!", this);
+			constants.error("Blue Tooth Radio is not available", this);
 			return false;
 
 		} else if (!LocalDevice.isPowerOn()) {
 
-			constants.error("Blue Tooth Radio is not ready, terminate!", this);
+			constants.error("Blue Tooth Radio is not powered", this);
 			return false;
 		}
 
-		constants.info("Blue Tooth Radio is configured", this);
+		// constants.info("Blue Tooth Radio is configured", this);
 		return true;
 	}
 
@@ -412,8 +412,8 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		constants.put(ZephyrOpen.frameworkDebug, "false");
-		ApiFactory.getReference().remove("zephyropen");
+		//constants.put(ZephyrOpen.frameworkDebug, "false");
+		//ApiFactory.getReference().remove("zephyropen");
 		constants.lock();
 
 		/** find devices for prop files */
@@ -433,9 +433,6 @@ public class ControlGUI extends JPanel implements Runnable {
 		this.add(deviceList);
 		this.add(userList);
 		this.add(portList);
-		
-		// this.add(copy);
-		// this.add(new StatusTextArea());
 
 		/** add menu */
 		addMenu();

@@ -48,53 +48,43 @@ public class FrameworkAPI implements API {
 	/** execute the command */
 	public void execute(Command command) {
 
-		if (command.get(ZephyrOpen.action) == null) {
-			constants.error("no action: " + command);
-			return;
-		}
-
 		constants.info("delta = " + getDelta() + " in : " + command.list(), this);
 
 		/** Terminate the Process, All of them that are listening */
 		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown))
 			constants.shutdown("shutdown command received");
 
-		/** Terminate the Process of matching userName and deviceName */
+		/** Terminate the Process if matching userName and deviceName */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.kill)) {
 			for (Enumeration<String> e = apiFactory.getApiList(); e.hasMoreElements();) {
 				String tag = (String) e.nextElement();
-				if (tag.equals(command.get(ZephyrOpen.deviceName))) 
-					if (constants.get(ZephyrOpen.userName).equalsIgnoreCase(command.get(ZephyrOpen.userName))) 
-						constants.shutdown("kill command receieved");	
+				if (tag.equals(command.get(ZephyrOpen.deviceName)))
+					if (constants.get(ZephyrOpen.userName).equalsIgnoreCase(command.get(ZephyrOpen.userName)))
+						constants.shutdown("kill command receieved");
 			}
 		}
 
-		/** Terminate the Process of matching userName and deviceName */
+		/** Terminate the Process that are servers, or tester servers too */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.close)) {
-			for (Enumeration<String> e = apiFactory.getApiList(); e.hasMoreElements();) {
-				String tag = (String) e.nextElement();
-				
-				System.out.println(tag);
-			
-			}
+			if (apiFactory.containsClass(zephyropen.device.DeviceServer.class.getName()) ||
+					apiFactory.containsClass(zephyropen.device.DeviceTester.class.getName()))
+				constants.shutdown("close command given");
 		}
-		
-		/** Terminate the Process, All of them that are listening */
+
+		/** Terminate the Process that are viewers */
+		// else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.close)) {
+		// if(apiFactory.containsClass(zephyropen.swing.gui.viewer.DeviceViewer.class.getName()))
+		// constants.shutdown("close command given");
+
+		/** Toggle debugging */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
-
-			if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable)) {
-
-				constants.info("debug enabled", this);
+			if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable))
 				constants.put(ZephyrOpen.infoEnable, "true");
-
-			} else if (command.get(ZephyrOpen.value).equals(ZephyrOpen.disable)) {
-
-				constants.info("debug disabled", this);
+			else if (command.get(ZephyrOpen.value).equals(ZephyrOpen.disable))
 				constants.put(ZephyrOpen.infoEnable, "false");
-			}
 		}
 
-		// mark last input for getDelta()
+		/** mark last input for getDelta() */
 		time = System.currentTimeMillis();
 	}
 

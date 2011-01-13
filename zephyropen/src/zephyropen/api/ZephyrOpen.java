@@ -575,19 +575,17 @@ public class ZephyrOpen {
 		kill.add(deviceName, dev);
 		kill.send();
 
-		info("sent: " + kill.toString());
+		info("sent: " + kill.toString(), this);
 	}
 
 	/** send a "close" message */
-	public void closeServer(String dev, String usr) {
+	public void closeServers() {
 		
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.close);
-		kill.add(userName, usr);
-		kill.add(deviceName, dev);
 		kill.send();
 
-		info("sent: " + kill.toString());
+		info("sent: " + kill.toString(),this);
 	}
 	
 	/** send shutdown messages to group */
