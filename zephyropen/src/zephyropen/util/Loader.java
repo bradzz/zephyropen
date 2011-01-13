@@ -6,7 +6,10 @@ public class Loader extends Thread implements Runnable {
 
 	/** framework configuration */
 	static ZephyrOpen constants = ZephyrOpen.getReference();
-
+	
+	/** need to launch new proc */
+	Runtime runtime = Runtime.getRuntime();
+	
 	private String path = constants.get(ZephyrOpen.path);
 	private String code = null;
 	private String arg = null;
@@ -34,9 +37,6 @@ public class Loader extends Thread implements Runnable {
 
 	public void macProc() {
 		
-		/** need to launch new proc */
-		Runtime runtime = Runtime.getRuntime();
-
 		/** java started as a shell script, note 32 bit mode used on mac */
 		String[] args = new String[] {"/bin/sh", "-c", "java -d32 -classpath " + path + " " + code + " " + arg, "&"};
 
@@ -62,22 +62,18 @@ public class Loader extends Thread implements Runnable {
 		}
 	}
 	
-	
 	/**
 	 * Start a windows proc for the given class 
 	 */
 	public void winProc() {
-
-		/** need to launch new proc */
-		Runtime runtime = Runtime.getRuntime();
 
 		/** javaw for no screen */
 		String[] args = new String[] { "javaw", "-classpath", path, code, arg };
 
 		try {
 
-			// for (int i = 0; i < args.length; i++)
-				// constants.info("Launch [" + i + "] " + args[i]);
+			for (int i = 0; i < args.length; i++)
+				constants.info("Launch [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
 			// Process proc = 
@@ -91,6 +87,8 @@ public class Loader extends Thread implements Runnable {
 			// String line = null;
 			// while ((line = procReader.readLine()) != null)
 			//	constants.info("proc : " + line);
+			
+			constants.info("..exit winProc()", this);
 
 		} catch (Exception e) {
 			constants.error("fatal runtime.exec() error: " + e.getMessage());

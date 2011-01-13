@@ -2,17 +2,12 @@ package zephyropen.api;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
 
-import com.mysql.jdbc.Constants;
-
 import zephyropen.command.Command;
-import zephyropen.device.Device;
 import zephyropen.socket.InputChannel;
 import zephyropen.socket.InputChannelFactory;
 import zephyropen.socket.OutputChannel;
