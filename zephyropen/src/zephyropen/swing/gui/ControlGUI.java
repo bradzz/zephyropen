@@ -180,7 +180,7 @@ public class ControlGUI extends JPanel implements Runnable {
 					}
 				}
 				
-				// constants.info("searching...", this);
+				constants.info("bluetooth searching...", this);
 
 				searching = true;
 				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
@@ -201,8 +201,6 @@ public class ControlGUI extends JPanel implements Runnable {
 			}
 		}.start();
 	}
-
-
 
 	/** Listen for menu events and send XML messages or Launch new proc */
 	private final ActionListener listener = new ActionListener() {
@@ -477,7 +475,6 @@ public class ControlGUI extends JPanel implements Runnable {
 		@Override
 		public void run() {
 
-			// constants.info("updatePorts: ", this);
 			initPorts();
 			
 			if(searchEnabled)

@@ -118,7 +118,7 @@ public class ZephyrOpen {
 
 	public static final String com = "com";
 
-	public static final String infoEnable = "infoEnable";
+	// public static final String infoEnable = "infoEnable";
 
 	public static final String showLAN = "showLAN";
 
@@ -205,7 +205,8 @@ public class ZephyrOpen {
 		props.put(frameworkDebug, "true");
 		props.put(loopback, "true");
 		props.put(loggingEnabled, "true");
-		props.put(infoEnable, "false");
+		
+		//props.put(infoEnable, "false");
 	}
 
 	/** Configure the Framework with given properties file */
@@ -312,7 +313,7 @@ public class ZephyrOpen {
 				+ props.getProperty(deviceName) + "_debug.log");
 
 		/** messages on */
-		props.put(ZephyrOpen.infoEnable, "true");
+		//props.put(ZephyrOpen.infoEnable, "true");
 	}
 
 	/** ready the folders needed for this user */
@@ -541,14 +542,14 @@ public class ZephyrOpen {
 			System.exit(0);
 		}
 
-		if (getBoolean(infoEnable)) {
+		//if (getBoolean(infoEnable)) {
 			if (logger != null)
 				logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
 
 			System.out.println(Utils.getTime() + " "
 					+ clazz.getClass().getName() + " " + line);
 		}
-	}
+	//}
 
 	/** */
 	public void info(String line) {
@@ -558,12 +559,12 @@ public class ZephyrOpen {
 			System.exit(0);
 		}
 
-		if (getBoolean(infoEnable)) {
+		//if (getBoolean(infoEnable)) {
 			if (logger != null)
 				logger.append("INFO, " + get(deviceName) + ", " + zephyropen + ", " + line);
 
 			System.out.println(Utils.getTime() + " " + zephyropen + " " + line);
-		}
+		//}
 	}
 
 	/** send a "close" message */

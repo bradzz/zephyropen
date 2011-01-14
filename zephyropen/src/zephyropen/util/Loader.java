@@ -8,7 +8,7 @@ public class Loader extends Thread implements Runnable {
 	static ZephyrOpen constants = ZephyrOpen.getReference();
 	
 	/** need to launch new proc */
-	Runtime runtime = Runtime.getRuntime();
+	static Runtime runtime = Runtime.getRuntime();
 	
 	private String path = constants.get(ZephyrOpen.path);
 	private String code = null;
@@ -88,20 +88,11 @@ public class Loader extends Thread implements Runnable {
 			// while ((line = procReader.readLine()) != null)
 			//	constants.info("proc : " + line);
 			
-			constants.info("..exit winProc()", this);
+			constants.info("exit winProc()", this);
 
 		} catch (Exception e) {
 			constants.error("fatal runtime.exec() error: " + e.getMessage());
 			constants.shutdown(e);
 		}
-	}
-	
-	/** Launch the search GUI -- no args needed */
-	public static void main(String[] args) {
-		
-		ZephyrOpen constants = ZephyrOpen.getReference();
-		
-		constants.init();
-		new Loader("zephyropen.swing.gui.BluetoothGUI", "brad");
 	}
 }

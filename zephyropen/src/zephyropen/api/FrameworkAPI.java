@@ -79,9 +79,9 @@ public class FrameworkAPI implements API {
 		/** Toggle debugging */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
 			if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable))
-				constants.put(ZephyrOpen.infoEnable, "true");
+				constants.put(ZephyrOpen.frameworkDebug, "true");
 			else if (command.get(ZephyrOpen.value).equals(ZephyrOpen.disable))
-				constants.put(ZephyrOpen.infoEnable, "false");
+				constants.put(ZephyrOpen.frameworkDebug, "false");
 		}
 
 		/** mark last input for getDelta() */

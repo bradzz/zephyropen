@@ -25,7 +25,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
@@ -154,7 +153,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 					}
 				}
 
-				// constants.info("searching...", this);
+				constants.info("searching...", this);
 
 				searching = true;
 				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
