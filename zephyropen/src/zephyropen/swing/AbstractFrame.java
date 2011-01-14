@@ -57,7 +57,5 @@ public abstract class AbstractFrame extends JPanel implements Runnable {
 	}
 	
 	public abstract void updateSelected();
-	
-
 }
 	

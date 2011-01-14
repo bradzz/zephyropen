@@ -193,9 +193,12 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 			// don't let several proc's do this at once
 			if (constants.getBoolean(ZephyrOpen.filelock)) {
 
-				// put this in some command or keyboard manager
+				// TODO: put this in some command or keyboard manager
 
-				if (c == 'r')
+				if(c == 'l')
+					constants.put(ZephyrOpen.loggingEnabled, "true");
+					
+				else if (c == 'r')
 					constants.put(ZephyrOpen.recording, "true");
 				
 				else if (c == 'f')
