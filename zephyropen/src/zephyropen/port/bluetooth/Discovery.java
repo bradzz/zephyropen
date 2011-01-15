@@ -16,7 +16,6 @@ import javax.bluetooth.UUID;
 
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-import zephyropen.util.Utils;
 
 /**
  * <p> Wrapper for the BT discovery process
@@ -50,8 +49,8 @@ public class Discovery implements DiscoveryListener {
 
 		/** radio is on? */
 		if (!LocalDevice.isPowerOn()) {
-			constants.error("Blue Tooth Radio is powered down, terminate!", this);
-			constants.shutdown();
+			constants.error("Blue Tooth Radio is powered down", this);
+			return; 
 		}
 
 		/** access our radio and agent */
@@ -61,7 +60,7 @@ public class Discovery implements DiscoveryListener {
 			agent = local.getDiscoveryAgent();
 
 		} catch (BluetoothStateException b) {
-			constants.shutdown(b);
+			constants.error(b.getMessage(), this);
 		}
 	}
 
@@ -365,15 +364,15 @@ public class Discovery implements DiscoveryListener {
 		constants.info( devs.toXML(), this);
 	}
 	
-	/* **/
+	/*
 	public static void sendStatus(String string) {
 		Command status = new Command();
 		status.add(ZephyrOpen.status, string);
 		status.add(ZephyrOpen.action, ZephyrOpen.status);
 		status.send();
-	} 
+	}  **/
 	
-	/** test for this class -- no args needed */
+	/** test for this class -- no args needed 
 	public static void main(String[] args) {
 		
 		constants.init();
@@ -394,5 +393,5 @@ public class Discovery implements DiscoveryListener {
 			Utils.delay(ZephyrOpen.ONE_MINUTE);
 			
 		}
-	}
+	}*/
 }

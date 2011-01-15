@@ -66,14 +66,13 @@ public class BluetoothGUI extends JPanel implements Runnable {
 
 	/** Add items with icons each to each menu item */
 	JMenuItem killItem = new JMenuItem("kill all");
-	JMenuItem closeSeverItem = new JMenuItem("close server(s)");
-
-	JMenuItem serverItem = new JMenuItem("connect", null);
+	JMenuItem closeSeverItem = new JMenuItem("close servers");
+	JMenuItem serverItem = new JMenuItem("connect");
 	JMenuItem newUserItem = new JMenuItem("new user");
 	JMenuItem killDeviceItem = new JMenuItem("close device");
 	JMenuItem debugOnItem = new JMenuItem("debug ON");
 	JMenuItem debugOffItem = new JMenuItem("debug OFF");
-	// JMenuItem searchItem = new JMenuItem("Search");
+	JMenuItem searchItem = new JMenuItem("search");
 	JMenuItem viewerItem = new JMenuItem("viewer");
 	JMenuItem testerItem = new JMenuItem("test pattern");
 	
@@ -180,8 +179,13 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		public void actionPerformed(ActionEvent event) {
 
 			Object source = event.getSource();
+			if (source.equals(searchItem)) {
+				
+				/** update on timer */
+				java.util.Timer timer = new java.util.Timer();
+				timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.FIVE_MINUTES);
 
-			if (source.equals(newUserItem)) {
+			} else if (source.equals(newUserItem)) {
 
 				userList.setEditable(true);
 
@@ -312,8 +316,6 @@ public class BluetoothGUI extends JPanel implements Runnable {
 	/** add the menu items to the frame */
 	public void addMenu() {
 
-		userList.addItemListener(new UserListener());
-
 		/** Add the lit to each menu item */
 		viewerItem.addActionListener(listener);
 		newUserItem.addActionListener(listener);
@@ -324,6 +326,12 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		debugOffItem.addActionListener(listener);
 		testerItem.addActionListener(listener);
 		closeSeverItem.addActionListener(listener);
+		serverItem.addActionListener(listener);
+		
+		if(bluetoothEnabled()){
+			searchItem.addActionListener(listener);
+			device.add(searchItem);
+		} 
 		
 		device.add(testerItem);
 		device.add(debugOnItem);
@@ -381,8 +389,8 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		// constants.put(ZephyrOpen.frameworkDebug, "false");
 		// ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		constants.lock();
-
-		/** find devices for prop files */
+		
+		userList.addItemListener(new UserListener());
 		initUsers();
 		initDevices();
 		
@@ -395,11 +403,7 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		addMenu();
 		
 		/** show window */
-		javax.swing.SwingUtilities.invokeLater(this);
-
-		/** update on timer */
-		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), ZephyrOpen.ONE_MINUTE/3, ZephyrOpen.FIVE_MINUTES);
+		javax.swing.SwingUtilities.invokeLater(this);		
 	}
 
 	/** add devices that require com port mapping, not searching */

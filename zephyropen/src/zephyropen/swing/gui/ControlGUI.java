@@ -26,11 +26,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.port.bluetooth.Discovery;
+
 import zephyropen.util.Loader;
 
 /**
@@ -56,8 +56,6 @@ public class ControlGUI extends JPanel implements Runnable {
 	
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
-
-	boolean searchEnabled = false;
 	
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
@@ -72,15 +70,18 @@ public class ControlGUI extends JPanel implements Runnable {
 	JComboBox userList = new JComboBox();
 
 	/** Add items with icons each to each menu item */
-	JMenuItem killItem = new JMenuItem("Kill All");
-	JMenuItem serverItem = new JMenuItem("Connect", null);
-	JMenuItem newUserItem = new JMenuItem("New User");
-	JMenuItem killDeviceItem = new JMenuItem("Close device");
-	JMenuItem debugOnItem = new JMenuItem("Debug ON");
-	JMenuItem debugOffItem = new JMenuItem("Debug OFF");
-	JMenuItem searchItem = new JMenuItem("Search");
-	JMenuItem viewerItem = new JMenuItem("Viewer");
-	JMenuItem testerItem = new JMenuItem("Tester");
+	JMenuItem killItem = new JMenuItem("kill all");
+	JMenuItem closeSeverItem = new JMenuItem("close servers");
+	JMenuItem serverItem = new JMenuItem("connect");
+	JMenuItem newUserItem = new JMenuItem("new user");
+	JMenuItem killDeviceItem = new JMenuItem("close device");
+	JMenuItem debugOnItem = new JMenuItem("debug ON");
+	JMenuItem debugOffItem = new JMenuItem("debug OFF");
+	JMenuItem searchItem = new JMenuItem("search");
+	JMenuItem viewerItem = new JMenuItem("viewer");
+	JMenuItem testerItem = new JMenuItem("test pattern");
+	
+	
 	JMenu userMenue = new JMenu("User");
 	JMenu device = new JMenu("Device");
 
@@ -207,8 +208,14 @@ public class ControlGUI extends JPanel implements Runnable {
 		public void actionPerformed(ActionEvent event) {
 
 			Object source = event.getSource();
+			
+			if (source.equals(searchItem)) {
+				
+				/** update on timer */
+				java.util.Timer timer = new java.util.Timer();
+				timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.FIVE_MINUTES);
 
-			if (source.equals(newUserItem)) {
+			} else if (source.equals(newUserItem)) {
 
 				userList.setEditable(true);
 
@@ -341,28 +348,30 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** add the menu items to the frame */
 	public void addMenu() {
 
-		userList.addItemListener(new UserListener());
-
 		/** Add the lit to each menu item */
 		viewerItem.addActionListener(listener);
 		newUserItem.addActionListener(listener);
-		searchItem.addActionListener(listener);
 		killItem.addActionListener(listener);
 		killDeviceItem.addActionListener(listener);
 		serverItem.addActionListener(listener);
 		debugOnItem.addActionListener(listener);
 		debugOffItem.addActionListener(listener);
 		testerItem.addActionListener(listener);
-
-		if (bluetoothEnabled()) {
-			device.add(searchItem);
-		}
-
+		closeSeverItem.addActionListener(listener);
+		serverItem.addActionListener(listener);
+		searchItem.addActionListener(listener);
+		
 		device.add(testerItem);
 		device.add(debugOnItem);
 		device.add(debugOffItem);
+		device.add(closeSeverItem);
 		device.add(killDeviceItem);
 		device.add(killItem);
+
+		if (bluetoothEnabled()) {
+			searchItem.addActionListener(listener);
+			device.add(searchItem);
+		}
 
 		userMenue.add(viewerItem);
 		userMenue.add(serverItem);
@@ -437,10 +446,6 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** show window */
 		javax.swing.SwingUtilities.invokeLater(this);
-
-		/** update on timer */
-		java.util.Timer timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new RefreshTask(), 30000, ZephyrOpen.TWO_MINUTES);
 	}
 
 	/** Create the GUI and show it. */
@@ -477,8 +482,9 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			initPorts();
 			
-			if(searchEnabled)
-				search();
+			//if(searchEnabled)
+				
+			search();
 
 		}
 	}
