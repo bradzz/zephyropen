@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/bluecove.jar"/>
+	<classpathentry kind="lib" path="lib/bluecove.jar" sourcepath="C:/Users/brad/.m2/repository/net/sf/bluecove/bluecove/2.1.0/bluecove-2.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/BrowserLauncher.jar"/>
 	<classpathentry kind="lib" path="lib/charts4j.jar"/>
