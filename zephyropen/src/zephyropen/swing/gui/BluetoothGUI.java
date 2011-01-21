@@ -1,7 +1,6 @@
 package zephyropen.swing.gui;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -19,10 +18,12 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
 import zephyropen.api.PrototypeFactory;
@@ -49,8 +50,8 @@ public class BluetoothGUI extends JPanel implements Runnable {
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
 	/** size of GUI window */
-	static final int XSIZE = 170;
-	static final int YSIZE = 100;
+	static final int XSIZE = 230;
+	static final int YSIZE = 130;
 
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
@@ -395,10 +396,18 @@ public class BluetoothGUI extends JPanel implements Runnable {
 		initDevices();
 		
 		/** add to grid */
-		this.setLayout(new GridLayout(2, 1, 7, 7));
-		this.add(deviceList);
-		this.add(userList);
-
+		setLayout(new SpringLayout());
+		
+		add(new JLabel("device: ", JLabel.TRAILING));
+		add(deviceList);
+		
+		add(new JLabel("name: ", JLabel.TRAILING));
+		add(userList);
+		
+		//add(new JLabel("ports: ", JLabel.TRAILING));
+		//add(portList);
+		
+		SpringUtilities.makeCompactGrid(this, 2, 2, 2, 2, 5, 5);
 		/** add menu */
 		addMenu();
 		
