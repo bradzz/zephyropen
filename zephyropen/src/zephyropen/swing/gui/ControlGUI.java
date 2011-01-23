@@ -96,7 +96,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** get list of ports available on this particular computer */
 	private void initPorts() {
-		portList.removeAllItems();
+		//portList.removeAllItems();
 		@SuppressWarnings("rawtypes")
 		Enumeration pList = CommPortIdentifier.getPortIdentifiers();
 		while (pList.hasMoreElements()) {
@@ -105,7 +105,8 @@ public class ControlGUI extends JPanel implements Runnable {
 				// if (cpi.isCurrentlyOwned()) {
 				// portList.addItem(cpi.getName() + "*");
 				// } else {
-				portList.addItem(cpi.getName());
+				if(!portExists(cpi.getName().trim()))
+					portList.addItem(cpi.getName());
 				// }
 			}
 		}
@@ -171,6 +172,15 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		return false;
 	}
+	
+	private boolean portExists(String port) {
+		port = port.trim();
+		for (int i = 0; i < userList.getItemCount(); i++)
+			if (portList.getItemAt(i).equals(port))
+				return true;
+
+		return false;
+	}
 
 	/** Look for BT devices, blocking call, hold GUI captive */
 	public void search() {
@@ -184,9 +194,8 @@ public class ControlGUI extends JPanel implements Runnable {
 							return;
 						}
 
-						status.setText("bluetooth searching...");
-
 						searching = true;
+						status.setText("bluetooth searching...");
 						Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
 
 						// if new device, add to the list
