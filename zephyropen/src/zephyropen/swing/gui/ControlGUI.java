@@ -50,16 +50,19 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** file name to hold search results */
 	static final String LAUNCH_FILE_NAME = "launch.properties";
-	
+
 	/** size of GUI window */
-	static final int XSIZE = 230;
-	static final int YSIZE = 180;
-	
+	static final int XSIZE = 250;
+	static final int YSIZE = 190;
+
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
-	
+
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
+
+	// wr
+	JLabel status = new JLabel("ready", JLabel.LEFT);
 
 	/** choose from discovered devices */
 	JComboBox deviceList = new JComboBox();
@@ -81,8 +84,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	JMenuItem searchItem = new JMenuItem("search");
 	JMenuItem viewerItem = new JMenuItem("viewer");
 	JMenuItem testerItem = new JMenuItem("test pattern");
-	
-	
+
 	JMenu userMenue = new JMenu("User");
 	JMenu device = new JMenu("Device");
 
@@ -100,11 +102,11 @@ public class ControlGUI extends JPanel implements Runnable {
 		while (pList.hasMoreElements()) {
 			CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
 			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				if (cpi.isCurrentlyOwned()) {
-					portList.addItem(cpi.getName() + "*");
-				} else {
-					portList.addItem(cpi.getName());
-				}
+				// if (cpi.isCurrentlyOwned()) {
+				// portList.addItem(cpi.getName() + "*");
+				// } else {
+				portList.addItem(cpi.getName());
+				// }
 			}
 		}
 	}
@@ -172,36 +174,39 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** Look for BT devices, blocking call, hold GUI captive */
 	public void search() {
-		new Thread() {
-			@Override
-			public void run() {
-				synchronized (searching) {
-					if(searching){
-						constants.info("search(), radio is busy", this);
-						return;
-					}
-				}
-				
-				constants.info("bluetooth searching...", this);
-
-				searching = true;
-				Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
-				
-				// if new device, add to the list 
-				if (!bluetoothDevices.isEmpty()) {
-					Enumeration<RemoteDevice> list = bluetoothDevices.elements();
-					while (list.hasMoreElements()) {
-						RemoteDevice target = list.nextElement();
-						try {
-							addDevice(target.getFriendlyName(false));
-						} catch (Exception e) {
-							constants.error(e.getMessage(), this);
+		if (bluetoothEnabled()) {
+			new Thread() {
+				@Override
+				public void run() {
+					synchronized (searching) {
+						if (searching) {
+							status.setText("radio is busy");
+							return;
 						}
+
+						status.setText("bluetooth searching...");
+
+						searching = true;
+						Vector<RemoteDevice> bluetoothDevices = new Discovery().getDevices();
+
+						// if new device, add to the list
+						if (!bluetoothDevices.isEmpty()) {
+							Enumeration<RemoteDevice> list = bluetoothDevices.elements();
+							while (list.hasMoreElements()) {
+								RemoteDevice target = list.nextElement();
+								try {
+									addDevice(target.getFriendlyName(false));
+								} catch (Exception e) {
+									constants.error(e.getMessage(), this);
+								}
+							}
+						}
+						searching = false;
+						status.setText("search complete");
 					}
 				}
-				searching = false;
-			}
-		}.start();
+			}.start();
+		}
 	}
 
 	/** Listen for menu events and send XML messages or Launch new proc */
@@ -209,25 +214,29 @@ public class ControlGUI extends JPanel implements Runnable {
 		public void actionPerformed(ActionEvent event) {
 
 			Object source = event.getSource();
-			
+
 			if (source.equals(searchItem)) {
-				
+
 				/** update on timer */
 				java.util.Timer timer = new java.util.Timer();
-				timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.FIVE_MINUTES);
+				timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.TWO_MINUTES);
+
+			} else if (source.equals(closeSeverItem)) {
+
+				constants.closeServers();
 
 			} else if (source.equals(newUserItem)) {
 
 				userList.setEditable(true);
 
 			} else if (source.equals(killItem)) {
-				
+
 				constants.shutdownFramework();
 
-			} else if(source.equals(killDeviceItem)){
-				
+			} else if (source.equals(killDeviceItem)) {
+
 				constants.killDevice((String) deviceList.getSelectedItem(), (String) userList.getSelectedItem());
-				
+
 			} else if (source.equals(debugOffItem) || source.equals(debugOnItem)) {
 
 				/** build framework command */
@@ -258,7 +267,7 @@ public class ControlGUI extends JPanel implements Runnable {
 			}
 		}
 	};
-	
+
 	/**
 	 * 
 	 * 
@@ -359,7 +368,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		closeSeverItem.addActionListener(listener);
 		serverItem.addActionListener(listener);
 		searchItem.addActionListener(listener);
-		
+
 		device.add(testerItem);
 		device.add(debugOnItem);
 		device.add(debugOffItem);
@@ -367,10 +376,12 @@ public class ControlGUI extends JPanel implements Runnable {
 		device.add(killDeviceItem);
 		device.add(killItem);
 
-		if (bluetoothEnabled()) {
-			searchItem.addActionListener(listener);
-			device.add(searchItem);
-		}
+		// if (bluetoothEnabled()) {
+
+		device.add(searchItem);
+		// }
+
+		searchItem.addActionListener(listener);
 
 		userMenue.add(viewerItem);
 		userMenue.add(serverItem);
@@ -393,7 +404,8 @@ public class ControlGUI extends JPanel implements Runnable {
 			local = LocalDevice.getLocalDevice();
 
 		} catch (BluetoothStateException e) {
-			constants.error(e.getMessage(), this);
+			// constants.error(e.getMessage(), this);
+			status.setText(e.getMessage());
 			return false;
 		}
 
@@ -418,8 +430,8 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		//constants.put(ZephyrOpen.frameworkDebug, "false");
-		//ApiFactory.getReference().remove("zephyropen");
+		// constants.put(ZephyrOpen.frameworkDebug, "false");
+		// ApiFactory.getReference().remove("zephyropen");
 		constants.lock();
 
 		/** find devices for prop files */
@@ -427,31 +439,31 @@ public class ControlGUI extends JPanel implements Runnable {
 		initPorts();
 		initUsers();
 
-		/** TODO: nag or put an add here, load image 
-		String text = "<html><font color=\"#0e1f5b\"> &#169; 2011 Brad Zdanivsky</font>";
-			if(!bluetoothEnabled()) text += " (BT disabled)";
-
-		JLabel copy = new JLabel(text);
-		copy.setHorizontalAlignment(JLabel.CENTER);*/
+		/**
+		 * TODO: nag or put an add here, load image String text =
+		 * "<html><font color=\"#0e1f5b\"> &#169; 2011 Brad Zdanivsky</font>";
+		 * if(!bluetoothEnabled()) text += " (BT disabled)";
+		 * 
+		 * JLabel copy = new JLabel(text);
+		 * copy.setHorizontalAlignment(JLabel.CENTER);
+		 */
 
 		/** add to panel */
 		setLayout(new SpringLayout());
-		
-		add(new JLabel("device: ", JLabel.TRAILING));
-		add(deviceList);
-		
-		add(new JLabel("name: ", JLabel.TRAILING));
-		add(userList);
-		
-		add(new JLabel("ports: ", JLabel.TRAILING));
-		add(portList);
-		
-		SpringUtilities.makeCompactGrid(this, 3, 2, 3, 2, 5, 5);
-		 
-  //               numPairs, 2, //rows, cols
-    //             6, 6,        //initX, initY
-      //           6, 6);       //xPad, yPad
 
+		add(new JLabel("device: ")); // , JLabel.TRAILING));
+		add(deviceList);
+
+		add(new JLabel("name: ")); // , JLabel.TRAILING));
+		add(userList);
+
+		add(new JLabel("ports: ")); // , JLabel.TRAILING));
+		add(portList);
+
+		add(new JLabel("status: ")); // , JLabel.TRAILING));
+		add(status);
+
+		SpringUtilities.makeCompactGrid(this, 4, 2, 4, 2, 5, 5);
 
 		/** add menu */
 		addMenu();
@@ -493,9 +505,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		public void run() {
 
 			initPorts();
-			
-			//if(searchEnabled)
-				
+
 			search();
 
 		}

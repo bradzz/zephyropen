@@ -575,7 +575,8 @@ public class ZephyrOpen {
 		kill.add(userName, usr);
 		kill.add(deviceName, dev);
 		kill.send();
-
+		kill.send();
+		
 		info("sent: " + kill.toString(), this);
 	}
 
@@ -584,6 +585,7 @@ public class ZephyrOpen {
 		
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.close);
+		kill.send();
 		kill.send();
 
 		info("sent: " + kill.toString(),this);
@@ -599,6 +601,7 @@ public class ZephyrOpen {
 
 		Command command = new Command();
 		command.add(action, shutdown);
+		command.send();
 		command.send();
 	}
 
