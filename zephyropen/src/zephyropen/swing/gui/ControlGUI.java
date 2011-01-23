@@ -96,18 +96,19 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** get list of ports available on this particular computer */
 	private void initPorts() {
-		//portList.removeAllItems();
+		// portList.removeAllItems();
 		@SuppressWarnings("rawtypes")
 		Enumeration pList = CommPortIdentifier.getPortIdentifiers();
 		while (pList.hasMoreElements()) {
 			CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
 			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				// if (cpi.isCurrentlyOwned()) {
-				// portList.addItem(cpi.getName() + "*");
-				// } else {
-				if(!portExists(cpi.getName().trim()))
-					portList.addItem(cpi.getName());
-				// }
+				if (!portExists(cpi.getName().trim())) {
+					if (cpi.isCurrentlyOwned()) {
+						portList.addItem(cpi.getName() + "*");
+					} else {
+						portList.addItem(cpi.getName());
+					}
+				}
 			}
 		}
 	}
@@ -172,7 +173,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		return false;
 	}
-	
+
 	private boolean portExists(String port) {
 		port = port.trim();
 		for (int i = 0; i < userList.getItemCount(); i++)
