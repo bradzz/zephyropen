@@ -8,6 +8,8 @@ import zephyropen.command.Command;
 import zephyropen.state.FilterFactory;
 
 public class jdbc {
+	
+	private final static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	Connection conn;
 
@@ -16,34 +18,27 @@ public class jdbc {
 	}
 
 	public jdbc() {
-		try {
-			
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String url = "jdbc:mysql://localhost/brad";
-			conn = DriverManager.getConnection(url, "brent", "dzzzxxxzd");
-
-			doInsertTest();
-			doSelectTest();
-
-			conn.close();
-			
-		} catch (ClassNotFoundException ex) {
-			System.err.println(ex.getMessage());
-		} catch (IllegalAccessException ex) {
-			System.err.println(ex.getMessage());
-		} catch (InstantiationException ex) {
-			System.err.println(ex.getMessage());
-		} catch (SQLException ex) {
-			System.err.println(ex.getMessage());
-		}
+		
+		jdbcOpen();
+		
+		System.out.println("closed open");
+		
+		// insert();
+		
+		jdbcClose();
+		
+		System.out.println("closed jdbd");
+	
 	}
+	
+	
 	private boolean jdbcOpen() {
 
 		try {
 
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String url = "jdbc:mysql://localhost/backup";
-			conn = DriverManager.getConnection(url, "brent", "zdy");
+			String url = "jdbc:mysql://localhost/brad";
+			conn = DriverManager.getConnection(url, "root", "");
 
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
@@ -83,11 +78,12 @@ public class jdbc {
 			} catch (SQLException ex) {
 				System.out.println(ex.getMessage());
 			}
-		}
-
-		// else constants.error("filtered: " + command.toString());
+			
+		} else constants.error("filtered: " + command.toString());
 	}
  
+	/*
+	
 	private void doSelectTest() {
 		System.out.println("[OUTPUT FROM SELECT]");
 		String query = "SELECT * FROM POLAR";
@@ -132,4 +128,6 @@ public class jdbc {
 			System.err.println(ex.getMessage());
 		}
 	}
+	
+	*/
 }

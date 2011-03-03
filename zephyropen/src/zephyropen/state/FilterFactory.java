@@ -65,7 +65,7 @@ public class FilterFactory {
 		Filter filter = null;
 		double value = 0;
 		String tag = null;
-
+		
 		// index into the prototype
 		for (int index = 0; index < commandPrototype.length; index++) {
 
@@ -84,15 +84,23 @@ public class FilterFactory {
 						constants.error("for: " + command.get(commandPrototype[index]));
 					}
 
+					/* check for old test patterns */
+					String[] parsed = new String[2];
+					if (tag.indexOf('.') > 0) {
+						parsed = tag.split("\\.");
+						if (parsed[1].length() > 0) {
+							// constants.error("too many dec: " + parsed[1] + " str: " + value);
+							return false;
+						}
+					}
+
 					if (!inRange(value, filter)) {
 
 						/*
 						constants.error(commandPrototype[index] + " "
 								+ filter.getClass().getName()
-								+ " not in range: " + value);
+								+ " not in range: " + value);*/
 
-						*/
-						
 						return false;
 
 					}
