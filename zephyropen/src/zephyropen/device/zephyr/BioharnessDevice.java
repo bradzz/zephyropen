@@ -67,12 +67,12 @@ public class BioharnessDevice extends AbstractPort implements Device {
 
 		/** sanity test if (!connected) return; */
 		ZephyrUtils.setupBioharness(port);
-		// ZephyrUtils.setupBioharnessRtoR(port);
+		ZephyrUtils.setupBioharnessRtoR(port);
 
 		short i = 0;
 		while (getDelta() < ZephyrOpen.TIME_OUT) {
 
-			Utils.delay(300);
+			Utils.delay(200);
 
 			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
 
@@ -84,40 +84,24 @@ public class BioharnessDevice extends AbstractPort implements Device {
 				/** parse data, send to listening devices */
 				if (type == DATA_PACKET) {
 					
-					constants.info("datat packet");
+					constants.info("data packet");
 
 					command = ZephyrUtils.parseBioharnessPacket(packet, command);
-					command.send();
-
-					constants.info(command.toString());
+				
+				} else if( type == RTOR_PACKET ) {
 					
-					/** parse R to R to same command */
-
+					constants.info("RR packet");
+					
+					command = ZephyrUtils.parseBioharnessRtoR(packet, command);
 				}
-
-				/*
-				 * else if( type == RTOR_PACKET ) {
-				 * 
-				 * command = ZephyrUtils.parseBioharnessRtoR(packet, command);
-				 * 
-				 * // all good, send it // if( ! command.isEmpty() ){
-				 * 
-				 * 
-				 * if(command.isMalformedCommand(ZephyrUtils.BioharnessPrototype
-				 * )){ constants.info( "malformed", this); return; }
-				 * 
-				 * // constants.info("xml: " + command.toXML(), this); //
-				 * constants.info("out: " +
-				 * command.list(ZephyrUtils.BioharnessPrototype), this); //
-				 * constants.info("out: " + command.toString(), this); //
-				 * 
-				 * // clear it // command.flush(); //} }
-				 */
 
 				if (i++ % 10 == 0) {
 					ZephyrUtils.setupBioharness(port);
-					// ZephyrUtils.setupBioharnessRtoR(port);
+					ZephyrUtils.setupBioharnessRtoR(port);
 				}
+				
+				constants.info(command.toString());
+				command.send();
 
 				// keep track of incoming data times
 				last = System.currentTimeMillis();
@@ -183,7 +167,7 @@ public class BioharnessDevice extends AbstractPort implements Device {
 			return HXM_PACKET;
 		}
 		
-		// System.out.println("unkown bioharness packet type");
+		constants.error("unkown bioharness packet type", this);
 
 		// no match found
 		return ERROR;

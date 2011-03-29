@@ -63,17 +63,16 @@ public class HxmDevice extends AbstractPort implements Device {
 					/** add speed, distance etc */
 					command = ZephyrUtils.parseHxmPacket(packet, command);
 					
-					command.send();
-			
 					/** add RR info */
-					// command = ZephyrUtils.parseHxmRtoR(packet, command);
+					command = ZephyrUtils.parseHxmRtoR(packet, command);
 					
-					/** dead battery -> dead connection ? 
-					if( command.get(PrototypeFactory.battery).equals("0") ) {
-						
+					/** dead battery -> dead connection ? */
+					if( command.get(PrototypeFactory.battery).equals("0")){
 						constants.error("HXM battery is dead?", this);
-						// sendStatus("deadBattery");
-						*/
+						port.close();
+					}
+					
+					command.send();
 				} 
 			}
 		}
