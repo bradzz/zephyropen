@@ -3,12 +3,9 @@ package zephyropen.device.wii;
 import java.io.IOException;
 import java.util.Random;
 
-import javax.comm.CommPortIdentifier;
-import javax.comm.SerialPort;
-import javax.comm.SerialPortEvent;
-import javax.comm.SerialPortEventListener;
+import gnu.io.*;
 
-import zephyropen.api.ZephyrOpen; //import zephyropen.command.Command;
+import zephyropen.api.ZephyrOpen;
 import zephyropen.device.wii.WiiUtils;
 import zephyropen.port.AbstractPort;
 import zephyropen.port.Port;

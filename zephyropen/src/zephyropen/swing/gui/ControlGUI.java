@@ -16,7 +16,8 @@ import java.util.Vector;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
-import javax.comm.CommPortIdentifier;
+
+import gnu.io.*;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -221,6 +222,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** Listen for menu events and send XML messages or Launch new proc */
 	private final ActionListener listener = new ActionListener() {
+		@Override
 		public void actionPerformed(ActionEvent event) {
 
 			Object source = event.getSource();

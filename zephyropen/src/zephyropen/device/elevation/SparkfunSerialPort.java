@@ -3,9 +3,7 @@ package zephyropen.device.elevation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import javax.comm.CommPortIdentifier;
-import javax.comm.SerialPort;
+import gnu.io.*;
 
 import zephyropen.api.ZephyrOpen;
 import zephyropen.port.Port;
