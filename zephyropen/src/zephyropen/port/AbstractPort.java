@@ -98,7 +98,6 @@ public abstract class AbstractPort implements Port {
 
 		} catch (IOException e) {
 			constants.error("close() :" + e.getMessage(), this);
-			port = null;
 		}
 
 		try {
@@ -108,7 +107,8 @@ public abstract class AbstractPort implements Port {
 
 		} catch (IOException e) {
 			constants.error("close() :" + e.getMessage(), this);
-			port = null;
 		}
+		
+		port.close();
 	}
 }

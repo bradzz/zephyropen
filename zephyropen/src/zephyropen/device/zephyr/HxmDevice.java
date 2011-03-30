@@ -68,7 +68,7 @@ public class HxmDevice extends AbstractPort implements Device {
 					
 					/** dead battery -> dead connection ? */
 					if( command.get(PrototypeFactory.battery).equals("0")){
-						constants.error("HXM battery is dead?", this);
+						constants.error("HXM battery is dead", this);
 						port.close();
 					}
 					

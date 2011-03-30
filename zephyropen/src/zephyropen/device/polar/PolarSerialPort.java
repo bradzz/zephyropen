@@ -54,7 +54,7 @@ public class PolarSerialPort implements Port {
         try {
 
             /* construct the serial port */
-            serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(address).open(this.getClass().getName(), TIMEOUT);
+            serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(address).open("PolarSerialPort", TIMEOUT);
 
         } catch (Exception e) {
             constants.error("error ininitalizing: " + address);
@@ -82,7 +82,7 @@ public class PolarSerialPort implements Port {
         }
 
         // connected
-        constants.info("connected to: " + address, this);
+        // constants.info("connected to: " + address, this);
         return true;
     }
 

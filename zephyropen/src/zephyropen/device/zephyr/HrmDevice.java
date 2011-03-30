@@ -64,7 +64,7 @@ public class HrmDevice extends AbstractPort implements Device {
 					// add speed, distance etc 
 					command = ZephyrUtils.parseHrmPacket(packet, command);
 			
-					// add rr into same packet 
+					// add RR into same packet 
 					command = ZephyrUtils.parseHxmRtoR(packet, command);
 					
 					/*

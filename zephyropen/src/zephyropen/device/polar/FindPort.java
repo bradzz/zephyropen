@@ -233,7 +233,7 @@ public class FindPort {
 		else
 			constants.info("Polar NOT found");
 
-		port.close();
+		// port.close();
 
 		constants.info("scan took: " + (System.currentTimeMillis() - start) + " ms");
 

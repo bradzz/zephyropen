@@ -57,7 +57,7 @@ public class DeviceServer {
 
         } else {
 
-            constants.info("can't connect ", this);
+            constants.info("can't connect: " + device.getDeviceName(), this);
             
         }
 
@@ -66,69 +66,6 @@ public class DeviceServer {
         constants.shutdown();
     }
 
-    
-    /**
-     * <p>
-     * Constructor for the DeviceServer. Use a factory to create a server for the specific
-     * device based only on the naming convention from the manufacturing company.
-     * 
-     * @param deviceName
-     *            is the blue tooth friendly name of the target device.
-    
-    public DeviceServer(String dev, String addr) {
-    	
-    	constants.put(ZephyrOpen.userName, "brad");
-    	constants.put(ZephyrOpen.deviceName, dev);
-    	constants.put(ZephyrOpen.port, addr);
-
-        // Create a server 
-        device = DeviceFactory.create(); //dev, addr);
-
-        if (device == null) {
-            constants.error("Can't create device, terminate.", this);
-            constants.shutdown();
-        }
-
-        if (device.connect()) {
-
-        	// keep checking the device delta
-        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		new WatchDog(device).start();
-           
-            // blocking call 
-            device.readDevice();
-
-        } else {
-
-            constants.info("can't connect ", this);
-            
-        }
-
-        constants.info("closed device name = " + device.getDeviceName(), this);
-        device.close();
-        constants.shutdown();
-    } */
-
-    
-    
-    // 
-    // Java DeviceServer userName deviceName
-    //
-    /*
-    public static void main(String[] args) {
-
-        if (args.length == 2) {
-
-            // configure the framework with properties file 
-            constants.init();
-
-            // properties file must supply the device Name 
-            new DeviceServer(args[0], args[1]);
-             
-        } else System.out.println("can't start device with args = " + args.length);
-    } 
-     */
-   
     
     /*
      * Use command line arguments to configure the framework with given properties file
@@ -146,6 +83,4 @@ public class DeviceServer {
             new DeviceServer();
         }
     } 
-    
-    
 }
