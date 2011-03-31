@@ -205,6 +205,7 @@ public class ZephyrOpen {
 		props.put(frameworkDebug, "true");
 		props.put(loopback, "true");
 		props.put(loggingEnabled, "true");
+		props.put(enableWatchDog, "true");
 		
 		//props.put(infoEnable, "false");
 	}

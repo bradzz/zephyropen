@@ -15,8 +15,10 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
+
 import zephyropen.api.ZephyrOpen;
 import zephyropen.port.Port;
+import zephyropen.util.Utils;
 
 /**
  * <p>
@@ -42,7 +44,7 @@ public class SearchSPP implements DiscoveryListener, Port {
     public static final ZephyrOpen constants = ZephyrOpen.getReference();
 
     /** time between BT connection spin locking */
-    public final long DELAY = 200;
+    public final long DELAY = 300;
 
     private boolean deviceSearch = true;
 
@@ -64,7 +66,7 @@ public class SearchSPP implements DiscoveryListener, Port {
 
     private OutputStream outputStream = null;
 
-    private String address;
+    private String address = null;
 
     /**
      * Create and try to discover a RF-COMM SPP device via the BlueTooth Stack
@@ -303,7 +305,15 @@ public class SearchSPP implements DiscoveryListener, Port {
     public void close() {
 
         constants.info("closing " + address, this);
-
+ 
+        if (connection != null){
+	        try {
+				connection.close();
+			} catch (IOException e) {
+	            constants.error("close() :" + e.getMessage(), this);
+			}	
+        }
+        
         try {
 
             if (inputStream != null)
@@ -335,16 +345,16 @@ public class SearchSPP implements DiscoveryListener, Port {
      * 
      * @param args
      *            the bluetooth friendly name of the device
-     
+     */
 
     public static void main(String[] args) {
 
         constants.init();
+        constants.lock();
 
         SearchSPP spp = new SearchSPP("BH ZBH001354");
-        // args[0]);
 
-        // continue to search and attempt to connect to the device, keep stats
+        // continue to search and attempt to connect to the device
         int connected = 0;
         int failed = 0;
         int error = 0;
@@ -364,6 +374,5 @@ public class SearchSPP implements DiscoveryListener, Port {
             System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
             Utils.delay(ZephyrOpen.ONE_MINUTE);
         }
-    }*/
-
+    }
 }
