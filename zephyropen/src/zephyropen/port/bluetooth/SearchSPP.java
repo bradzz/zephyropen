@@ -18,7 +18,7 @@ import javax.microedition.io.StreamConnection;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-import zephyropen.device.zephyr.HxmDevice;
+import zephyropen.device.zephyr.ZephyrUtils;
 import zephyropen.port.Port;
 import zephyropen.util.Utils;
 
@@ -312,10 +312,10 @@ public class SearchSPP implements DiscoveryListener, Port {
 		constants.info("closing " + address, this);
 
 		try {
-			
+
 			if (connection != null)
 				connection.close();
-			
+
 		} catch (IOException e) {
 			constants.error("close() :" + e.getMessage(), this);
 		}
@@ -348,40 +348,61 @@ public class SearchSPP implements DiscoveryListener, Port {
 
 	public static void main(String[] args) {
 
-		// use defaults, accept no changes. 
+		// use defaults, accept no changes.
 		constants.init();
 		constants.lock();
 
-		 // SearchSPP spp = new SearchSPP("HXM");
-		HxmDevice hxm = new HxmDevice("XXM...");
-		Command feedback = null;
-		
-			// continue to search and attempt to connect to the device
+		/** allocate a byte array for receiving data from the serial port */
+		final int BUFFER_SIZE = 60;
+		byte[] buffer = new byte[BUFFER_SIZE];
+		byte[] packet = new byte[BUFFER_SIZE];
+
+		Command command = new Command();
+		SearchSPP spp = new SearchSPP("BH ZBH001354");
+
+		// continue to search and attempt to connect to the device
 		int connected = 0;
 		int failed = 0;
 		int error = 0;
+		long last = 0; // System.currentTimeMillis();
+
 		for (int i = 1;; i++) {
 
-			if (hxm.connect()) {
-
+			if (spp.connect()) {
 				connected++;
-			
-				while(hxm.getDelta() < ZephyrOpen.TWO_MINUTES){
-					feedback = hxm.getCommand();
-					
-					System.out.println("hr = " + feedback.get(PrototypeFactory.heart));
-					System.out.println("beat = " + feedback.get(PrototypeFactory.beat));
-					
-					Utils.delay(900);
-				}
-				
-			} else {
-				failed++;
-				System.out.println("connect() failed...");
-			}
+				while ((last - System.currentTimeMillis()) < ZephyrOpen.TIME_OUT) {
 
-			System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
-			Utils.delay(ZephyrOpen.ONE_MINUTE);
+					packet = SerialUtils.getAvail(spp, buffer, BUFFER_SIZE);
+
+					if (packet != null) {
+
+						// track arrival of data packets
+						last = System.currentTimeMillis();
+
+						if (ZephyrUtils.vaildHxmPacket(packet)) {
+
+							// add speed, distance etc
+							command = ZephyrUtils.parseBioharnessPacket(packet, command);
+							
+							// add RR into same packet
+							// command = ZephyrUtils.parseHxmRtoR(packet, command);
+							// command = ZephyrUtils.parseHxmRtoR(packet, command);
+
+							System.out.println("hr = " + command.get(PrototypeFactory.heart));
+							System.out.println("beat = " + command.get(PrototypeFactory.beat));
+
+							Utils.delay(900);
+						}
+
+					} else {
+						failed++;
+						System.out.println("connect() failed...");
+					}
+
+					System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
+					Utils.delay(ZephyrOpen.ONE_MINUTE);
+				}
+			}
 		}
 	}
 }
