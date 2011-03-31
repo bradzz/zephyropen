@@ -379,30 +379,28 @@ public class SearchSPP implements DiscoveryListener, Port {
 						// track arrival of data packets
 						last = System.currentTimeMillis();
 
-						if (ZephyrUtils.vaildHxmPacket(packet)) {
+						// add speed, distance etc
+						command = ZephyrUtils.parseBioharnessPacket(packet, command);
 
-							// add speed, distance etc
-							command = ZephyrUtils.parseBioharnessPacket(packet, command);
-							
-							// add RR into same packet
-							// command = ZephyrUtils.parseHxmRtoR(packet, command);
-							// command = ZephyrUtils.parseHxmRtoR(packet, command);
+						// add RR into same packet
+						// command = ZephyrUtils.parseHxmRtoR(packet, command);
+						// command = ZephyrUtils.parseHxmRtoR(packet, command);
 
-							System.out.println("hr = " + command.get(PrototypeFactory.heart));
-							System.out.println("beat = " + command.get(PrototypeFactory.beat));
+						System.out.println("hr = " + command.get(PrototypeFactory.heart));
+						System.out.println("beat = " + command.get(PrototypeFactory.beat));
 
-							Utils.delay(900);
-						}
+						Utils.delay(900);
 
-					} else {
-						failed++;
-						System.out.println("connect() failed...");
 					}
-
-					System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
-					Utils.delay(ZephyrOpen.ONE_MINUTE);
 				}
+			} else {
+				failed++;
+				System.out.println("connect() failed...");
 			}
+
+			System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
+			Utils.delay(ZephyrOpen.ONE_MINUTE);
+
 		}
 	}
 }
