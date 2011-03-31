@@ -1,5 +1,7 @@
 package zephyropen.device;
 
+import zephyropen.command.Command;
+
 /**
  * An interface all zephyropen devices
  * 
@@ -25,4 +27,6 @@ public interface Device {
 
     public void readDevice();
 
+    public Command getCommand();
+    
 }

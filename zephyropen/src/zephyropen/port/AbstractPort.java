@@ -43,6 +43,10 @@ public abstract class AbstractPort implements Port {
 	public long getElapsedTime() {
 		return (System.currentTimeMillis() - start);
 	}
+	
+	public Command getCommand(){
+		return command;
+	}
 
 	/**
 	 * Wrapper the InputStream method

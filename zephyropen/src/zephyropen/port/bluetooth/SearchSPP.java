@@ -15,19 +15,22 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
-
+import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
+import zephyropen.command.Command;
+import zephyropen.device.zephyr.HxmDevice;
 import zephyropen.port.Port;
 import zephyropen.util.Utils;
 
 /**
  * <p>
- * Wrapper for the Blue Tooth JNI layer for searching and connecting to a given BT device.
+ * Wrapper for the Blue Tooth JNI layer for searching and connecting to a given
+ * BT device.
  * <p>
  * SPP must be discovered as a service on the given Device Name
  * <p>
- * This is a blocking discovery, it will not return until the device is found, or times
- * out.
+ * This is a blocking discovery, it will not return until the device is found,
+ * or times out.
  * <p>
  * Package : Created: May 11, 2008
  * 
@@ -40,339 +43,345 @@ import zephyropen.util.Utils;
  */
 public class SearchSPP implements DiscoveryListener, Port {
 
-    /** framework configuration */
-    public static final ZephyrOpen constants = ZephyrOpen.getReference();
+	/** framework configuration */
+	public static final ZephyrOpen constants = ZephyrOpen.getReference();
 
-    /** time between BT connection spin locking */
-    public final long DELAY = 300;
+	/** time between BT connection spin locking */
+	public final long DELAY = 300;
 
-    private boolean deviceSearch = true;
+	private boolean deviceSearch = true;
 
-    private boolean serviceSearch = true;
+	private boolean serviceSearch = true;
 
-    private DiscoveryAgent agent = null;
+	private DiscoveryAgent agent = null;
 
-    private String serviceURL = null;
+	private String serviceURL = null;
 
-    private RemoteDevice targetDevice = null;
+	private RemoteDevice targetDevice = null;
 
-    private String targetDeviceName = null;
+	private String targetDeviceName = null;
 
-    private LocalDevice local = null;
+	private LocalDevice local = null;
 
-    private StreamConnection connection = null;
+	private StreamConnection connection = null;
 
-    private DataInputStream inputStream = null;
+	private DataInputStream inputStream = null;
 
-    private OutputStream outputStream = null;
+	private OutputStream outputStream = null;
 
-    private String address = null;
+	private String address = null;
 
-    /**
-     * Create and try to discover a RF-COMM SPP device via the BlueTooth Stack
-     * 
-     * @param target
-     *            is the friendly name of the blue tooth device to be found
-     */
-    public SearchSPP(String target) {
+	/**
+	 * Create and try to discover a RF-COMM SPP device via the BlueTooth Stack
+	 * 
+	 * @param target
+	 *            is the friendly name of the blue tooth device to be found
+	 */
+	public SearchSPP(String target) {
 
-        targetDeviceName = target;
+		targetDeviceName = target;
 
-        try {
+		try {
 
-            /** get local services */
-            local = LocalDevice.getLocalDevice();
-            agent = local.getDiscoveryAgent();
+			/** get local services */
+			local = LocalDevice.getLocalDevice();
+			agent = local.getDiscoveryAgent();
 
-        } catch (BluetoothStateException e) {
-            constants.error(e.getMessage(), this);
-            constants.shutdown();
-        }
+		} catch (BluetoothStateException e) {
+			constants.error(e.getMessage(), this);
+			constants.shutdown();
+		}
 
-        /** radio better be on */
-        if (!LocalDevice.isPowerOn()) {
-            constants.error("Blue Tooth Radio is not ready, terminate!", this);
-            constants.shutdown();
-        }
-    }
+		/** radio better be on */
+		if (!LocalDevice.isPowerOn()) {
+			constants.error("Blue Tooth Radio is not ready, terminate!", this);
+			constants.shutdown();
+		}
+	}
 
-    /**
-     * Find and attach to serial port profile for this device
-     * 
-     * @return true if connection was established, false if not
-     */
-    public boolean connect() {
+	/**
+	 * Find and attach to serial port profile for this device
+	 * 
+	 * @return true if connection was established, false if not
+	 */
+	public boolean connect() {
 
-        /** look for the BT device in our BT control module */
-        if (!findDevice())
-            return false;
+		/** look for the BT device in our BT control module */
+		if (!findDevice())
+			return false;
 
-        /** now look for the service url */
-        if (!findService()) {
-            constants.error("can't find service url", this);
-            return false;
-        }
+		/** now look for the service url */
+		if (!findService()) {
+			constants.error("can't find service url", this);
+			return false;
+		}
 
-        try {
+		try {
 
-            constants.info("url-" + serviceURL, this);
+			constants.info("url-" + serviceURL, this);
 
-            /** open the serial port streams */
-            connection = (StreamConnection) Connector.open(serviceURL);
-            inputStream = connection.openDataInputStream();
-            outputStream = connection.openDataOutputStream();
+			/** open the serial port streams */
+			connection = (StreamConnection) Connector.open(serviceURL);
+			inputStream = connection.openDataInputStream();
+			outputStream = connection.openDataOutputStream();
 
-        } catch (Exception e) {
-            constants.error("connect(): " + e.getMessage(), this);
-            return false;
-        }
+		} catch (Exception e) {
+			constants.error("connect(): " + e.getMessage(), this);
+			return false;
+		}
 
-        /** all is well, streams open */
-        return true;
-    }
+		/** all is well, streams open */
+		return true;
+	}
 
-    /**
-     * Find the given device name on the BT network
-     * 
-     * @return true if target device was found
-     */
-    private boolean findDevice() {
+	/**
+	 * Find the given device name on the BT network
+	 * 
+	 * @return true if target device was found
+	 */
+	private boolean findDevice() {
 
-        constants.info("Searching for [" + targetDeviceName + "]", this);
+		constants.info("Searching for [" + targetDeviceName + "]", this);
 
-        /** Be sure to re-start the process of searching each time this is called */
-        targetDevice = null;
-        deviceSearch = true;
+		/**
+		 * Be sure to re-start the process of searching each time this is called
+		 */
+		targetDevice = null;
+		deviceSearch = true;
 
-        try {
+		try {
 
-            agent.startInquiry(DiscoveryAgent.GIAC, this);
+			agent.startInquiry(DiscoveryAgent.GIAC, this);
 
-            /** wait to find the device */
-            while (deviceSearch)
-                Thread.sleep(DELAY);
+			/** wait to find the device */
+			while (deviceSearch)
+				Thread.sleep(DELAY);
 
-        } catch (Exception e) {
-            agent.cancelInquiry(this);
-            return false;
-        }
+		} catch (Exception e) {
+			agent.cancelInquiry(this);
+			return false;
+		}
 
-        if (targetDevice == null) {
-            constants.error("can not find device [" + targetDeviceName + "]", this);
-            return false;
-        }
+		if (targetDevice == null) {
+			constants.error("can not find device [" + targetDeviceName + "]", this);
+			return false;
+		}
 
-        /** found target */
-        return true;
-    }
+		/** found target */
+		return true;
+	}
 
-    /** @return true if target device was found */
-    private boolean findService() {
+	/** @return true if target device was found */
+	private boolean findService() {
 
-        constants.info("Searching for SPP on [" + targetDeviceName + "]", this);
-        serviceSearch = true;
+		constants.info("Searching for SPP on [" + targetDeviceName + "]", this);
+		serviceSearch = true;
 
-        /** Serial Port Profile UUID */
-        int[] attributes = { 0x100 };
-        UUID[] uuids = new UUID[1];
-        uuids[0] = com.intel.bluetooth.BluetoothConsts.RFCOMM_PROTOCOL_UUID;
+		/** Serial Port Profile UUID */
+		int[] attributes = { 0x100 };
+		UUID[] uuids = new UUID[1];
+		uuids[0] = com.intel.bluetooth.BluetoothConsts.RFCOMM_PROTOCOL_UUID;
 
-        /** look for serial port service */
-        int serviceSearchID = 0;
-        try {
+		/** look for serial port service */
+		int serviceSearchID = 0;
+		try {
 
-            serviceSearchID = local.getDiscoveryAgent().searchServices(attributes, uuids, targetDevice, this);
+			serviceSearchID = local.getDiscoveryAgent().searchServices(attributes, uuids, targetDevice, this);
 
-            /** spin lock */
-            while (serviceSearch)
-                Thread.sleep(DELAY);
+			/** spin lock */
+			while (serviceSearch)
+				Thread.sleep(DELAY);
 
-        } catch (Exception e) {
-            agent.cancelServiceSearch(serviceSearchID);
-            return false;
-        }
+		} catch (Exception e) {
+			agent.cancelServiceSearch(serviceSearchID);
+			return false;
+		}
 
-        /** found target */
-        return true;
-    }
+		/** found target */
+		return true;
+	}
 
-    /** Called by the blue tooth control as devices are found */
-    public void deviceDiscovered(RemoteDevice device, DeviceClass deviceClass) {
+	/** Called by the blue tooth control as devices are found */
+	public void deviceDiscovered(RemoteDevice device, DeviceClass deviceClass) {
 
-        try {
+		try {
 
-            // discovered address 
-            address = device.getBluetoothAddress();
+			// discovered address
+			address = device.getBluetoothAddress();
 
-            /** debug output only, need the address sometimes */
-            constants.info("discovered [" + device.getFriendlyName(false) + "] address = " + address, this);
+			/** debug output only, need the address sometimes */
+			constants.info("discovered [" + device.getFriendlyName(false) + "] address = " + address, this);
 
-            if (device.getFriendlyName(false).equals(targetDeviceName)) {
+			if (device.getFriendlyName(false).equals(targetDeviceName)) {
 
-                /** device has been found */
-                targetDevice = device;
+				/** device has been found */
+				targetDevice = device;
 
-                /** we don't care about other devices, we can stop searching now */
-                deviceSearch = false;
-                agent.cancelInquiry(this);
+				/** we don't care about other devices, we can stop searching now */
+				deviceSearch = false;
+				agent.cancelInquiry(this);
 
-            }
-        } catch (Exception e) {
-            constants.error(e.getMessage(), this);
-        }
-    }
+			}
+		} catch (Exception e) {
+			constants.error(e.getMessage(), this);
+		}
+	}
 
-    /** This is called by the blue tooth control when the inquiry has completed */
-    public void inquiryCompleted(int respCode) {
-        constants.info("inquiryCompleted()", this);
-        deviceSearch = false;
-    }
+	/** This is called by the blue tooth control when the inquiry has completed */
+	public void inquiryCompleted(int respCode) {
+		constants.info("inquiryCompleted()", this);
+		deviceSearch = false;
+	}
 
-    /** not used by this class */
-    public void servicesDiscovered() {
-    }
+	/** not used by this class */
+	public void servicesDiscovered() {
+	}
 
-    /** This is called by the bluetooth control when search has completed */
-    public void serviceSearchCompleted(int arg0, int arg1) {
-        constants.info("serviceSearchCompleted()", this);
-        serviceSearch = false;
-    }
+	/** This is called by the bluetooth control when search has completed */
+	public void serviceSearchCompleted(int arg0, int arg1) {
+		constants.info("serviceSearchCompleted()", this);
+		serviceSearch = false;
+	}
 
-    /**
-     * Find a Bluetooth Serial Port service for this device
-     * 
-     * <p>
-     * <b>note: this is a NOAUTHENTICATE_NOENCRYPT device only </b>
-     * 
-     * @see javax.bluetooth.DiscoveryListener#servicesDiscovered(int,
-     *      javax.bluetooth.ServiceRecord[])
-     */
-    public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-        for (int i = 0; i < servRecord.length; i++) {
+	/**
+	 * Find a Bluetooth Serial Port service for this device
+	 * 
+	 * <p>
+	 * <b>note: this is a NOAUTHENTICATE_NOENCRYPT device only </b>
+	 * 
+	 * @see javax.bluetooth.DiscoveryListener#servicesDiscovered(int,
+	 *      javax.bluetooth.ServiceRecord[])
+	 */
+	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
+		for (int i = 0; i < servRecord.length; i++) {
 
-            /** check for SPP */
-            String name = (String) (servRecord[i].getAttributeValue(0x100)).getValue();
+			/** check for SPP */
+			String name = (String) (servRecord[i].getAttributeValue(0x100)).getValue();
 
-            if (name.equals("Bluetooth Serial Port")) {
-                serviceURL = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-                serviceSearch = false;
-            }
-        }
-    }
+			if (name.equals("Bluetooth Serial Port")) {
+				serviceURL = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+				serviceSearch = false;
+			}
+		}
+	}
 
-    /**
-     * Wrapper the InputStream method
-     * 
-     * @return the number of bytes that can be read from the device
-     * @throws IOException
-     */
-    public int available() throws IOException {
-        return inputStream.available();
-    }
+	/**
+	 * Wrapper the InputStream method
+	 * 
+	 * @return the number of bytes that can be read from the device
+	 * @throws IOException
+	 */
+	public int available() throws IOException {
+		return inputStream.available();
+	}
 
-    /**
-     * Wrapper the InputStream method
-     * 
-     * @param data
-     *            to read from the device
-     * @return the data read from the device
-     * @throws IOException
-     *             is thrown if this write operation fails
-     */
-    public int read(byte[] data) throws IOException {
-        return inputStream.read(data);
-    }
+	/**
+	 * Wrapper the InputStream method
+	 * 
+	 * @param data
+	 *            to read from the device
+	 * @return the data read from the device
+	 * @throws IOException
+	 *             is thrown if this write operation fails
+	 */
+	public int read(byte[] data) throws IOException {
+		return inputStream.read(data);
+	}
 
-    /**
-     * Wrapper the outputStream method
-     * 
-     * @param data
-     *            to write to the device
-     * @throws IOException
-     *             is thrown if this write operation fails
-     */
-    public void writeBytes(byte[] data) throws IOException {
-        outputStream.write(data);
-    }
+	/**
+	 * Wrapper the outputStream method
+	 * 
+	 * @param data
+	 *            to write to the device
+	 * @throws IOException
+	 *             is thrown if this write operation fails
+	 */
+	public void writeBytes(byte[] data) throws IOException {
+		outputStream.write(data);
+	}
 
-    /** Override, give better output */
-    @Override
-    public String toString() {
-        return targetDeviceName;
-    }
+	/** Override, give better output */
+	@Override
+	public String toString() {
+		return targetDeviceName;
+	}
 
-    /** Close the serial port profile's streams */
-    public void close() {
+	/** Close the serial port profile's streams */
+	public void close() {
 
-        constants.info("closing " + address, this);
- 
-        if (connection != null){
-	        try {
+		constants.info("closing " + address, this);
+
+		try {
+			
+			if (connection != null)
 				connection.close();
-			} catch (IOException e) {
-	            constants.error("close() :" + e.getMessage(), this);
-			}	
-        }
-        
-        try {
+			
+		} catch (IOException e) {
+			constants.error("close() :" + e.getMessage(), this);
+		}
 
-            if (inputStream != null)
-                inputStream.close();
+		try {
 
-        } catch (IOException e) {
-            constants.error("close() :" + e.getMessage(), this);
-        }
+			if (inputStream != null)
+				inputStream.close();
 
-        try {
+		} catch (IOException e) {
+			constants.error("close() :" + e.getMessage(), this);
+		}
 
-            if (outputStream != null)
-                outputStream.close();
+		try {
 
-        } catch (IOException e) {
-            constants.error("close() :" + e.getMessage(), this);
-        }
-    }
+			if (outputStream != null)
+				outputStream.close();
 
-    /** @return the address as a hex encoded string for this device */
-    public String getAddress() {
-        return address;
-    }
+		} catch (IOException e) {
+			constants.error("close() :" + e.getMessage(), this);
+		}
+	}
 
-    /**
-     * Start a SPP with given name
-     * 
-     * java SearchSPP "Brad'd iMac"
-     * 
-     * @param args
-     *            the bluetooth friendly name of the device
-     */
+	/** @return the address as a hex encoded string for this device */
+	public String getAddress() {
+		return address;
+	}
 
-    public static void main(String[] args) {
+	/** test utility */
 
-        constants.init();
-        constants.lock();
+	public static void main(String[] args) {
 
-        SearchSPP spp = new SearchSPP("BH ZBH001354");
+		// use defaults, accept no changes. 
+		constants.init();
+		constants.lock();
 
-        // continue to search and attempt to connect to the device
-        int connected = 0;
-        int failed = 0;
-        int error = 0;
-        for (int i = 1;; i++) {
+		 // SearchSPP spp = new SearchSPP("HXM");
+		HxmDevice hxm = new HxmDevice("XXM...");
+		Command feedback = null;
+		
+			// continue to search and attempt to connect to the device
+		int connected = 0;
+		int failed = 0;
+		int error = 0;
+		for (int i = 1;; i++) {
 
-            if (spp.connect()) {
+			if (hxm.connect()) {
 
-                connected++;
-                System.out.println("connected to device and closing ...");
-                spp.close();
+				connected++;
+			
+				while(hxm.getDelta() < ZephyrOpen.TWO_MINUTES){
+					feedback = hxm.getCommand();
+					
+					System.out.println("hr = " + feedback.get(PrototypeFactory.heart));
+					System.out.println("beat = " + feedback.get(PrototypeFactory.beat));
+					
+					Utils.delay(900);
+				}
+				
+			} else {
+				failed++;
+				System.out.println("connect() failed...");
+			}
 
-            } else {
-                failed++;
-                System.out.println("connect() failed...");
-            }
-
-            System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
-            Utils.delay(ZephyrOpen.ONE_MINUTE);
-        }
-    }
+			System.out.println("attempts: " + i + " connected: " + connected + " failed: " + failed + " errors: " + error);
+			Utils.delay(ZephyrOpen.ONE_MINUTE);
+		}
+	}
 }
