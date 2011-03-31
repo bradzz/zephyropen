@@ -115,7 +115,6 @@ public class SerialUtils {
 		//System.out.println("getAvailUnix");
 		
 		int offset = 0;
-		//buffer = null;
 		
 		try {
 			if (spp.available() < 1) {
@@ -138,12 +137,11 @@ public class SerialUtils {
 				offset = offset + bytes;
 				
 			}
-			
 		} catch (Exception e) {
 			constants.error("SerialUtils.getAvail() : " + e);
+			spp.close();
 			return null;
 		}
-		
 		
 		// System.out.println("offset: "+offset);	
 		if ( offset < BUFFER_SIZE) {
@@ -182,6 +180,7 @@ public class SerialUtils {
 
 		} catch (Exception e) {
 			constants.error("SerialUtils.getAvail(), spp.read() : " + e);
+			spp.close();
 			return null;
 		}
 
