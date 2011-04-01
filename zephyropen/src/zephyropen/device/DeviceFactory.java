@@ -6,6 +6,7 @@ import zephyropen.device.arduino.ArduinoDevice;
 import zephyropen.device.elevation.ElevationDevice;
 import zephyropen.device.polar.PolarDevice;
 import zephyropen.device.zephyr.BioharnessDevice;
+import zephyropen.device.zephyr.HrmDevice;
 import zephyropen.device.zephyr.HxmDevice;
 
 /**
@@ -30,25 +31,31 @@ public class DeviceFactory {
 		constants.info("DeviceFactory.create(" + deviceName + ")");
 		
 		if (type == PrototypeFactory.HXM) {
-			constants.put(ZephyrOpen.enableWatchDog, "true");
-			return new HxmDevice(deviceName);
+			Device device = new HxmDevice(deviceName);
+        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		new WatchDog(device).start();
+			return device;
 		}
 
 		if (type == PrototypeFactory.HRM) {
-			constants.put(ZephyrOpen.enableWatchDog, "true");
-			return new HxmDevice(deviceName);
+			Device device = new HrmDevice(deviceName);
+        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		new WatchDog(device).start();
+        	return device;
 		}
 
 		if (type == PrototypeFactory.BIOHARNESS) {
-			constants.put(ZephyrOpen.enableWatchDog, "true");
-			return new BioharnessDevice(deviceName);
+			Device device = new BioharnessDevice(deviceName);
+        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		new WatchDog(device).start();
+			return device;
 		}
 
 		// ensure is a com port in properties
 		String com = constants.get(ZephyrOpen.com);
 		
 		if( com == null ){
-			constants.error("no com port in properties");
+			constants.error("DeviceFactory(): no com port in properties");
 			return null;
 		}
 	

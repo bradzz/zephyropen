@@ -49,8 +49,8 @@ public class DeviceServer {
         if (device.connect()) {
 
         	// keep checking the device delta
-        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		new WatchDog(device).start();
+        	// if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		// new WatchDog(device).start();
            
             // blocking call 
             device.readDevice();

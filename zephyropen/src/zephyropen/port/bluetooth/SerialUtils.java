@@ -112,7 +112,7 @@ public class SerialUtils {
 	 */
 	public static byte[] getAvailUnix(Port spp, byte[] buffer, int BUFFER_SIZE ) {
 	
-		//System.out.println("getAvailUnix");
+		// System.out.println("getAvailUnix");
 		
 		int offset = 0;
 		
@@ -167,7 +167,8 @@ public class SerialUtils {
 				return null;
 
 		} catch (Exception e) {
-			//constants.error("getAvail() : " + e , this);
+			constants.error("SerialUtils.getAvail(), spp.avail() : " + e);
+			spp.close();
 			return null;
 		}
 
@@ -179,14 +180,14 @@ public class SerialUtils {
 			bytes = spp.read(buffer);
 
 		} catch (Exception e) {
-			constants.error("SerialUtils.getAvail(), spp.read() : " + e);
+			constants.error("SerialUtils.getAvail(), spp.avail() : " + e);
 			spp.close();
 			return null;
 		}
 
 		/** read error */
 		if (bytes < 1) {
-			//constants.error("getAvail() : bytes < 1", this);
+			constants.error("getAvail() : bytes < 1");
 			return null;
 		}
 

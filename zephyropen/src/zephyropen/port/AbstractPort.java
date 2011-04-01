@@ -93,8 +93,17 @@ public abstract class AbstractPort implements Port {
 	/** Close the serial port profile's streams */
 	public void close() {
 
-		constants.info("closing " + address, this);
+		constants.info("closing port : " + address, this);
+		
+		try {
 
+			if (port != null)
+				port.close();
+
+		} catch (Exception e) {
+			constants.error("close() :" + e.getMessage(), this);
+		}
+	/*
 		try {
 
 			if (inputStream != null)
@@ -112,7 +121,7 @@ public abstract class AbstractPort implements Port {
 		} catch (IOException e) {
 			constants.error("close() :" + e.getMessage(), this);
 		}
-		
-		port.close();
+		*/
+	
 	}
 }

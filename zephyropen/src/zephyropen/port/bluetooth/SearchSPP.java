@@ -379,7 +379,7 @@ public class SearchSPP implements DiscoveryListener, Port {
 						// track arrival of data packets
 						last = System.currentTimeMillis();
 
-						// add speed, distance etc
+						// add speed, distance etcugggarr
 						command = ZephyrUtils.parseBioharnessPacket(packet, command);
 
 						// add RR into same packet
