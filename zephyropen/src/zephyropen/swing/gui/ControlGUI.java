@@ -53,7 +53,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
 	/** size of GUI window */
-	static final int XSIZE = 420;
+	static final int XSIZE = 400;
 
 	static final int YSIZE = 200;
 	/** mutex to ensure one search thread at a time */
@@ -131,7 +131,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		usr = usr.trim();
 		if (!userExists(usr)) {
 			
-			constants.info("adding user: " + usr, this);
+			// constants.info("adding user: " + usr, this);
 
 			userList.addItem(usr);
 
@@ -456,16 +456,16 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** add to panel */
 		setLayout(new SpringLayout());
 
-		add(new JLabel("device: ")); 
+		add(new JLabel("device type")); 
 		add(deviceList);
 
-		add(new JLabel("name: ")); 
+		add(new JLabel("user name ")); 
 		add(userList);
 
-		add(new JLabel("ports: "));
+		add(new JLabel("comm port "));
 		add(portList);
 
-		add(new JLabel("status: "));
+		add(new JLabel("status"));
 		add(status);
 
 		SpringUtilities.makeCompactGrid(this, 4, 2, 4, 2, 5, 5);
