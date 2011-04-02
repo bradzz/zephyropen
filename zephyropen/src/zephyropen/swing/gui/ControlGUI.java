@@ -28,11 +28,11 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
+import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.port.bluetooth.Discovery;
-
 import zephyropen.util.Loader;
 
 /**
@@ -53,9 +53,9 @@ public class ControlGUI extends JPanel implements Runnable {
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
 	/** size of GUI window */
-	static final int XSIZE = 250;
-	static final int YSIZE = 190;
+	static final int XSIZE = 420;
 
+	static final int YSIZE = 200;
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
 
@@ -102,23 +102,15 @@ public class ControlGUI extends JPanel implements Runnable {
 		Enumeration pList = CommPortIdentifier.getPortIdentifiers();
 		while (pList.hasMoreElements()) {
 			CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
-			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				if (!portExists(cpi.getName().trim())) {
-					if (cpi.isCurrentlyOwned()) {
-						portList.addItem(cpi.getName() + "*");
-					} else {
+			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) 
+				if(!portExists(cpi.getName()))
 						portList.addItem(cpi.getName());
-					}
-				}
-			}
 		}
 	}
 
 	/** get list of users for the directory structure */
 	private void initUsers() {
 
-		// start clean
-		userList.removeAllItems();
 
 		String[] users = new File(constants.get(ZephyrOpen.root)).list();
 		for (int i = 0; i < users.length; i++)
@@ -138,6 +130,8 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		usr = usr.trim();
 		if (!userExists(usr)) {
+			
+			constants.info("adding user: " + usr, this);
 
 			userList.addItem(usr);
 
@@ -177,7 +171,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	private boolean portExists(String port) {
 		port = port.trim();
-		for (int i = 0; i < userList.getItemCount(); i++)
+		for (int i = 0; i < portList.getItemCount(); i++)
 			if (portList.getItemAt(i).equals(port))
 				return true;
 
@@ -341,9 +335,9 @@ public class ControlGUI extends JPanel implements Runnable {
 		return true;
 	}
 
+	
 	// user drop box changed
 	class UserListener implements ItemListener {
-		@Override
 		public void itemStateChanged(ItemEvent evt) {
 
 			if (userList.getSelectedItem() == null)
@@ -367,8 +361,11 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** add the menu items to the frame */
 	public void addMenu() {
-
-		/** Add the lit to each menu item */
+		
+		/* listen for users */
+		userList.addItemListener(new UserListener());
+		
+		/* Add the lit to each menu item */
 		viewerItem.addActionListener(listener);
 		newUserItem.addActionListener(listener);
 		killItem.addActionListener(listener);
@@ -380,7 +377,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		closeSeverItem.addActionListener(listener);
 		serverItem.addActionListener(listener);
 		searchItem.addActionListener(listener);
-
+		
 		device.add(testerItem);
 		device.add(debugOnItem);
 		device.add(debugOffItem);
@@ -388,12 +385,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		device.add(killDeviceItem);
 		device.add(killItem);
 
-		// if (bluetoothEnabled()) {
-
-		device.add(searchItem);
-		// }
-
-		searchItem.addActionListener(listener);
+		if (bluetoothEnabled()) 
+			device.add(searchItem);
 
 		userMenue.add(viewerItem);
 		userMenue.add(serverItem);
@@ -406,13 +399,13 @@ public class ControlGUI extends JPanel implements Runnable {
 		frame.setJMenuBar(menuBar);
 	}
 
+	/* */
 	public boolean bluetoothEnabled() {
 
 		LocalDevice local = null;
 
 		try {
 
-			/** get local services */
 			local = LocalDevice.getLocalDevice();
 
 		} catch (BluetoothStateException e) {
@@ -421,35 +414,35 @@ public class ControlGUI extends JPanel implements Runnable {
 			return false;
 		}
 
-		/** radio better be on */
+		// radio better be on 
 		if (local == null) {
 
-			constants.error("Blue Tooth Radio is not available", this);
+			status.setText("Blue Tooth Radio is not available");
 			return false;
 
 		} else if (!LocalDevice.isPowerOn()) {
 
-			constants.error("Blue Tooth Radio is not powered", this);
+			status.setText("Blue Tooth Radio is not powered");
 			return false;
 		}
 
 		// constants.info("Blue Tooth Radio is configured", this);
 		return true;
 	}
-
+	
 	/** Construct a frame for the GUI and call swing */
 	public ControlGUI() {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		// constants.put(ZephyrOpen.frameworkDebug, "false");
-		// ApiFactory.getReference().remove("zephyropen");
+		constants.put(ZephyrOpen.frameworkDebug, "false");
+		ApiFactory.getReference().remove("zephyropen");
 		constants.lock();
 
 		/** find devices for prop files */
 		initDevices();
 		initPorts();
-		initUsers();
+		initUsers();userList.addItemListener(new UserListener());
 
 		/**
 		 * TODO: nag or put an add here, load image String text =
@@ -463,16 +456,16 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** add to panel */
 		setLayout(new SpringLayout());
 
-		add(new JLabel("device: ")); // , JLabel.TRAILING));
+		add(new JLabel("device: ")); 
 		add(deviceList);
 
-		add(new JLabel("name: ")); // , JLabel.TRAILING));
+		add(new JLabel("name: ")); 
 		add(userList);
 
-		add(new JLabel("ports: ")); // , JLabel.TRAILING));
+		add(new JLabel("ports: "));
 		add(portList);
 
-		add(new JLabel("status: ")); // , JLabel.TRAILING));
+		add(new JLabel("status: "));
 		add(status);
 
 		SpringUtilities.makeCompactGrid(this, 4, 2, 4, 2, 5, 5);
