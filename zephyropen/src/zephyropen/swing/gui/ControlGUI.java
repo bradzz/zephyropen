@@ -109,7 +109,7 @@ public class ControlGUI extends JPanel implements Runnable {
 							portList.addItem(cpi.getName());
 				}
 			}
-		};
+		}.run();
 	}
 
 	/** get list of users for the directory structure */
@@ -411,7 +411,7 @@ public class ControlGUI extends JPanel implements Runnable {
 			local = LocalDevice.getLocalDevice();
 
 		} catch (BluetoothStateException e) {
-			// constants.error(e.getMessage(), this);
+			constants.error(e.getMessage(), this);
 			status.setText(e.getMessage());
 			return false;
 		}

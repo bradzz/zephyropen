@@ -105,10 +105,6 @@ public class FindPort {
 
 		outputStream = serialPort.getOutputStream();
 
-		/*
-		 * } catch (PortInUseException e) { constants.info("port busy : " +
-		 * address); close(); return false; }
-		 */
 
 		if (inputStream == null)
 			return false;
@@ -116,7 +112,7 @@ public class FindPort {
 		if (outputStream == null)
 			return false;
 
-		// constants.info("connected to: " + address);
+		constants.info("connected to: " + address);
 		return true;
 	}
 
