@@ -164,7 +164,12 @@ public class SerialUtils {
 	 * @return the array of bytes read from the SPP
 	*/
 	public static byte[] getAvailWindows(Port spp, byte[] buffer, int bufferSize) {
-
+		
+		if(!spp.isOpen()){
+			spp.close();
+			return null;
+		}
+		
 		try {
 
 			/** don't try to parse until we get whole packet */
@@ -172,7 +177,7 @@ public class SerialUtils {
 				return null;
 
 		} catch (Exception e) {
-			constants.error("SerialUtils.getAvail(), spp.avail() : " + e);
+			constants.error("getAvailWindows(), spp.avail() : " + e);
 			spp.close();
 			return null;
 		}
@@ -185,14 +190,14 @@ public class SerialUtils {
 			bytes = spp.read(buffer);
 
 		} catch (Exception e) {
-			constants.error("SerialUtils.getAvail(), spp.avail() : " + e);
+			constants.error("getAvailWindows(), spp.read() : " + e);
 			spp.close();
 			return null;
 		}
 
 		/** read error */
 		if (bytes < 1) {
-			constants.error("getAvail() : bytes < 1");
+			constants.error("getAvailWindows() : bytes < 1");
 			return null;
 		}
 

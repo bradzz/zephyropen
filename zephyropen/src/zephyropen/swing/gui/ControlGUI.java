@@ -53,16 +53,16 @@ public class ControlGUI extends JPanel implements Runnable {
 	static final String LAUNCH_FILE_NAME = "launch.properties";
 
 	/** size of GUI window */
-	static final int XSIZE = 400;
-
+	static final int XSIZE = 380;
 	static final int YSIZE = 200;
+
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
 
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
 
-	// wr
+	// write status to lable
 	JLabel status = new JLabel("ready", JLabel.LEFT);
 
 	/** choose from discovered devices */
@@ -82,7 +82,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	JMenuItem killDeviceItem = new JMenuItem("close device");
 	JMenuItem debugOnItem = new JMenuItem("debug ON");
 	JMenuItem debugOffItem = new JMenuItem("debug OFF");
-	JMenuItem searchItem = new JMenuItem("search");
+	JMenuItem searchItem = new JMenuItem("bluetooth search");
 	JMenuItem viewerItem = new JMenuItem("viewer");
 	JMenuItem testerItem = new JMenuItem("test pattern");
 
@@ -97,20 +97,23 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** get list of ports available on this particular computer */
 	private void initPorts() {
-		// portList.removeAllItems();
-		@SuppressWarnings("rawtypes")
-		Enumeration pList = CommPortIdentifier.getPortIdentifiers();
-		while (pList.hasMoreElements()) {
-			CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
-			if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL) 
-				if(!portExists(cpi.getName()))
-						portList.addItem(cpi.getName());
-		}
+		new Thread() {
+			@Override
+			public void run() {
+				@SuppressWarnings("rawtypes")
+				Enumeration pList = CommPortIdentifier.getPortIdentifiers();
+				while (pList.hasMoreElements()) {
+					CommPortIdentifier cpi = (CommPortIdentifier) pList.nextElement();
+					if (cpi.getPortType() == CommPortIdentifier.PORT_SERIAL)
+						if (!portExists(cpi.getName()))
+							portList.addItem(cpi.getName());
+				}
+			}
+		};
 	}
 
 	/** get list of users for the directory structure */
 	private void initUsers() {
-
 
 		String[] users = new File(constants.get(ZephyrOpen.root)).list();
 		for (int i = 0; i < users.length; i++)
@@ -130,7 +133,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		usr = usr.trim();
 		if (!userExists(usr)) {
-			
+
 			// constants.info("adding user: " + usr, this);
 
 			userList.addItem(usr);
@@ -335,7 +338,6 @@ public class ControlGUI extends JPanel implements Runnable {
 		return true;
 	}
 
-	
 	// user drop box changed
 	class UserListener implements ItemListener {
 		public void itemStateChanged(ItemEvent evt) {
@@ -361,10 +363,10 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** add the menu items to the frame */
 	public void addMenu() {
-		
+
 		/* listen for users */
 		userList.addItemListener(new UserListener());
-		
+
 		/* Add the lit to each menu item */
 		viewerItem.addActionListener(listener);
 		newUserItem.addActionListener(listener);
@@ -377,7 +379,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		closeSeverItem.addActionListener(listener);
 		serverItem.addActionListener(listener);
 		searchItem.addActionListener(listener);
-		
+
 		device.add(testerItem);
 		device.add(debugOnItem);
 		device.add(debugOffItem);
@@ -385,7 +387,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		device.add(killDeviceItem);
 		device.add(killItem);
 
-		if (bluetoothEnabled()) 
+		if (bluetoothEnabled())
 			device.add(searchItem);
 
 		userMenue.add(viewerItem);
@@ -414,7 +416,7 @@ public class ControlGUI extends JPanel implements Runnable {
 			return false;
 		}
 
-		// radio better be on 
+		// radio better be on
 		if (local == null) {
 
 			status.setText("Blue Tooth Radio is not available");
@@ -429,7 +431,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		// constants.info("Blue Tooth Radio is configured", this);
 		return true;
 	}
-	
+
 	/** Construct a frame for the GUI and call swing */
 	public ControlGUI() {
 
@@ -442,7 +444,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** find devices for prop files */
 		initDevices();
 		initPorts();
-		initUsers();userList.addItemListener(new UserListener());
+		initUsers();
+		userList.addItemListener(new UserListener());
 
 		/**
 		 * TODO: nag or put an add here, load image String text =
@@ -456,10 +459,10 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** add to panel */
 		setLayout(new SpringLayout());
 
-		add(new JLabel("device type")); 
+		add(new JLabel("device type"));
 		add(deviceList);
 
-		add(new JLabel("user name ")); 
+		add(new JLabel("user name "));
 		add(userList);
 
 		add(new JLabel("comm port "));
