@@ -32,6 +32,8 @@ import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
+import zephyropen.device.polar.FindPort;
+import zephyropen.device.polar.PolarDevice;
 import zephyropen.port.bluetooth.Discovery;
 import zephyropen.util.Loader;
 
@@ -109,7 +111,7 @@ public class ControlGUI extends JPanel implements Runnable {
 							portList.addItem(cpi.getName());
 				}
 			}
-		}.run();
+		}.start();
 	}
 
 	/** get list of users for the directory structure */
@@ -361,11 +363,57 @@ public class ControlGUI extends JPanel implements Runnable {
 		}
 	}
 
+	// device drop box changed
+	class DeviceListener implements ItemListener {
+		public void itemStateChanged(ItemEvent evt) {
+
+			if (deviceList.getSelectedItem() == null)
+				return;
+
+			// constants.info(" device :: " + deviceList.getSelectedItem(), this);
+
+			if (((String) deviceList.getSelectedItem()).equalsIgnoreCase(PrototypeFactory.polar)) {
+
+				constants.info(" device is polar, search", this);
+				
+				synchronized (searching) {
+					if (searching) {
+						status.setText("device is busy");
+						return;
+					}
+				}
+				
+				new Thread() {
+					@Override
+					public void run() {
+						String port = null;
+						try {
+							port = new FindPort().search();
+						} catch (Exception e) {
+							constants.error("DeviceListener :: " + e.getMessage(), this);
+						}
+						if (port != null) {
+							portList.removeAllItems();
+							portList.addItem(port);
+							status.setText("found polar usb device");
+						}
+						/*else {
+							status.setText("polar usb device NOT found");
+						}*/
+					}
+				}.start();
+				
+				searching = false;
+			}
+		}
+	}
+
 	/** add the menu items to the frame */
 	public void addMenu() {
 
 		/* listen for users */
 		userList.addItemListener(new UserListener());
+		deviceList.addItemListener(new DeviceListener());
 
 		/* Add the lit to each menu item */
 		viewerItem.addActionListener(listener);
