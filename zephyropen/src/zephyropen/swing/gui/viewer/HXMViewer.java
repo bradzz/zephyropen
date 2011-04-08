@@ -22,8 +22,6 @@ public class HXMViewer extends AbstractViewer implements Viewer {
         charts[3] = new GoogleLineGraph(PrototypeFactory.beat, "seq", Color.ORANGERED);
         charts[4] = new GoogleLineGraph(PrototypeFactory.connection, "sec", Color.FORESTGREEN);
 
-        // charts[3] = new GoogleLineGraph(PrototypeFactory.cadence, "units", Color.AZURE);
-        
         frame = new TabbedFrame(charts);
     }
 
