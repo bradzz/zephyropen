@@ -7,6 +7,7 @@ import zephyropen.device.Device;
 import zephyropen.port.AbstractPort;
 import zephyropen.port.bluetooth.SearchSPP;
 import zephyropen.port.bluetooth.SerialUtils;
+import zephyropen.util.Utils;
 
 /**
  * 
@@ -48,6 +49,7 @@ public class HxmDevice extends AbstractPort implements Device {
 		
 		while(getDelta() < ZephyrOpen.TIME_OUT) {
 			
+			Utils.delay(300);
 			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
 
 			if (packet != null) {
@@ -71,8 +73,10 @@ public class HxmDevice extends AbstractPort implements Device {
 						constants.error("HXM battery is dead", this);
 						port.close();
 					}
-					
+
+					System.out.println(command);
 					command.send();
+					Utils.delay(600);
 				} 
 			}
 		}

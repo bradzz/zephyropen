@@ -60,6 +60,10 @@ public class SerialPortProfile extends RemoteDevice implements DiscoveryListener
     private OutputStream outputStream = null;
 
     private boolean found = false;
+    
+    public boolean isOpen(){
+    	return true;
+    }
 
     /**
      * Create and try to discover a RF-COMM SPP device via the BlueTooth Stack

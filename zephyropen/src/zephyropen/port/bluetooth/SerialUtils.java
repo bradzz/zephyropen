@@ -112,7 +112,12 @@ public class SerialUtils {
 	 */
 	public static byte[] getAvailUnix(Port spp, byte[] buffer, int BUFFER_SIZE ) {
 	
-		// System.out.println("getAvailUnix");
+		// constants.info("getAvailUnix");
+		
+		if(!spp.isOpen()){
+			spp.close();
+			return null;
+		}
 		
 		int offset = 0;
 		

@@ -70,6 +70,9 @@ public class SearchSPP implements DiscoveryListener, Port {
 	private OutputStream outputStream = null;
 
 	private String address = null;
+	
+	private boolean connected = false;
+	
 
 	/**
 	 * Create and try to discover a RF-COMM SPP device via the BlueTooth Stack
@@ -131,6 +134,7 @@ public class SearchSPP implements DiscoveryListener, Port {
 		}
 
 		/** all is well, streams open */
+		connected = true;
 		return true;
 	}
 
@@ -337,6 +341,12 @@ public class SearchSPP implements DiscoveryListener, Port {
 		} catch (IOException e) {
 			constants.error("close() :" + e.getMessage(), this);
 		}
+		
+		connected = false;
+	}
+	
+	public boolean isOpen(){
+		return connected;
 	}
 
 	/** @return the address as a hex encoded string for this device */

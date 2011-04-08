@@ -84,7 +84,12 @@ public class SparkfunSerialPort implements Port {
         // connected
         constants.info("connected to: " + address, this);
         return true;
+    } 
+    
+    public boolean isOpen(){
+    	return true;
     }
+
 
     /*
     @Override*/

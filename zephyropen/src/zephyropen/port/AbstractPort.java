@@ -28,7 +28,11 @@ public abstract class AbstractPort implements Port {
 	/** track message inputs times */
 	protected long start = System.currentTimeMillis();
 	protected long last = System.currentTimeMillis();
-	
+	  
+    public boolean isOpen(){
+    	return true;
+    }
+
 	/** @return the address of this device */
 	public String getAddress(){
 		return address;

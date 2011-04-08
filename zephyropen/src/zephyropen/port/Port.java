@@ -36,5 +36,7 @@ public interface Port {
 	 * @throws IOException is thrown if this write operation fails
 	 */
 	public void writeBytes(byte[] data)throws IOException;
+
+	public boolean isOpen();
 	
 }

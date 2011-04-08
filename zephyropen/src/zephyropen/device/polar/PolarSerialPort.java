@@ -85,6 +85,10 @@ public class PolarSerialPort implements Port {
         // constants.info("connected to: " + address, this);
         return true;
     }
+    
+    public boolean isOpen(){
+    	return true;
+    }
 
     /**/
     @Override 
