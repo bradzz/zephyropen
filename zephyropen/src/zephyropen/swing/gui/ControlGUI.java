@@ -378,6 +378,7 @@ public class ControlGUI extends JPanel implements Runnable {
 				
 				synchronized (searching) {
 					if (searching) {
+						searching = true;
 						status.setText("device is busy");
 						return;
 					}

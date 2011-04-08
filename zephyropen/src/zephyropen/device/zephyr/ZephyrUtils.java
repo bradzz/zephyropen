@@ -409,7 +409,7 @@ public class ZephyrUtils {
 		for (int i = 0; i < 15; i++) {
 
 			/** two bytes per time stamp */
-			command.add("RR" + String.valueOf(i), String.valueOf(Math
+			command.add(PrototypeFactory.rr + String.valueOf(i), String.valueOf(Math
 					.abs(ZephyrUtils.mergeUnsigned(packet[index],
 							packet[index + 1]))));
 
@@ -435,7 +435,7 @@ public class ZephyrUtils {
 		int j = 0;
 		for (int i = 12; i < 48; i += 2) {
 
-			command.add("RR" + String.valueOf(j++), String.valueOf(Math
+			command.add(PrototypeFactory.rr + String.valueOf(j++), String.valueOf(Math
 					.abs(merge(packet[i], packet[i + 1]))));
 
 		}
