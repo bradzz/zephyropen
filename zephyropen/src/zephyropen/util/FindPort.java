@@ -51,7 +51,7 @@ public class FindPort {
 	/** connects on start up, return true is currently connected */
 	private boolean connect(String address) {
 		
-		System.out.println("connecting to: " + address);
+		// System.out.println("connecting to: " + address);
 	
 		try {
 			
@@ -80,7 +80,7 @@ public class FindPort {
 		if (outputStream == null)
 			return false;
 
-		System.out.println("connected to: " + address);
+		// System.out.println("connected to: " + address);
 		return true;
 	}
 
@@ -115,6 +115,9 @@ public class FindPort {
 	public String search(String target) {
 		String port = null;
 		for (int i = ports.size() - 1; i >= 0; i--) {
+			
+			// System.out.println("port: " + ports.get(i));
+			
 			if (connect(ports.get(i))) {
 				try {
 					Thread.sleep(TIMEOUT);
@@ -153,7 +156,7 @@ public class FindPort {
 		for (int j = 0; j < read; j++)
 			device += (char) buffer[j];
 
-		device = device.trim(); //  = device.replaceAll("\\s+$", "");
+		device = device.trim();
 		return device;
 	}
 

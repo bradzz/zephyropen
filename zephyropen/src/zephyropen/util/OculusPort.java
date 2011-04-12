@@ -1,10 +1,14 @@
 package zephyropen.util;
 
+import java.io.InputStream;
 import java.io.OutputStream;
+
+import zephyropen.api.ZephyrOpen.CleanUpThread;
 import gnu.io.*;
 
 public class OculusPort {
 
+	protected InputStream in;
 	protected OutputStream out;
 	protected CommPort commPort;
 
@@ -58,32 +62,65 @@ public class OculusPort {
 
 		// find the arduino
 		FindPort finder = new FindPort();
+		portName = finder.search(FindPort.OCULUS_DC);
 		
-		portName =  "COM20"; // // finder.search(FindPort.OCULUS_DC);
 		try {
 			connect(portName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 
+		/** register shutdown hook */
+		//Runtime.getRuntime().addShutdownHook(new CleanUpThread());
+
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					String data = "";
+					byte[] buff = new byte[32];
+					while(isconnected){
+						
+						Thread.sleep(200);
+						if(in.available() > 0){
+							
+							int bytes = in.read(buff);
+							for(int i = 0 ; i < bytes ; i++)
+								data += (char)buff[i];
+							
+							System.out.println(bytes + " " + data);
+							Thread.sleep(200);
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+		
+		
 	}
 
+	
+	
 	public boolean isConnected() {
 		return isconnected;
 	}
 
-	public void connect(String str) throws Exception {
-
-		// open port, enable
-		// write, initialize
-		CommPortIdentifier portIdentifier = CommPortIdentifier
-				.getPortIdentifier(str);
-		commPort = portIdentifier.open(this.getClass().getName(), 2000);
-		SerialPort serialPort = (SerialPort) commPort;
-		serialPort.setSerialPortParams(19200, SerialPort.DATABITS_8,
-				SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-		out = serialPort.getOutputStream();
-		isconnected = true;
+	private void connect(String str) {
+		try {
+			CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(str);
+			commPort = portIdentifier.open(this.getClass().getName(), 2000);
+			SerialPort serialPort = (SerialPort) commPort;
+			serialPort.setSerialPortParams(19200, SerialPort.DATABITS_8,
+					SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+			out = serialPort.getOutputStream();
+            in = serialPort.getInputStream();
+			isconnected = true;
+		} catch (Exception e) {
+			System.out.println("error connecting");
+			isconnected = false;
+		}
 	}
 
 	protected void disconnect() {
@@ -97,7 +134,7 @@ public class OculusPort {
 	}
 
 	private void sendcommand(int command1, int command2) {
-		// System.out.println(command1+" and "+command2);
+		System.out.println(command1+" and "+command2);
 		if (isconnected) {
 			if (nextcommandtime == 0) {
 				nextcommandtime = System.currentTimeMillis();
@@ -545,11 +582,15 @@ public class OculusPort {
 		OculusPort comm = new OculusPort();
 
 		if (comm.isConnected()) {
-
-			Thread.sleep(5000);
-
+			
 			comm.goBackward();
 
+			Thread.sleep(5000);
+			
+			comm.goForward();
+
+			Thread.sleep(5000);
+			
 			System.out.println("test took: "
 					+ (System.currentTimeMillis() - start) + " ms");
 		}
