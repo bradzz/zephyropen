@@ -100,7 +100,6 @@ t	 *
 			transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
 			transport.close();
 			
-			System.out.println("Sent message successfully....");
 	       
 	    }catch (Exception e) {
 	       e.printStackTrace();
