@@ -41,9 +41,9 @@ public class Downloader {
 		// create path to local file
 		final String path = destinationDir + File.separator + localFileName;
 
-		System.out.println("url   : " + fileAddress);
-		System.out.println("local : " + path);
-		
+		// System.out.println("url   : " + fileAddress);
+		// System.out.println("local : " + path);
+
 		// create target directory
 		new File(destinationDir).mkdirs();
 
@@ -52,7 +52,7 @@ public class Downloader {
 
 		// test is really gone
 		if (new File(path).exists()) {
-			System.out.println("can't delete existing file: " + path);
+			// System.out.println("can't delete existing file: " + path);
 			return false;
 		}
 
@@ -72,17 +72,18 @@ public class Downloader {
 				// System.out.println("b: " + ByteRead);
 			}
 
-			// System.out.println("saved to local file: " + path + " bytes: " + ByteWritten);
+			// System.out.println("saved to local file: " + path + " bytes: " +
+			// ByteWritten);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			// System.out.println(e.getMessage());
 			return false;
 		} finally {
 			try {
 				is.close();
 				os.close();
 			} catch (IOException e) {
-				System.out.println(e.getMessage());
+				// System.out.println(e.getMessage());
 				return false;
 			}
 		}
@@ -131,7 +132,7 @@ public class Downloader {
 	 *            the folder into which unzip the zip file and create the folder
 	 *            structure
 	 */
-	public static void unzipFolder(String zipFile, String destFolder) {
+	public static boolean unzipFolder(String zipFile, String destFolder) {
 		try {
 			ZipFile zf = new ZipFile(zipFile);
 			Enumeration<? extends ZipEntry> zipEnum = zf.entries();
@@ -162,8 +163,11 @@ public class Downloader {
 			}
 			zf.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			return false;
 		}
+
+		// all good
+		return true;
 	}
 
 	static private void addToZip(String path, String srcFile, ZipOutputStream zip) {
@@ -198,29 +202,34 @@ public class Downloader {
 		}
 	}
 
-	/** test driver */
+	/**
+	 * 
+	 * test driver
+	 * 
+	 * unzip methods modified from:
+	 * http://jgrasstechtips.blogspot.com/2007/12/zip-and-unzip-folders.html
+	 * 
+	 */
 	public static void main(String[] args) {
 
+		// web url of zip file 
 		String webpath = "http://oculus.googlecode.com/files/update_oculus_128.zip";
-			
-		// temp file, will be deleted 
+
+		// temp file, will be deleted
 		String local = "update.zp";
+
+		// what directory to create with zip
+		String dir = "update";
+
+		// try to down load the file
+		if(FileDownload(webpath, local, dir)){
+			if (unzipFolder(dir + File.separator + local, dir)) 
+				if (!new File(dir + File.separator + local).delete())
+					System.out.println("can't delete downloaded file");
+		} else {
+			System.out.println("error downloading");
+		}
 		
-		// what directory to create with zip 
-		String dir = "test";
-
-		// try to down load the file  
-		boolean result = FileDownload(webpath, local, dir);
-		if (result) {
-
-			unzipFolder(dir + File.separator + local, dir);
-
-			// delete the zip file now 
-			if( ! new File(dir + File.separator + local).delete()) 
-				System.out.println("can't delete downloaded file");
-			
-			System.out.println("... done update");
-			
-		} else System.out.println("error downloading");
+		System.out.println("... done");
 	}
 }
