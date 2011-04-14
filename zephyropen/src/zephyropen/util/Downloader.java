@@ -63,7 +63,7 @@ public class Downloader {
 
 			URLConn = new URL(fileAddress).openConnection();
 			is = URLConn.getInputStream();
-			byte[] buf = new byte[4096];
+			byte[] buf = new byte[2048];
 
 			// pull in the bytes
 			while ((ByteRead = is.read(buf)) != -1) {
@@ -219,12 +219,13 @@ public class Downloader {
 		String local = "update.zp";
 
 		// what directory to create with zip
-		String dir = "update";
+		String dir = "michelle";
 
 		// try to down load the file
 		if(FileDownload(webpath, local, dir)){
-			if (unzipFolder(dir + File.separator + local, dir)) 
-				if (!new File(dir + File.separator + local).delete())
+			local = dir + File.separator + local;
+			if (unzipFolder(local, dir)) 
+				if (!new File(local).delete())
 					System.out.println("can't delete downloaded file");
 		} else {
 			System.out.println("error downloading");
