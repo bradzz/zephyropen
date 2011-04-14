@@ -70,7 +70,6 @@ public class OculusPort {
 			e.printStackTrace();
 		}
 		
-
 		/** register shutdown hook */
 		//Runtime.getRuntime().addShutdownHook(new CleanUpThread());
 
@@ -98,6 +97,18 @@ public class OculusPort {
 			}
 		}).start();
 		
+
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(!isconnected){
+			sendcommand('x', -1);
+		}
+
 		
 	}
 

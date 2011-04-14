@@ -201,12 +201,12 @@ public class Downloader {
 	/** test driver */
 	public static void main(String[] args) {
 
-		String webpath = 
-			//"http://accessibledesigns.com/picts/logo.jpg";
-			//"http://oculus.googlecode.com/svn/trunk/sketchbook/oculusDC_id/oculusDC_id.pde";
-			"http://oculus.googlecode.com/files/update_oculus_128.zip";
+		String webpath = "http://oculus.googlecode.com/files/update_oculus_128.zip";
 			
+		// temp file, will be deleted 
 		String local = "update.zp";
+		
+		// what directory to create with zip 
 		String dir = "test";
 
 		// try to down load the file  
@@ -215,8 +215,11 @@ public class Downloader {
 
 			unzipFolder(dir + File.separator + local, dir);
 
+			// delete the zip file now 
 			if( ! new File(dir + File.separator + local).delete()) 
 				System.out.println("can't delete downloaded file");
+			
+			System.out.println("... done update");
 			
 		} else System.out.println("error downloading");
 	}
