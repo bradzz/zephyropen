@@ -777,12 +777,12 @@ public class ArduinoCommDC implements SerialPortEventListener {
 			Thread.sleep(300);
 
 			dc.turnRight();
-			dc.camset(0);
+			dc.camset(40);
 
 			Thread.sleep(4760);
 
 			dc.stopGoing();
-			dc.camset(56);
+			dc.camset(100);
 
 			Thread.sleep(30000);
 		}
