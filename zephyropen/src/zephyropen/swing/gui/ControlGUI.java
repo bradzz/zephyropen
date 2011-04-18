@@ -32,7 +32,7 @@ import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-import zephyropen.device.polar.FindPort;
+import zephyropen.device.polar.Find;
 import zephyropen.device.polar.PolarDevice;
 import zephyropen.port.bluetooth.Discovery;
 import zephyropen.util.Loader;
@@ -389,7 +389,7 @@ public class ControlGUI extends JPanel implements Runnable {
 					public void run() {
 						String port = null;
 						try {
-							port = new FindPort().search();
+							port = new Find().search();
 						} catch (Exception e) {
 							constants.error("DeviceListener :: " + e.getMessage(), this);
 						}

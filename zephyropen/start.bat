@@ -3,7 +3,7 @@ set CLASSPATH=".\bin;.\RXTXcomm.jar;.\lib\bluecove.jar;.\lib\charts4j.jar;.\lib\
 
 start java -classpath %CLASSPATH% zephyropen.device.DeviceServer brad
 start java -classpath %CLASSPATH% zephyropen.swing.gui.viewer.DeviceViewer brad
-
+start java -classpath %CLASSPATH% zephyropen.util.Downloader
 
 
 

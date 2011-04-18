@@ -219,7 +219,7 @@ public class Downloader {
 		String local = "update.zp";
 
 		// what directory to create with zip
-		String dir = "michelle";
+		String dir = "michelleeee";
 
 		// try to down load the file
 		if(FileDownload(webpath, local, dir)){

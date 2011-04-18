@@ -11,7 +11,7 @@ import zephyropen.util.Utils;
 
 import gnu.io.*;
 
-public class FindPort {
+public class Find {
 
 	/* serial port configuration parameters */
 	public static final int BAUD_RATE = 9600;
@@ -33,7 +33,7 @@ public class FindPort {
 	static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/* constructor makes a list of available ports */
-	public FindPort() {
+	public Find() {
 		constants.init();
 		getAvailableSerialPorts();
 	}
@@ -221,7 +221,7 @@ public class FindPort {
 
 		long start = System.currentTimeMillis();
 
-		FindPort port = new FindPort();
+		Find port = new Find();
 
 		String com = port.search();
 		if (com != null) 
