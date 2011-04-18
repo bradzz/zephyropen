@@ -19,7 +19,7 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	// Red5LoggerFactory.getLogger(ArduinoCommDC.class, "oculus");
 
 	public static final int TIME_OUT = 2000;
-	public static final int RESPOND_DELAY = 200;
+	public static final int RESPOND_DELAY = 100;
 	public static final long MIN_WRITE_DELAY = 200;
 	
 	// set this on the firmware! 
@@ -27,12 +27,11 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	// add commands here
 	public static byte STOP = 's';
-	
-	// where 'x' is the current this.speed 
 	public static byte FORWARD = 'f'; 
 	public static byte BACKWARD = 'b';
 	public static byte LEFT = 'l';
 	public static byte RIGHT = 'r';
+	public static byte COMP = 'c';
 	
 	public static byte[] SLIDE_LEFT = { 'L', '\n' };
 	public static byte[] SLIDE_RIGHT = { 'R', '\n' };
@@ -180,8 +179,7 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		if (buffSize == 0)
 			return;
 
-		// System.out.print("delta : " + getReadDelta());
-		
+		System.out.print("delta : " + getReadDelta());
 		System.out.print(" [" + buffSize + "] ");
 		String responce = "";
 		for (int i = 0; i < buffSize; i++)
@@ -713,14 +711,15 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	}
 
 	public void updateSteeringComp() {
+		
+		// new commandSender(command).start();
+		
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					
 					//TODO: is there left and right comp values ? 
-					final byte[] command = {'c', (byte)steeringcomp, (byte)steeringcomp};
+					final byte[] command = {COMP, (byte)steeringcomp, '\n'};
 					sendCommand(command);
-		
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -736,24 +735,23 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		if (portstr != null) {
 
 			ArduinoCommDC dc = new ArduinoCommDC(portstr);
+			
 			dc.connect();
-
 			if (!dc.isconnected) {
 				System.out.println("can't connect to: " + portstr);
 				System.exit(0);
 			}
 
-			// System.out.println("connected oculus on: " + portstr);
+			System.out.println("connected oculus on: " + portstr);
 
 			dc.updateSteeringComp();
-			
 			dc.goBackward();
 
-			Thread.sleep(650);
+			Thread.sleep(5650);
 
 			dc.goBackward();
 
-			Thread.sleep(700);
+			Thread.sleep(7700);
 			
 			dc.turnLeft();
 
@@ -761,11 +759,11 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 			dc.turnRight();
 
-			Thread.sleep(760);
+			Thread.sleep(4760);
 
 			dc.stopGoing();
 
-			Thread.sleep(40000);
+			Thread.sleep(60000);
 		}
 
 		System.out.println(".. done");
