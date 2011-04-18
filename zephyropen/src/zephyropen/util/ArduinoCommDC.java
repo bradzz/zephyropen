@@ -19,7 +19,6 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	// Red5LoggerFactory.getLogger(ArduinoCommDC.class, "oculus");
 
 	public static final int TIME_OUT = 2000;
-
 	public static final int RESPOND_DELAY = 100;
 
 	// public static final long MIN_WRITE_DELAY = 200;
@@ -212,6 +211,24 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 
+	/** inner class to send commands */
+	private class Sender extends Thread {
+
+		// exec the given command
+		byte[] command = null;
+
+		public Sender(final byte[] cmd) {
+			this.command = cmd;
+			this.start();
+		}
+
+		public void run() {
+			sendCommand(command);
+
+			// TODO: Check the reply, send error if not there
+		}
+	}
+
 	/** inner class to check if getting responses */
 	private class WatchDog extends Thread {
 
@@ -310,30 +327,26 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		moving = false;
 		movingforward = false;
 
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					final byte[] command = { STOP, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		final byte[] command = { STOP, '\n' };
+		new Sender(command);
+
+		/*
+		 * new Thread(new Runnable() { public void run() { try { final byte[]
+		 * command = { STOP, '\n' }; sendCommand(command); } catch (Exception e)
+		 * { e.printStackTrace(); } } }).start();
+		 */
 	}
 
 	/** */
 	public void goForward() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					final byte[] command = { FORWARD, (byte) speed, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		/*
+		 * new Thread(new Runnable() { public void run() { try { final byte[]
+		 * command = { FORWARD, (byte) speed, '\n' }; sendCommand(command); }
+		 * catch (Exception e) { e.printStackTrace(); } } }).start();
+		 */
+
+		final byte[] command = { FORWARD, (byte) speed, '\n' };
+		new Sender(command);
 
 		moving = true;
 		movingforward = true;
@@ -341,16 +354,14 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	/** */
 	public void goBackward() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					final byte[] command = { BACKWARD, (byte) speed, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		/*
+		 * new Thread(new Runnable() { public void run() { try { final byte[]
+		 * command = { BACKWARD, (byte) speed, '\n' }; sendCommand(command); }
+		 * catch (Exception e) { e.printStackTrace(); } } }).start();
+		 */
+
+		final byte[] command = { BACKWARD, (byte) speed, '\n' };
+		new Sender(command);
 
 		moving = true;
 		movingforward = false;
@@ -358,81 +369,90 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	/** */
 	public void turnRight() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
 
-					// set new speed
-					int tmpspeed = turnspeed;
-					int boost = 10;
-					if (speed < turnspeed && (speed + boost) < speedfast)
-						tmpspeed = speed + boost;
+		/*
+		 * new Thread(new Runnable() { public void run() { try {
+		 * 
+		 * // set new speed int tmpspeed = turnspeed; int boost = 10; if (speed
+		 * < turnspeed && (speed + boost) < speedfast) tmpspeed = speed + boost;
+		 * 
+		 * // send it final byte[] command = { RIGHT, (byte) tmpspeed, '\n' };
+		 * sendCommand(command); } catch (Exception e) { e.printStackTrace(); }
+		 * } }).start();
+		 */
 
-					// send it
-					final byte[] command = { RIGHT, (byte) tmpspeed, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		// set new speed
+		int tmpspeed = turnspeed;
+		int boost = 10;
+		if (speed < turnspeed && (speed + boost) < speedfast)
+			tmpspeed = speed + boost;
+
+		// send it
+		final byte[] command = { RIGHT, (byte) tmpspeed, '\n' };
+		new Sender(command);
+
 		moving = true;
 	}
 
 	/** */
-	public void turnLeft() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
+	public void turnLeft() { /*
+							 * new Thread(new Runnable() { public void run() {
+							 * try {
+							 * 
+							 * // set new speed int tmpspeed = turnspeed; int
+							 * boost = 10; if (speed < turnspeed && (speed +
+							 * boost) < speedfast) tmpspeed = speed + boost;
+							 * 
+							 * // send it final byte[] command = { LEFT, (byte)
+							 * tmpspeed, '\n' }; sendCommand(command); } catch
+							 * (Exception e) { e.printStackTrace(); } }
+							 * }).start();
+							 */
 
-					// set new speed
-					int tmpspeed = turnspeed;
-					int boost = 10;
-					if (speed < turnspeed && (speed + boost) < speedfast)
-						tmpspeed = speed + boost;
+		// set new speed
+		int tmpspeed = turnspeed;
+		int boost = 10;
+		if (speed < turnspeed && (speed + boost) < speedfast)
+			tmpspeed = speed + boost;
 
-					// send it
-					final byte[] command = { LEFT, (byte) tmpspeed, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		// send it
+		final byte[] command = { LEFT, (byte) tmpspeed, '\n' };
+		new Sender(command);
 
 		moving = true;
 	}
 
 	/** not sure how this steers */
 	public void camGo() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					while (camservodirection != 0) {
 
-						camset(camservopos, camdelay);
-
-						// sendcommand(4, camservopos);
-						// Thread.sleep(camdelay);
-
-						camservopos += camservodirection;
-						if (camservopos > camposmax) {
-							camservopos = camposmax;
-							camservodirection = 0;
-						}
-						if (camservopos < camposmin) {
-							camservopos = camposmin;
-							camservodirection = 0;
-						}
-					}
-
-					// Thread.sleep(250);
-					// sendcommand(8, -1); // release
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		while (camservodirection != 0) {
+			camset(camservopos, camdelay);
+			camservopos += camservodirection;
+			if (camservopos > camposmax) {
+				camservopos = camposmax;
+				camservodirection = 0;
 			}
-		}).start();
+			if (camservopos < camposmin) {
+				camservopos = camposmin;
+				camservodirection = 0;
+			}
+		}
+
+		/*
+		 * new Thread(new Runnable() { public void run() { try { while
+		 * (camservodirection != 0) {
+		 * 
+		 * camset(camservopos, camdelay);
+		 * 
+		 * // sendcommand(4, camservopos); // Thread.sleep(camdelay);
+		 * 
+		 * camservopos += camservodirection; if (camservopos > camposmax) {
+		 * camservopos = camposmax; camservodirection = 0; } if (camservopos <
+		 * camposmin) { camservopos = camposmin; camservodirection = 0; } }
+		 * 
+		 * // Thread.sleep(250); // sendcommand(8, -1); // release } catch
+		 * (Exception e) { e.printStackTrace(); } } }).start();
+		 */
 	}
 
 	public void camCommand(String str) {
@@ -451,57 +471,56 @@ public class ArduinoCommDC implements SerialPortEventListener {
 			if (camservopos < camposmin) {
 				camservopos = camposmin;
 			}
-			new Thread(new Runnable() {
-				public void run() {
-					try {
 
-						camset(camservopos, camwait);
+			camset(camservopos, camwait);
 
-						// arduinoDelay(-1); // testing this here
-						// sendcommand(4, camservopos);
-						// Thread.sleep(camwait);
-						// sendcommand(8, -1); // release
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}).start();
+			/*
+			 * new Thread(new Runnable() { public void run() { try {
+			 * 
+			 * camset(camservopos, camwait);
+			 * 
+			 * // arduinoDelay(-1); // testing this here // sendcommand(4,
+			 * camservopos); // Thread.sleep(camwait); // sendcommand(8, -1); //
+			 * release } catch (Exception e) { e.printStackTrace(); } }
+			 * }).start();
+			 */
+
 		}
 		if (str.equals("upabit")) {
 			camservopos += 5;
 			if (camservopos > camposmax) {
 				camservopos = camposmax;
 			}
-			new Thread(new Runnable() {
-				public void run() {
-					try {
+			// new Thread(new Runnable() {
+			// public void run() {
+			// try {
 
-						camset(camservopos, camdelay);
+			camset(camservopos, camdelay);
 
-						// arduinoDelay(-1); // testing this here
-						// sendcommand(4, camservopos);
-						// Thread.sleep(camwait);
-						// sendcommand(8, -1); // release
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}).start();
+			// arduinoDelay(-1); // testing this here
+			// sendcommand(4, camservopos);
+			// Thread.sleep(camwait);
+			// sendcommand(8, -1); // release
+			// } catch (Exception e) {
+			// e.printStackTrace();
+			// }
+			// }
+			// }).start();
 		}
 	}
 
 	/** level the camera servo */
 	public void camHoriz() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					camservopos = camservohoriz;
-					camset(camservopos, camwait);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		// new Thread(new Runnable() {
+		// public void run() {
+		// try {
+		camservopos = camservohoriz;
+		camset(camservopos, camwait);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }).start();
 
 	}
 
@@ -515,16 +534,15 @@ public class ArduinoCommDC implements SerialPortEventListener {
 			return;
 		}
 
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					final byte[] command = { CAM, (byte) target, (byte) delay, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		final byte[] command = { CAM, (byte) target, (byte) delay, '\n' };
+		new Sender(command);
+
+		/*
+		 * new Thread(new Runnable() { public void run() { try { final byte[]
+		 * command = { CAM, (byte) target, (byte) delay, '\n' };
+		 * sendCommand(command); } catch (Exception e) { e.printStackTrace(); }
+		 * } }).start();
+		 */
 	}
 
 	/** set the cam servo to a new target, and use default delay */
@@ -550,36 +568,43 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	public void nudge(String dir) {
 		direction = dir;
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					int n = nudgedelay;
-					if (direction.equals("right")) {
-						turnRight();
-					}
-					if (direction.equals("left")) {
-						turnLeft();
-					}
-					if (direction.equals("forward")) {
-						goForward();
-						movingforward = false;
-						n *= 4;
-					}
-					if (direction.equals("backward")) {
-						goBackward();
-						n *= 4;
-					}
-					Thread.sleep(n);
-					if (movingforward == true) {
-						goForward();
-					} else {
-						stopGoing();
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+
+		// new Thread(new Runnable() {
+		// public void run() {
+		// try {
+		int n = nudgedelay;
+		if (direction.equals("right")) {
+			turnRight();
+		}
+		if (direction.equals("left")) {
+			turnLeft();
+		}
+		if (direction.equals("forward")) {
+			goForward();
+			movingforward = false;
+			n *= 4;
+		}
+		if (direction.equals("backward")) {
+			goBackward();
+			n *= 4;
+		}
+
+		try {
+			Thread.sleep(n);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		if (movingforward == true) {
+			goForward();
+		} else {
+			stopGoing();
+		}
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }).start();
 	}
 
 	public void slide(String dir) {
@@ -712,37 +737,40 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		if (camservopos < camposmin) {
 			camservopos = camposmin;
 		}
-		new Thread(new Runnable() {
-			public void run() {
-				try {
 
-					// TODO: check with colin
-					camset(camservopos, camwait + clicknudgedelay);
+		// new Thread(new Runnable() {
+		// public void run() {
+		// try {
 
-					// sendcommand(4, camservopos);
-					// Thread.sleep(camwait + clicknudgedelay);
-					// sendcommand(8, -1);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		// TODO: check with colin
+		camset(camservopos, camwait + clicknudgedelay);
+
+		// sendcommand(4, camservopos);
+		// Thread.sleep(camwait + clicknudgedelay);
+		// sendcommand(8, -1);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }).start();
+
 		return camservopos;
 	}
 
 	/** send steering compensation values to the arduino */
 	public void updateSteeringComp() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					// TODO: is there left and right comp values ?
-					final byte[] command = { COMP, (byte) steeringcomp, '\n' };
-					sendCommand(command);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+		/// new Thread(new Runnable() {
+		//	public void run() {
+		//		try {
+			
+		final byte[] command = { COMP, (byte) steeringcomp, '\n' };
+		new Sender(command);
+		
+	//} catch (Exception e) {
+		//			e.printStackTrace();
+			//	}
+			//}
+		///}).start();
 	}
 
 	/* test driver */
@@ -784,7 +812,8 @@ public class ArduinoCommDC implements SerialPortEventListener {
 			dc.stopGoing();
 			dc.camset(100);
 
-			Thread.sleep(30000);
+			// test watchdog 
+			// Thread.sleep(30000);
 		}
 
 		System.out.println(".. done");
