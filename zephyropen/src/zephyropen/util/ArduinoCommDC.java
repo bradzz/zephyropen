@@ -19,10 +19,8 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	// Red5LoggerFactory.getLogger(ArduinoCommDC.class, "oculus");
 
 	public static final int TIME_OUT = 2000;
-	public static final int RESPOND_DELAY = 100;
-
-	// public static final long MIN_WRITE_DELAY = 200;
-
+	public static final int RESPOND_DELAY = 200;
+	
 	// set this on the firmware!
 	public static final long DEAD_TIME_OUT = 8000;
 
@@ -35,22 +33,14 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	public static byte COMP = 'c';
 	public static byte CAM = 'v';
 
-	// /////////////////
-	public static byte[] SLIDE_LEFT = { 'L', '\n' };
-	public static byte[] SLIDE_RIGHT = { 'R', '\n' };
-
-	// not needed??
-	// protected static final byte[] DETACH = { 'd', '\n' };
-
 	// just do on reset instead?
 	public final byte[] GET_PRODUCT = { 'x' };
 	public final byte[] GET_VERSION = { 'y' };
 
-	// comm port, static because only one instance ?
 	private String portName = null;
-	private/* static */SerialPort serialPort = null;
-	private/* static */InputStream in;
-	private/* static */OutputStream out;
+	private SerialPort serialPort = null;
+	private InputStream in;
+	private OutputStream out;
 
 	// input buffer
 	private byte[] buffer = new byte[64];
@@ -59,9 +49,7 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	// track write times
 	private long lastSent = System.currentTimeMillis();
 	private long lastRead = System.currentTimeMillis();
-
-	// WatchDog watchdog = null;
-
+	
 	// /protected CommPort commPort;
 	// Settings settings = new Settings();
 
@@ -121,7 +109,7 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		try {
 
 			serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(portName).open(ArduinoCommDC.class.getName(), TIME_OUT);
-			serialPort.setSerialPortParams(19200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+			serialPort.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 			// open streams
 			out = serialPort.getOutputStream();
@@ -193,7 +181,7 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		if (buffSize == 0)
 			return;
 
-		System.out.print("read[" + getReadDelta() + "]\twrite[" + getWriteDelta() + "]\tsize[" + buffSize + "] ");
+		// System.out.print("read[" + getReadDelta() + "]\twrite[" + getWriteDelta() + "]\tsize[" + buffSize + "] ");
 		String responce = "";
 		for (int i = 0; i < buffSize; i++)
 			responce += (char) buffer[i];
@@ -289,31 +277,30 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	private synchronized void sendCommand(final byte[] command) {
 
 		if (!isconnected) {
-			System.err.println("not connected, try connecting...");
+			// log.error("comport closed, trying to send.");
 			connect();
 			return;
 		}
-
-		if (getWriteDelta() < RESPOND_DELAY) {
-			try {
-
-				// System.out.println("sending too fast: " + getWriteDelta());
-
-				// only wait as long as needed to make next time slot
-				Thread.sleep((RESPOND_DELAY - getWriteDelta()));
-
-				// System.out.println("delta now: " + getWriteDelta());
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		
+		/*
+		if(busy){
+			System.out.println("port busy: " + getWriteDelta());
+			return;
 		}
-
+		*/
 		try {
-
-			// send bytes
+				
+			// send bytes FIRST!
 			out.write(command);
+			
+			//if (getWriteDelta() < RESPOND_DELAY) {
 
+				// busy = true;
+				// only wait as long as needed to make next time slot
+				//Thread.sleep((RESPOND_DELAY - getWriteDelta()));
+				//System.out.println("too fast delta now: " + getWriteDelta());
+				
+		//	} 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -329,21 +316,10 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 		final byte[] command = { STOP, '\n' };
 		new Sender(command);
-
-		/*
-		 * new Thread(new Runnable() { public void run() { try { final byte[]
-		 * command = { STOP, '\n' }; sendCommand(command); } catch (Exception e)
-		 * { e.printStackTrace(); } } }).start();
-		 */
 	}
 
 	/** */
 	public void goForward() {
-		/*
-		 * new Thread(new Runnable() { public void run() { try { final byte[]
-		 * command = { FORWARD, (byte) speed, '\n' }; sendCommand(command); }
-		 * catch (Exception e) { e.printStackTrace(); } } }).start();
-		 */
 
 		final byte[] command = { FORWARD, (byte) speed, '\n' };
 		new Sender(command);
@@ -354,11 +330,6 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	/** */
 	public void goBackward() {
-		/*
-		 * new Thread(new Runnable() { public void run() { try { final byte[]
-		 * command = { BACKWARD, (byte) speed, '\n' }; sendCommand(command); }
-		 * catch (Exception e) { e.printStackTrace(); } } }).start();
-		 */
 
 		final byte[] command = { BACKWARD, (byte) speed, '\n' };
 		new Sender(command);
@@ -369,17 +340,6 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	/** */
 	public void turnRight() {
-
-		/*
-		 * new Thread(new Runnable() { public void run() { try {
-		 * 
-		 * // set new speed int tmpspeed = turnspeed; int boost = 10; if (speed
-		 * < turnspeed && (speed + boost) < speedfast) tmpspeed = speed + boost;
-		 * 
-		 * // send it final byte[] command = { RIGHT, (byte) tmpspeed, '\n' };
-		 * sendCommand(command); } catch (Exception e) { e.printStackTrace(); }
-		 * } }).start();
-		 */
 
 		// set new speed
 		int tmpspeed = turnspeed;
@@ -395,20 +355,8 @@ public class ArduinoCommDC implements SerialPortEventListener {
 	}
 
 	/** */
-	public void turnLeft() { /*
-							 * new Thread(new Runnable() { public void run() {
-							 * try {
-							 * 
-							 * // set new speed int tmpspeed = turnspeed; int
-							 * boost = 10; if (speed < turnspeed && (speed +
-							 * boost) < speedfast) tmpspeed = speed + boost;
-							 * 
-							 * // send it final byte[] command = { LEFT, (byte)
-							 * tmpspeed, '\n' }; sendCommand(command); } catch
-							 * (Exception e) { e.printStackTrace(); } }
-							 * }).start();
-							 */
-
+	public void turnLeft() {
+	
 		// set new speed
 		int tmpspeed = turnspeed;
 		int boost = 10;
@@ -422,9 +370,8 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		moving = true;
 	}
 
-	/** not sure how this steers */
+	/** TODO:  not sure how this steers */
 	public void camGo() {
-
 		while (camservodirection != 0) {
 			camset(camservopos, camdelay);
 			camservopos += camservodirection;
@@ -437,22 +384,6 @@ public class ArduinoCommDC implements SerialPortEventListener {
 				camservodirection = 0;
 			}
 		}
-
-		/*
-		 * new Thread(new Runnable() { public void run() { try { while
-		 * (camservodirection != 0) {
-		 * 
-		 * camset(camservopos, camdelay);
-		 * 
-		 * // sendcommand(4, camservopos); // Thread.sleep(camdelay);
-		 * 
-		 * camservopos += camservodirection; if (camservopos > camposmax) {
-		 * camservopos = camposmax; camservodirection = 0; } if (camservopos <
-		 * camposmin) { camservopos = camposmin; camservodirection = 0; } }
-		 * 
-		 * // Thread.sleep(250); // sendcommand(8, -1); // release } catch
-		 * (Exception e) { e.printStackTrace(); } } }).start();
-		 */
 	}
 
 	public void camCommand(String str) {
@@ -474,54 +405,21 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 			camset(camservopos, camwait);
 
-			/*
-			 * new Thread(new Runnable() { public void run() { try {
-			 * 
-			 * camset(camservopos, camwait);
-			 * 
-			 * // arduinoDelay(-1); // testing this here // sendcommand(4,
-			 * camservopos); // Thread.sleep(camwait); // sendcommand(8, -1); //
-			 * release } catch (Exception e) { e.printStackTrace(); } }
-			 * }).start();
-			 */
-
 		}
 		if (str.equals("upabit")) {
 			camservopos += 5;
 			if (camservopos > camposmax) {
 				camservopos = camposmax;
 			}
-			// new Thread(new Runnable() {
-			// public void run() {
-			// try {
-
+		
 			camset(camservopos, camdelay);
-
-			// arduinoDelay(-1); // testing this here
-			// sendcommand(4, camservopos);
-			// Thread.sleep(camwait);
-			// sendcommand(8, -1); // release
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// }
-			// }).start();
 		}
 	}
 
 	/** level the camera servo */
 	public void camHoriz() {
-		// new Thread(new Runnable() {
-		// public void run() {
-		// try {
 		camservopos = camservohoriz;
 		camset(camservopos, camwait);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }).start();
-
 	}
 
 	/** set the cam servo to a new target, and ms to delay after setting pwm pin */
@@ -536,19 +434,12 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 		final byte[] command = { CAM, (byte) target, (byte) delay, '\n' };
 		new Sender(command);
-
-		/*
-		 * new Thread(new Runnable() { public void run() { try { final byte[]
-		 * command = { CAM, (byte) target, (byte) delay, '\n' };
-		 * sendCommand(command); } catch (Exception e) { e.printStackTrace(); }
-		 * } }).start();
-		 */
 	}
 
 	/** set the cam servo to a new target, and use default delay */
-	private void camset(final int target) {
-		camset(target, camwait);
-	}
+	//private void camset(final int target) {
+	//	camset(target, 400);
+	//}
 
 	/** Set the speed on the bot */
 	public void speedset(String str) {
@@ -568,10 +459,6 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 	public void nudge(String dir) {
 		direction = dir;
-
-		// new Thread(new Runnable() {
-		// public void run() {
-		// try {
 		int n = nudgedelay;
 		if (direction.equals("right")) {
 			turnRight();
@@ -600,11 +487,6 @@ public class ArduinoCommDC implements SerialPortEventListener {
 		} else {
 			stopGoing();
 		}
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }).start();
 	}
 
 	public void slide(String dir) {
@@ -738,39 +620,15 @@ public class ArduinoCommDC implements SerialPortEventListener {
 			camservopos = camposmin;
 		}
 
-		// new Thread(new Runnable() {
-		// public void run() {
-		// try {
-
-		// TODO: check with colin
+		// TODO: check with colin... why return if we have access to this??
 		camset(camservopos, camwait + clicknudgedelay);
-
-		// sendcommand(4, camservopos);
-		// Thread.sleep(camwait + clicknudgedelay);
-		// sendcommand(8, -1);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }).start();
-
 		return camservopos;
 	}
 
 	/** send steering compensation values to the arduino */
 	public void updateSteeringComp() {
-		/// new Thread(new Runnable() {
-		//	public void run() {
-		//		try {
-			
 		final byte[] command = { COMP, (byte) steeringcomp, '\n' };
 		new Sender(command);
-		
-	//} catch (Exception e) {
-		//			e.printStackTrace();
-			//	}
-			//}
-		///}).start();
 	}
 
 	/* test driver */
@@ -790,31 +648,77 @@ public class ArduinoCommDC implements SerialPortEventListener {
 
 			// System.out.println("connected oculus on: " + portstr);
 
+
+			byte[] command = {'x', '\n'};
+			dc.sendCommand(command);
+
+			command[0] = 'y';
+			dc.sendCommand(command);
+			
+			for(int i = 50 ; i < 150 ; i++){
+				
+				dc.camset(i, 50);
+				///dc.goForward();
+				//dc.steeringcomp = i;
+				//dc.updateSteeringComp();
+				Thread.sleep(30);
+			}
+			
+			//Thread.sleep(1000);
+
+			command[0] = 'x';
+			dc.sendCommand(command);
+
+			command[0] = 'y';
+			dc.sendCommand(command);
+			
+			Thread.sleep(5000);
+			
+			//System.out.println("------------------slide");
+			//dc.slide("right");
+			//dc.slide("left");
+			
+			/*
+			for(int i = 150 ; i > 0 ; i--){
+				
+				dc.camset(i, 50);
+				//dc.goBackward();
+				dc.steeringcomp = i;
+				dc.updateSteeringComp();
+				Thread.sleep(50);
+			}
+			*/
+			
+			/*
 			dc.updateSteeringComp();
-			dc.goBackward();
+			//dc.goBackward();
 			dc.camset(170);
+			//dc.goBackward();
 
-			// Thread.sleep(5650);
-
-			dc.goBackward();
-
-			// Thread.sleep(7700);
+			Thread.sleep(2700);
 
 			dc.turnLeft();
 
-			Thread.sleep(300);
+			Thread.sleep(3900);
 
-			dc.turnRight();
-			dc.camset(40);
+			//dc.turnRight();
+			dc.camset(0);
 
 			Thread.sleep(4760);
 
-			dc.stopGoing();
-			dc.camset(100);
+			//dc.stopGoing();
+			dc.camset(100, 400);
 
-			// test watchdog 
+			// test watchdog
 			// Thread.sleep(30000);
-		}
+			*/
+/*
+			dc.updateSteeringComp();
+			dc.goBackward();
+			dc.camset(17, 400);
+			dc.goBackward();
+	*/
+			}
 
 		System.out.println(".. done");
 
