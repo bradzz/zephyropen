@@ -55,7 +55,7 @@ public class DeviceViewer implements API {
     /** Update graphs with incoming XML packets */
     public void execute(Command command) {
     	
-    	//System.out.println("exe: " + command.toString());
+    	System.out.println("viewer exe: " + command.toString());
 
     	// not for us
         if( ! constants.get(ZephyrOpen.userName).equals(command.get(ZephyrOpen.userName))){

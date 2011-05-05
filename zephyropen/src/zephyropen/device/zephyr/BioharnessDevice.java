@@ -4,6 +4,7 @@ import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.device.Device;
+import zephyropen.device.WatchDog;
 import zephyropen.port.AbstractPort;
 import zephyropen.port.bluetooth.SearchSPP;
 //import zephyropen.port.bluetooth.SerialPortProfile;
@@ -63,12 +64,14 @@ public class BioharnessDevice extends AbstractPort implements Device {
 	/** Loop on BT input */
 	public void readDevice() {
 
-		command.add(ZephyrOpen.address, port.getAddress());
+		// command.add(ZephyrOpen.address, port.getAddress());
 
 		/** sanity test if (!connected) return; */
 		ZephyrUtils.setupBioharness(port);
 		ZephyrUtils.setupBioharnessRtoR(port);
 
+    	new WatchDog(this).start();    
+		
 		short i = 0;
 		while (getDelta() < ZephyrOpen.TIME_OUT) {
 

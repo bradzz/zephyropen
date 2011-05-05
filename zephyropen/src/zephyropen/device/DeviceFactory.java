@@ -32,22 +32,24 @@ public class DeviceFactory {
 		
 		if (type == PrototypeFactory.HXM) {
 			Device device = new HxmDevice(deviceName);
-        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		new WatchDog(device).start();
+        	
+			//if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		//new WatchDog(device).start();
 			return device;
 		}
 
 		if (type == PrototypeFactory.HRM) {
 			Device device = new HrmDevice(deviceName);
-        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		new WatchDog(device).start();
+        	
+			//if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		//new WatchDog(device).start();
         	return device;
 		}
 
 		if (type == PrototypeFactory.BIOHARNESS) {
 			Device device = new BioharnessDevice(deviceName);
-        	if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		new WatchDog(device).start();
+        	//if( constants.getBoolean(ZephyrOpen.enableWatchDog))
+        		//new WatchDog(device).start();
 			return device;
 		}
 

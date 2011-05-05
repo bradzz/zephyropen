@@ -33,39 +33,35 @@ public class DeviceServer {
      * Constructor for the DeviceServer. Use a factory to create a server for the specific
      * device based only on the naming convention from the manufacturing company.
      * 
-     * @param deviceName
-     *            is the blue tooth friendly name of the target device.
      */
     public DeviceServer() {
-    	
-        // Create a server 
+    
         device = DeviceFactory.create();
-
         if (device == null) {
             constants.error("Can't create device, terminate.", this);
-            constants.shutdown();
+            return;
         }
 
         if (device.connect()) {
-
-        	// keep checking the device delta
-        	// if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		// new WatchDog(device).start();
-           
-            // blocking call 
+        	
+            // blocking call
             device.readDevice();
-
-        } else {
-
-            constants.info("can't connect: " + device.getDeviceName(), this);
             
+        } else {
+            constants.info("can't connect: " + device.getDeviceName(), this);
+            return;
         }
 
-        constants.info("closed device name = " + device.getDeviceName(), this);
-        device.close();
+        // constants.info("closed device name = " + device.getDeviceName(), this);
         constants.shutdown();
     }
 
+	/* start watching for hang ups
+    public void startWatchdog(){
+
+    	new WatchDog(device).start();    	
+    }*/
+    
     
     /*
      * Use command line arguments to configure the framework with given properties file

@@ -28,7 +28,7 @@ import zephyropen.util.Utils;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.3.2";
+	public static final String VERSION = "2.3.3";
 
 	public static final String DEFAULT_PORT = "4444";
 
@@ -206,6 +206,7 @@ public class ZephyrOpen {
 		props.put(loopback, "true");
 		props.put(loggingEnabled, "true");
 		props.put(enableWatchDog, "true");
+		props.put(showLAN, "true"); 
 		
 		//props.put(infoEnable, "false");
 	}
@@ -547,7 +548,7 @@ public class ZephyrOpen {
 			if (logger != null)
 				logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
 
-			System.out.println(Utils.getTime() + " "
+		System.out.println(Utils.getTime() + " "
 					+ clazz.getClass().getName() + " " + line);
 		}
 	//}

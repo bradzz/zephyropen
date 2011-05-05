@@ -19,11 +19,8 @@ public class PolarDevice extends AbstractPort implements Device {
 
     /** allocate a byte array for receiving data from the serial port */
     private static final int BUFFER_SIZE = 16;
-
     private static byte[] buffer = new byte[BUFFER_SIZE];
-
     private int bufferPointer = 0;
-
     private int bytesRead = 0;
 
     /** */
@@ -59,7 +56,7 @@ public class PolarDevice extends AbstractPort implements Device {
         }
 
         // wait for whole massage
-        Utils.delay(200);
+        Utils.delay(300);
 
         try {
 

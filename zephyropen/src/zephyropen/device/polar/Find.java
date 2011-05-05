@@ -40,7 +40,6 @@ public class Find {
 
 	/** */
 	public void getAvailableSerialPorts() {
-
 		@SuppressWarnings("rawtypes")
 		Enumeration thePorts = CommPortIdentifier.getPortIdentifiers();
 		while (thePorts.hasMoreElements()) {
@@ -55,10 +54,7 @@ public class Find {
 	 * 
 	 * @throws IOException
 	 */
-	private boolean connect(String address) throws IOException {
-
-		/// constants.info("connecting to: " + address);
-
+	private boolean connect(String address) /*throws IOException */{
 		/* construct the serial port */
 		try {
 
@@ -103,7 +99,12 @@ public class Find {
 			return false;
 		}
 
-		outputStream = serialPort.getOutputStream();
+		try {
+			outputStream = serialPort.getOutputStream();
+		} catch (IOException e) {
+			// TODO: Auto-generated catch block
+			e.printStackTrace();
+		}
 
 
 		if (inputStream == null)
@@ -148,62 +149,47 @@ public class Find {
 	 * @return the COMXX value of the given device
 	 * @throws Exception
 	 */
-	public String search() throws Exception {
+	public String search() /*throws Exception*/ {
+		String str = null;
 		for (int i = ports.size() - 1; i >= 0; i--) {
 			if (connect(ports.get(i))) {
-				Thread.sleep(TIMEOUT);
+				Utils.delay(TIMEOUT);
 				if (isPolar()) {
-					close();
-					return ports.get(i);
+					str = ports.get(i);
+					break;
 				}
 			}
 			close();
 		}
-
-		// error state
-		return null;
+		return str;
 	}
 
 	// send a message the Polar chip will respond to 
 	boolean isPolar() {
 
-		byte[] buffer = new byte[64];
+		byte[] buffer = new byte[32];
 		int bytesRead = 0;
 		
 		// send command
-		byte[] bytes = new byte[3];
-		bytes[0] = (char) 'G';
-		bytes[1] = (byte) '2';
-		bytes[2] = (byte) 13;
-
 		try {
-			outputStream.write(bytes);
+			outputStream.write(new byte[]{(char) 'G', (byte) '2', (byte) 13});
 		} catch (Exception e) {
-			constants.error(e.getMessage(), this);
-			close();
 			return false;
 		}
 
 		// wait for whole massage
-		Utils.delay(500);
+		Utils.delay(300);
 
 		try {
 
 			// read into buffer
 			bytesRead = inputStream.read(buffer);
-			
-			///String data = "";
-			///for(int i = 0 ; i < bytesRead ; i++)
-				//data += buffer[i] + ", ";
-			// constants.info("read bytes: " + bytesRead);
-			// constants.info("data: " + data);
-			
+		
+			// test is is correctly formatted reply 
 			if( bytesRead >= 10 )
-				if( buffer[bytesRead-1] == 13 ){
-					close();
+				if( buffer[bytesRead-1] == 13 )
 					return true;
-				}
-			
+				
 		} catch (Exception e) {
 			constants.info(e.getMessage(), this);
 		}
@@ -220,18 +206,13 @@ public class Find {
 	public static void main(String[] args) throws Exception {
 
 		long start = System.currentTimeMillis();
-
-		Find port = new Find();
-
-		String com = port.search();
+		
+		String com = new Find().search();
 		if (com != null) 
 			constants.info("found polar on: " + com);
 		else
 			constants.info("Polar NOT found");
 
-		// port.close();
-
 		constants.info("scan took: " + (System.currentTimeMillis() - start) + " ms");
-
 	}
 }

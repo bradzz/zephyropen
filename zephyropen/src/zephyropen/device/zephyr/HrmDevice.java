@@ -4,6 +4,7 @@ import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.device.Device;
+import zephyropen.device.WatchDog;
 import zephyropen.port.AbstractPort;
 import zephyropen.port.bluetooth.SearchSPP;
 import zephyropen.port.bluetooth.SerialUtils;
@@ -48,7 +49,9 @@ public class HrmDevice extends AbstractPort implements Device {
 	/** loop on BT input */
 	public void readDevice() {
 			
-		command.add(ZephyrOpen.address, port.getAddress());
+		// command.add(ZephyrOpen.address, port.getAddress());
+		
+    	new WatchDog(this).start();    
 		
 		while (getDelta() < ZephyrOpen.TIME_OUT) {
 

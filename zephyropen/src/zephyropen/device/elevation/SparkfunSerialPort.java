@@ -24,23 +24,16 @@ public class SparkfunSerialPort implements Port {
     public static ZephyrOpen constants = ZephyrOpen.getReference();
 
     /* serial port configuration parameters */
-    private static final int BAUD_RATE = 9600;
-
+    private static final int BAUD_RATE = 115200;
     private static final int TIMEOUT = 2000;
-
     private static final int DATABITS = SerialPort.DATABITS_8;
-
     private static final int STOPBITS = SerialPort.STOPBITS_1;
-
     private static final int PARITY = SerialPort.PARITY_NONE;
-
     private static final int FLOWCONTROL = SerialPort.FLOWCONTROL_NONE;
 
     /* build from address manually */
     protected String address = null;
-
     protected InputStream inputStream = null;
-
     protected OutputStream outputStream = null;
 
     /* reference to the underlying serial port */
