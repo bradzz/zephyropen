@@ -128,7 +128,7 @@ public class AbstractViewer {
 	public void updateConnectionTab() {
 		
 		// String chartName = null;
-		for (int i = 0; i < charts.length; i++) {
+		for (int i = 0; i < charts.length-1; i++) {
 
 			// chart = charts[i].getName();
 			if (charts[i].getName().equals(PrototypeFactory.connection)) {

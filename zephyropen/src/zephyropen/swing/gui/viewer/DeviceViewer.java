@@ -42,15 +42,14 @@ public class DeviceViewer implements API {
 			constants.shutdown();
 		}
 
+		/** show window */
+		javax.swing.SwingUtilities.invokeLater(viewer.getFrame());
+		
 		/** register for messages */
 		ApiFactory.getReference().add(this);
 
 		/** loop forever, refreshing the display */
 		viewer.poll();
-
-		/** show window */
-		javax.swing.SwingUtilities.invokeLater(viewer.getFrame());
-
 	}
 
 	/** Update graphs with incoming XML packets */
