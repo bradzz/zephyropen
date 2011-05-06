@@ -85,7 +85,7 @@ public class MergeLogs {
 		try {
 
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String url = "jdbc:mysql://localhost/" + constants.get(ZephyrOpen.userName);
+			String url = "jdbc:mysql://localhost/" + constants.get(ZephyrOpen.user);
 			conn = DriverManager.getConnection(url, "root", "");
 
 		} catch (Exception ex) {

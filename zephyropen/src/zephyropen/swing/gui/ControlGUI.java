@@ -320,7 +320,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		// constants.info("creating launch file: " + propFile.getPath(), this);
 
 		// overwrite if existed
-		userProps.put(ZephyrOpen.userName, usr);
+		userProps.put(ZephyrOpen.user, usr);
 		userProps.put(ZephyrOpen.deviceName, dev);
 		if (port != null)
 			userProps.put(ZephyrOpen.com, port);

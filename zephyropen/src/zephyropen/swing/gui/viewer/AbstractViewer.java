@@ -76,7 +76,7 @@ public class AbstractViewer {
 	private String getText(boolean dropped) {
 
 		if (dropped)
-			return "[" + constants.get(ZephyrOpen.userName) + ", "
+			return "[" + constants.get(ZephyrOpen.user) + ", "
 					+ constants.get(ZephyrOpen.deviceName)
 					+ "] Lost Connection " + (api.getDelta() / 1000)
 					+ " seconds ago";
@@ -84,7 +84,7 @@ public class AbstractViewer {
 		// build string based on configuration and settings
 
 		String text = "[" /* + api.getAddress() + ", " */
-				+ constants.get(ZephyrOpen.userName) + "] "
+				+ constants.get(ZephyrOpen.user) + "] "
 				+ api.getDeviceName();
 
 		if (battery != null)

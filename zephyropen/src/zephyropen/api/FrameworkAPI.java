@@ -59,7 +59,7 @@ public class FrameworkAPI implements API {
 			for (Enumeration<String> e = apiFactory.getApiList(); e.hasMoreElements();) {
 				String tag = (String) e.nextElement();
 				if (tag.equals(command.get(ZephyrOpen.deviceName)))
-					if (constants.get(ZephyrOpen.userName).equalsIgnoreCase(command.get(ZephyrOpen.userName)))
+					if (constants.get(ZephyrOpen.user).equalsIgnoreCase(command.get(ZephyrOpen.user)))
 						constants.shutdown("kill command receieved");
 			}
 		}

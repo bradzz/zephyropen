@@ -104,7 +104,7 @@ public class ApiFactory {
 			
 			api = apiTable.get(e.nextElement());
 				
-			constants.info(constants.get(ZephyrOpen.userName) + " :: " + api.getClass().getName(), this);
+			constants.info(constants.get(ZephyrOpen.user) + " :: " + api.getClass().getName(), this);
 			
 			if(clazzName.equals(api.getClass().getName()))
 				return true;

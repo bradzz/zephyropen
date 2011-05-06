@@ -126,7 +126,7 @@ public class ZephyrOpen {
 
 	public static final String showInput = "showInput";
 
-	public static final String userName = "userName";
+	public static final String user = "user";
 
 	public static final String loggingEnabled = "loggingEnabled";
 
@@ -218,7 +218,7 @@ public class ZephyrOpen {
 			return;
 
 		// find userName/launch.properties
-		props.put(userName, file);
+		props.put(user, file);
 
 		// home dir
 		props.put(userHome, props.getProperty(root) + fs + file);
@@ -246,7 +246,7 @@ public class ZephyrOpen {
 			return;
 
 		// create no name directories for unnamed user/device
-		props.put(userName, zephyropen);
+		props.put(user, zephyropen);
 		props.put(deviceName, zephyropen);
 		props.put(userHome, props.getProperty(root) + fs + zephyropen);
 		props.put(userLog, props.getProperty(userHome) + fs + log);
@@ -574,7 +574,7 @@ public class ZephyrOpen {
 		
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.kill);
-		kill.add(userName, usr);
+		kill.add(user, usr);
 		kill.add(deviceName, dev);
 		kill.send();
 		kill.send();

@@ -96,7 +96,7 @@ public class LoggerAPI implements API {
 	/** write it all to disk as comes in, and time stamp it */
 	public void execute(Command command) {
 
-		System.out.println(getDelta() + " : " + command.get(ZephyrOpen.userName) + " " + deviceName );
+		System.out.println(getDelta() + " : " + command.get(ZephyrOpen.user) + " " + deviceName );
 
 		// send to log file
 		if( FilterFactory.filter(command))

@@ -59,7 +59,7 @@ public class DeviceViewer implements API {
 		System.out.println("viewer exe: " + command.toString());
 
 		// not for us
-		if (!constants.get(ZephyrOpen.userName).equals(command.get(ZephyrOpen.userName))) {
+		if (!constants.get(ZephyrOpen.user).equals(command.get(ZephyrOpen.user))) {
 			// constants.error("wrong userName: " +
 			// command.get(ZephyrOpen.userName), this);
 			return;
@@ -106,14 +106,15 @@ public class DeviceViewer implements API {
 			constants.init(args[0]);
 			
 		// run default 
-		} else {
+		//} else {
 			
 			constants.init("brad");
 			
-		}
+		//}
 		
 		/** launch new report */
 		new DeviceViewer();
-
+		
+		}
 	}
 }

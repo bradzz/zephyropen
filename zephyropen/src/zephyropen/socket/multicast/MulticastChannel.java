@@ -180,8 +180,8 @@ public class MulticastChannel extends AbstractOutputChannel implements OutputCha
 		if( constants.getBoolean(ZephyrOpen.externalLookup))
 			command.add(ZephyrOpen.externalAddress, constants.get(ZephyrOpen.externalAddress));
 		
-		if(command.get(ZephyrOpen.userName) == null)
-			command.add(ZephyrOpen.userName, constants.get(ZephyrOpen.userName));
+		if(command.get(ZephyrOpen.user) == null)
+			command.add(ZephyrOpen.user, constants.get(ZephyrOpen.user));
 		
 		write(command.toString());
 	}
