@@ -130,24 +130,7 @@ public class AbstractViewer {
 		GoogleChart connection = charts[charts.length-2];	
 		if(connection.getName().equals(PrototypeFactory.connection))
 			connection.getState().update(api.getDelta());
-			
-			//add(api.getDelta());
-		
-		// chartName = null;
-		/*
-		for (int i = 0; i < charts.length-1; i++) {
-
-			// chart = charts[i].getName();
-			if (charts[i].getName().equals(PrototypeFactory.connection)) {
-
-				// don't fill chart with empty space
-				charts[i].getState().update((double) api.getDelta());
-					
-				// done 		
-				return;
-			}
-		*/
-		//}
+		else constants.error("can't locate connection tab", this);
 	}
 }
 
