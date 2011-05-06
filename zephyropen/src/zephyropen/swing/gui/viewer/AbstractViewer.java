@@ -20,9 +20,7 @@ public class AbstractViewer {
 
 	protected static ZephyrOpen constants = ZephyrOpen.getReference();
 
-	protected static final long DROPPED = 5000;
-
-	// private static final int MIN_SIZE = 5;
+	protected static final long DROPPED = 6000;
 
 	protected static long DRAW_DELAY = 1500;
 
@@ -33,8 +31,6 @@ public class AbstractViewer {
 	protected API api = null;
 
 	protected String battery = null;
-
-	// private int counter = 0;
 
 	private FTPManager ftpManager = FTPManager.getReference();
 

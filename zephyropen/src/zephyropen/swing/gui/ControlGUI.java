@@ -33,7 +33,7 @@ import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.device.polar.Find;
-import zephyropen.device.polar.PolarDevice;
+// import zephyropen.device.polar.PolarDevice;
 import zephyropen.port.bluetooth.Discovery;
 import zephyropen.util.Loader;
 
