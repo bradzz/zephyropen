@@ -55,6 +55,9 @@ public class AbstractViewer {
 				// connected
 				frame.setTitle(getText(false));
 
+				// re-draw selected tab
+				frame.updateSelected();
+				
 			} else {
 
 				// been dropped, data too slow
@@ -65,7 +68,7 @@ public class AbstractViewer {
 			}
 
 			// re-draw selected tab
-			frame.updateSelected();
+			// frame.updateSelected();
 		}
 	}
 

@@ -1,7 +1,6 @@
 package zephyropen.device.polar;
 
 import zephyropen.api.PrototypeFactory;
-import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
 import zephyropen.device.Device;
 import zephyropen.port.AbstractPort;
@@ -27,7 +26,6 @@ public class PolarDevice extends AbstractPort implements Device {
     public PolarDevice(String addr) {
         port = new PolarSerialPort(addr);
         command = new Command(PrototypeFactory.polar);
-        command.add(ZephyrOpen.address, addr);
     }
 
     @Override
