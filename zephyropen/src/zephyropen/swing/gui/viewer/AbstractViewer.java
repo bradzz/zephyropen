@@ -127,7 +127,14 @@ public class AbstractViewer {
 	 */
 	public void updateConnectionTab() {
 		
-		// String chartName = null;
+		GoogleChart connection = charts[charts.length-2];	
+		if(connection.getName().equals(PrototypeFactory.connection))
+			connection.getState().update(api.getDelta());
+			
+			//add(api.getDelta());
+		
+		// chartName = null;
+		/*
 		for (int i = 0; i < charts.length-1; i++) {
 
 			// chart = charts[i].getName();
@@ -139,7 +146,8 @@ public class AbstractViewer {
 				// done 		
 				return;
 			}
-		}
+		*/
+		//}
 	}
 }
 
