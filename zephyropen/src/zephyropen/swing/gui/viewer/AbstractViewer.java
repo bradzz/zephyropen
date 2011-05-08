@@ -123,11 +123,21 @@ public class AbstractViewer {
 	 * add new data points to connection tab. required to see in disconnected state
 	 */
 	public void updateConnectionTab() {
+		GoogleChart connection = charts[charts.length-1];	
 		
-		GoogleChart connection = charts[charts.length-2];	
-		if(connection.getName().equals(PrototypeFactory.connection))
+		// constants.error("locate connection tab:" + charts.length, this);
+		
+		if(connection.getState().size() < 5 ) return;
+		
+		if(connection.getName().equals(PrototypeFactory.connection)){
+			
+			
 			connection.getState().update(api.getDelta());
-		else constants.error("can't locate connection tab", this);
+		} 
+		else {
+			constants.error("can't locate connection tab", this);
+			constants.shutdown("can't locate connection tab");
+		}
 	}
 }
 
