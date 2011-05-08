@@ -62,9 +62,6 @@ public class AbstractViewer {
 				// update connection, even if disconnected
 				updateConnectionTab();
 			}
-
-			// re-draw selected tab
-			// frame.updateSelected();
 		}
 	}
 

@@ -486,9 +486,9 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		constants.put(ZephyrOpen.frameworkDebug, "false");
-		ApiFactory.getReference().remove("zephyropen");
-		constants.lock();
+		///constants.put(ZephyrOpen.frameworkDebug, "false");
+		///ApiFactory.getReference().remove("zephyropen");
+		///constants.lock();
 
 		/** find devices for prop files */
 		initDevices();
