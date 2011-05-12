@@ -7,6 +7,8 @@
  */
 package zephyropen.swing.gui.viewer;
 
+import java.util.Date;
+
 import zephyropen.api.API;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
@@ -55,7 +57,9 @@ public class AbstractViewer {
 				frame.updateSelected();
 				
 			} else {
-
+				
+			//	System.out.println(api.getDelta()); 
+				
 				// been dropped, data too slow
 				frame.setTitle(getText(true));
 
@@ -68,12 +72,22 @@ public class AbstractViewer {
 	/** what should the frame say based on connection info */
 	private String getText(boolean dropped) {
 
-		if (dropped)
-			return "[" + constants.get(ZephyrOpen.user) + ", "
-					+ constants.get(ZephyrOpen.deviceName)
-					+ "] Lost Connection " + (api.getDelta() / 1000)
-					+ " seconds ago";
-
+		if (dropped){
+			
+			String str =  "[" + constants.get(ZephyrOpen.user) + ", " + constants.get(ZephyrOpen.deviceName) + "] Lost Connection "; 
+			
+			if((api.getDelta() / 1000) > 100){
+				
+				str += "on: " + new Date().toString();
+				
+			} else {
+				
+				str += (api.getDelta() / 1000) + " seconds ago"; 
+			}
+			
+			return str;
+		}
+		
 		// build string based on configuration and settings
 
 		String text = "[" /* + api.getAddress() + ", " */
@@ -123,15 +137,11 @@ public class AbstractViewer {
 	 * add new data points to connection tab. required to see in disconnected state
 	 */
 	public void updateConnectionTab() {
+		
 		GoogleChart connection = charts[charts.length-1];	
-		
-		// constants.error("locate connection tab:" + charts.length, this);
-		
 		if(connection.getState().size() < 5 ) return;
-		
-		if(connection.getName().equals(PrototypeFactory.connection)){
 			
-			
+		if(connection.getName().equals(PrototypeFactory.connection)){	
 			connection.getState().update(api.getDelta());
 		} 
 		else {

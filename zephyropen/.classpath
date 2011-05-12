@@ -6,7 +6,7 @@
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="lib/BrowserLauncher.jar"/>
 	<classpathentry kind="lib" path="lib/charts4j.jar"/>
-	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="F:/workspace/zephyropen_config/zephyropen/lib/mail.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
