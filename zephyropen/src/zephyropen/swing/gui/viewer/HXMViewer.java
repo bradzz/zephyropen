@@ -31,8 +31,8 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 	/** */
 	public void update(Command command) {
 
-		String beat = command.get(PrototypeFactory.heart);
-		seq = Integer.parseInt(beat);
+	//	String beat = command.get(PrototypeFactory.heart);
+		//seq = Integer.parseInt(beat);
 
 		/*
 		if (!(seq == (last - 1))) {
@@ -55,18 +55,18 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 			System.out.println("[" + i + "]: " + value);
 		}
 */
-		
+		/*
 		int v1 = Integer.parseInt(command.get("rr1"));
 		int v2 = Integer.parseInt(command.get("rr2"));
         int result =  Math.abs(v1 - v2);
         
 		if(result < 300  ) result = 300;
 		if(result > 1600 ) result = 1600;
-		
+		*/
 		// System.out.println("res: " + result);
 		
 		charts[0].add(command.get(PrototypeFactory.heart));
-		charts[1].add(Integer.toString(result));
+		charts[1].add("100"); // Integer.toString(result));
 		charts[2].add(command.get(PrototypeFactory.speed));
 		charts[3].add(command.get(PrototypeFactory.distance));
 		charts[4].add(command.get(PrototypeFactory.beat));

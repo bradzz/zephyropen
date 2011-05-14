@@ -1,8 +1,12 @@
 package zephyropen.util;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import zephyropen.api.ZephyrOpen;
 
-public class Loader extends Thread implements Runnable {
+public class Loader {
+	//extends Thread implements Runnable {
 
 	/** framework configuration */
 	static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -23,16 +27,19 @@ public class Loader extends Thread implements Runnable {
 			constants.error("null params on exec()", this);
 			return;
 		}
-
-		this.start();
-	}
-
-	public void run() {
-		if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
-			macProc();
-		} else {
-			winProc();		
-		}
+		
+		new Thread(
+			new Runnable() {		
+				@Override
+				public void run() {
+					
+					if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
+						macProc();
+					} else {
+						winProc();
+					}
+				}	
+			}).start();
 	}
 
 	public void macProc() {
@@ -76,17 +83,14 @@ public class Loader extends Thread implements Runnable {
 				constants.info("Launch [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
-			// Process proc = 
-			
-			runtime.exec(args);
+			Process proc = runtime.exec(args);
 
-			// BufferedReader procReader = new BufferedReader(
-					
-			// new InputStreamReader(proc.getInputStream());
+			BufferedReader procReader = new BufferedReader(
+				new InputStreamReader(proc.getInputStream()));
 
-			// String line = null;
-			// while ((line = procReader.readLine()) != null)
-			//	constants.info("proc : " + line);
+			String line = null;
+			while ((line = procReader.readLine()) != null)
+				constants.info("proc : " + line);
 			
 			constants.info("exit winProc()", this);
 

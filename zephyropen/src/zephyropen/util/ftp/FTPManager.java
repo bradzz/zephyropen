@@ -31,9 +31,9 @@ public class FTPManager {
 
 	private int port = 21;
 
-	private int xSize = 450;
+	// private int xSize = 450;
 
-	private int ySize = 130;
+	// private int ySize = 130;
 
 	private String folderName = null;
 
@@ -74,6 +74,8 @@ public class FTPManager {
 			// set global flag
 			constants.put(ftpEnabled, "true");
 
+			System.out.println("ftp configured: " + constants.toString());
+			
 			// toggle from props file
 			log = new LogManager();
 			log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_ftp.log");
@@ -86,7 +88,7 @@ public class FTPManager {
 	/** Create an ftp thread to send this google report to the hosted server */
 	public void upload(GoogleChart report) {
 
-		// constants.info("ftp thread called: " + report.getTitle(), this);
+		constants.info("ftp thread called: " + report.getTitle(), this);
 
 		if (!configured) {
 			constants.error("ftp not configured", this);
@@ -99,11 +101,11 @@ public class FTPManager {
 		}
 
 		if (!constants.getBoolean(ZephyrOpen.filelock)) {
-			// constants.error("do not have the lock file", this);
+			constants.error("do not have the lock file", this);
 			return;
 		}
 
-		String data = report.getURLString(xSize, ySize);
+		String data = report.getURLString(); // xSize, ySize);
 		if (data != null) {
 
 			// example: heart.php
@@ -111,12 +113,20 @@ public class FTPManager {
 
 			if (log != null)
 				log.append(report.getTitle() + ", " + data);
+		
+		
+		} else {
+			
+			System.out.println("null data to ftp? "+report.getName());
+		
 		}
 	}
 
 	/** FTP given file to host web server */
 	private boolean ftpFile(String data, String fileName) {
 
+		System.out.println("ftp: " + fileName);
+		
 		FTP ftp = new FTP();
 
 		try {
@@ -187,6 +197,7 @@ public class FTPManager {
 			return false;
 		}
 
+		/*
 		int x = getInt(props.getProperty("xSize"));
 		if (x > ZephyrOpen.ERROR)
 			xSize = x;
@@ -194,16 +205,20 @@ public class FTPManager {
 		int y = getInt(props.getProperty("ySize"));
 		if (y > ZephyrOpen.ERROR)
 			ySize = y;
+		*/
 
 		// override default
+		/*
 		int ftp = getInt(props.getProperty("ftpPort"));
 		if (ftp > ZephyrOpen.ERROR)
-			ySize = y;
-
+			ftpPort = ftp;
+		 */
+		
 		// all set
 		return true;
 	}
 
+	/*
 	private int getInt(String value) {
 
 		int ans = ZephyrOpen.ERROR;
@@ -215,7 +230,7 @@ public class FTPManager {
 		}
 
 		return ans;
-	}
+	}*/
 
 	/** is the ftp configuration valid */
 	public boolean ftpConfigured() {
