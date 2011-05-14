@@ -28,11 +28,11 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
-import zephyropen.api.ApiFactory;
+// import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-import zephyropen.device.polar.Find;
+// import zephyropen.device.polar.Find;
 // import zephyropen.device.polar.PolarDevice;
 import zephyropen.port.bluetooth.Discovery;
 import zephyropen.util.Loader;
@@ -76,6 +76,9 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** choose from discovered devices */
 	JComboBox userList = new JComboBox();
 
+	/** search event timer */
+	java.util.Timer timer = new java.util.Timer();
+	
 	/** Add items with icons each to each menu item */
 	JMenuItem killItem = new JMenuItem("kill all");
 	JMenuItem closeSeverItem = new JMenuItem("close servers");
@@ -85,6 +88,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	JMenuItem debugOnItem = new JMenuItem("debug ON");
 	JMenuItem debugOffItem = new JMenuItem("debug OFF");
 	JMenuItem searchItem = new JMenuItem("bluetooth search");
+	JMenuItem stopSearchItem = new JMenuItem("stop search");
 	JMenuItem viewerItem = new JMenuItem("viewer");
 	JMenuItem testerItem = new JMenuItem("test pattern");
 
@@ -229,11 +233,18 @@ public class ControlGUI extends JPanel implements Runnable {
 			if (source.equals(searchItem)) {
 
 				/** update on timer */
-				java.util.Timer timer = new java.util.Timer();
-				timer.scheduleAtFixedRate(new RefreshTask(), 2000, ZephyrOpen.TWO_MINUTES);
-
+				timer.scheduleAtFixedRate(new RefreshTask(), 0, ZephyrOpen.TWO_MINUTES);
+				device.add(stopSearchItem);
+				device.remove(searchItem);
+				
+			} else if(source.equals(stopSearchItem)){
+			
+				device.add(searchItem);
+				device.remove(searchItem);
+				timer.cancel();
+				
 			} else if (source.equals(closeSeverItem)) {
-
+		
 				constants.closeServers();
 
 			} else if (source.equals(newUserItem)) {
@@ -367,11 +378,11 @@ public class ControlGUI extends JPanel implements Runnable {
 	class DeviceListener implements ItemListener {
 		public void itemStateChanged(ItemEvent evt) {
 
-			if (deviceList.getSelectedItem() == null)
-				return;
+			if (deviceList.getSelectedItem() == null) return;
 
-			// constants.info(" device :: " + deviceList.getSelectedItem(), this);
+			constants.info(" device :: " + deviceList.getSelectedItem(), this);
 
+			/*
 			if (((String) deviceList.getSelectedItem()).equalsIgnoreCase(PrototypeFactory.polar)) {
 
 				constants.info(" device is polar, search", this);
@@ -398,14 +409,13 @@ public class ControlGUI extends JPanel implements Runnable {
 							portList.addItem(port);
 							status.setText("found polar usb device");
 						}
-						/*else {
-							status.setText("polar usb device NOT found");
-						}*/
 					}
 				}.start();
 				
 				searching = false;
-			}
+				
+				*/
+			//}
 		}
 	}
 
@@ -428,6 +438,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		closeSeverItem.addActionListener(listener);
 		serverItem.addActionListener(listener);
 		searchItem.addActionListener(listener);
+		stopSearchItem.addActionListener(listener);
 
 		device.add(testerItem);
 		device.add(debugOnItem);
@@ -487,8 +498,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		/** configuration to ignore kill commands */
 		constants.init();
 		///constants.put(ZephyrOpen.frameworkDebug, "false");
-		///ApiFactory.getReference().remove("zephyropen");
-		///constants.lock();
+		zephyropen.api.ApiFactory.getReference().remove("zephyropen");
+		constants.lock();
 
 		/** find devices for prop files */
 		initDevices();
