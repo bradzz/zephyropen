@@ -34,17 +34,19 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 		String beat = command.get(PrototypeFactory.heart);
 		seq = Integer.parseInt(beat);
 
+		/*
 		if (!(seq == (last - 1))) {
 
-			constants.info("seq: " + seq + " last: " + last, this);
+			System.out.println("seq: " + seq + " last: " + last);
 		
 		} else if( seq == last ){
 			
-			constants.error("same beat?", this);
+			System.out.println("same beat?");
 			return;
 			
 		}
 
+		*/
 		
 		//
 /*
@@ -61,7 +63,7 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 		if(result < 300  ) result = 300;
 		if(result > 1600 ) result = 1600;
 		
-		System.out.println("res: " + result);
+		// System.out.println("res: " + result);
 		
 		charts[0].add(command.get(PrototypeFactory.heart));
 		charts[1].add(Integer.toString(result));
