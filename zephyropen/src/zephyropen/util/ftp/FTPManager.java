@@ -125,7 +125,7 @@ public class FTPManager {
 	/** FTP given file to host web server */
 	private boolean ftpFile(String data, String fileName) {
 
-		System.out.println("ftp: " + fileName);
+		// System.out.println("ftp: " + fileName);
 		
 		FTP ftp = new FTP();
 

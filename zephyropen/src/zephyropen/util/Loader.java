@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import zephyropen.api.ZephyrOpen;
 
 public class Loader {
-	//extends Thread implements Runnable {
 
 	/** framework configuration */
 	static ZephyrOpen constants = ZephyrOpen.getReference();

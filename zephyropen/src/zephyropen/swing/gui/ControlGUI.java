@@ -28,12 +28,9 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
-// import zephyropen.api.ApiFactory;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
-// import zephyropen.device.polar.Find;
-// import zephyropen.device.polar.PolarDevice;
 import zephyropen.port.bluetooth.Discovery;
 import zephyropen.util.Loader;
 
@@ -60,11 +57,19 @@ public class ControlGUI extends JPanel implements Runnable {
 
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
+	
+	/** store past searches */
+	Properties found = new Properties();
 
+	final String path = constants.get(ZephyrOpen.root) + ZephyrOpen.fs + "search.properties";
+	
+	/** limit event rate */
+	long last = System.currentTimeMillis();
+	
 	/** create and set up the window with start up title */
 	JFrame frame = new JFrame(ZephyrOpen.zephyropen + " v" + ZephyrOpen.VERSION);
 
-	// write status to lable
+	/** write status to label */
 	JLabel status = new JLabel("ready", JLabel.LEFT);
 
 	/** choose from discovered devices */
@@ -99,6 +104,25 @@ public class ControlGUI extends JPanel implements Runnable {
 	private void initDevices() {
 		addDevice(PrototypeFactory.polar);
 		addDevice(PrototypeFactory.elevation);
+		
+		if(new File(path).exists()){
+			try {
+				
+				File file = new File(path);
+				FileInputStream fi = new FileInputStream(file);
+				found.load(fi);
+				fi.close();
+				
+				Enumeration<Object> keys = found.keys();
+				while(keys.hasMoreElements()){
+					String dev = (String) keys.nextElement();
+					addDevice(dev);
+				}
+				
+			} catch (Exception e) {
+				constants.error(e.getMessage(), this);
+			}
+		}
 	}
 
 	/** get list of ports available on this particular computer */
@@ -209,12 +233,28 @@ public class ControlGUI extends JPanel implements Runnable {
 							while (list.hasMoreElements()) {
 								RemoteDevice target = list.nextElement();
 								try {
+									
 									addDevice(target.getFriendlyName(false));
+									found.put(target.getFriendlyName(false), target.getBluetoothAddress());
+									
 								} catch (Exception e) {
 									constants.error(e.getMessage(), this);
 								}
 							}
 						}
+						
+						try {
+							
+							// write to search props 
+							File file = new File(path);
+							FileWriter fw = new FileWriter(file);
+							found.store(fw, "comments");
+							fw.close();
+							
+						} catch (Exception e) {
+							constants.error(e.getMessage(), this);
+						}
+						
 						searching = false;
 						status.setText("search complete");
 					}
@@ -228,8 +268,13 @@ public class ControlGUI extends JPanel implements Runnable {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 
+			long delta = System.currentTimeMillis() - last;
+			if( delta < 1000 ){
+				System.out.println("too fast:" + delta);
+				return;
+			}
+			
 			Object source = event.getSource();
-
 			if (source.equals(searchItem)) {
 
 				/** update on timer */
@@ -238,10 +283,11 @@ public class ControlGUI extends JPanel implements Runnable {
 				device.remove(searchItem);
 				
 			} else if(source.equals(stopSearchItem)){
-			
-				device.add(searchItem);
-				device.remove(searchItem);
+
+				/** turn off timer */
 				timer.cancel();
+				device.add(searchItem);
+				device.remove(stopSearchItem);
 				
 			} else if (source.equals(closeSeverItem)) {
 		
@@ -287,6 +333,9 @@ public class ControlGUI extends JPanel implements Runnable {
 					new Loader("zephyropen.device.DeviceTester",
 							(String) userList.getSelectedItem());
 			}
+			
+			// don't let event be handled too often 
+			last = System.currentTimeMillis();
 		}
 	};
 
