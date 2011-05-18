@@ -154,7 +154,7 @@ public class ZephyrOpen {
 	/** max time in milliseconds before closing the process */
 	public static final long ONE_MINUTE = 60000;
 
-	public static final long TWO_MINUTES = 60000;
+	public static final long TWO_MINUTES = 120000;
 
 	public static final long FIVE_MINUTES = 300000;
 

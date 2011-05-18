@@ -1,6 +1,7 @@
 package zephyropen.device;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.util.Utils;
 
 /**
  * <p>
@@ -42,6 +43,7 @@ public class DeviceServer {
             return;
         }
 
+        while(true){
         if (device.connect()) {
         	
             // blocking call
@@ -49,11 +51,12 @@ public class DeviceServer {
             
         } else {
             constants.info("can't connect: " + device.getDeviceName(), this);
-            return;
+            Utils.delay(ZephyrOpen.TIME_OUT);
+           // return;
         }
-
+ Utils.delay(30000);
         // constants.info("closed device name = " + device.getDeviceName(), this);
-        constants.shutdown();
+        }// constants.shutdown();
     }
 
 	/* start watching for hang ups

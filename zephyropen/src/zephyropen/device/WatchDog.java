@@ -33,10 +33,10 @@ public class WatchDog extends Thread implements Runnable {
 		constants.info(device.getDeviceName() + ", TIMEOUT delta = " + device.getDelta(), this);
 		
 		/** let device clean up */ 
-		constants.info("watchdog thread id: ", this.getId());
-		constants.info( "watchdog closing device: " + device.getDeviceName(), this);
+		//constants.info("watchdog thread id: ", this.getId());
+		constants.info("watchdog closing device: " + device.getDeviceName(), this);
 		
 		device.close();
-		constants.shutdown();
+		//constants.shutdown();
 	}
 } 
