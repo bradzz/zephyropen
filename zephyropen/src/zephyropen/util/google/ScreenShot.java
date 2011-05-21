@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.swing.TabbedFrame;
 
 public class ScreenShot extends Thread {
 
@@ -21,7 +23,11 @@ public class ScreenShot extends Thread {
 	/** send current icon to log file */
 	public ScreenShot(GoogleChart googleLabel){ 
 
-		url = googleLabel.getURL(GoogleChart.DEFAULT_X_SIZE, GoogleChart.DEFAULT_Y_SIZE);
+		try {
+			url = new URL(googleLabel.getURLString(TabbedFrame.DEFAULT_X_SIZE, TabbedFrame.DEFAULT_Y_SIZE));
+		} catch (MalformedURLException e) {
+			constants.error(e.getMessage(), this);
+		}
 
 		if (url == null) {
 			constants.error("screenshot failed, null URL: " + googleLabel.getName());

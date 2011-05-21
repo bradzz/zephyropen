@@ -338,4 +338,11 @@ public class Command {
 		if (outputChannel != null)
 			outputChannel.write(this);
 	}
+
+	public void add(String value, boolean b) {
+
+		if(b) add(value, "true");
+		else add(value, "false");
+		
+	}
 }

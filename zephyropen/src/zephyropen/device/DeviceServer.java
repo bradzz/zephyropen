@@ -43,20 +43,25 @@ public class DeviceServer {
             return;
         }
 
+        // do until stopped with signal ^C
         while(true){
-        if (device.connect()) {
-        	
-            // blocking call
-            device.readDevice();
-            
-        } else {
-            constants.info("can't connect: " + device.getDeviceName(), this);
-            Utils.delay(ZephyrOpen.TIME_OUT);
-           // return;
-        }
- Utils.delay(30000);
-        // constants.info("closed device name = " + device.getDeviceName(), this);
-        }// constants.shutdown();
+	        if (device.connect()) {
+	        	
+	            // blocking call
+	            device.readDevice();
+	            
+	        } else {
+	            constants.info("can't connect: " + device.getDeviceName(), this);
+	            Utils.delay(ZephyrOpen.TIME_OUT);
+	           // return;
+	        }
+	
+	        
+	        // Utils.delay(30000);
+	        // constants.info("closed device name = " + device.getDeviceName(), this);
+	        // constants.shutdown();
+	    
+        }   
     }
 
 	/* start watching for hang ups
@@ -80,6 +85,7 @@ public class DeviceServer {
 
             // properties file must supply the device Name 
             new DeviceServer();
+    
         }
     } 
 }

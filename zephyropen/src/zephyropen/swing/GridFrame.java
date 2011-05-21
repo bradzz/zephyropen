@@ -34,7 +34,7 @@ public class GridFrame extends AbstractFrame {
 			
 			// set the size needed for the image 
 			components[i].setPreferredSize(	
-					new Dimension(GoogleChart.DEFAULT_X_SIZE, GoogleChart.DEFAULT_Y_SIZE));
+					new Dimension(TabbedFrame.DEFAULT_X_SIZE, TabbedFrame.DEFAULT_Y_SIZE));
 			
 			// add to this frame 
 			add( components[i] );
@@ -44,7 +44,7 @@ public class GridFrame extends AbstractFrame {
 	@Override
 	public void updateSelected() {
 		for (int i = 0; i < components.length; i++)
-			components[i].updateIcon(); // frame.getWidth(), frame.getHeight());
+			components[i].updateIcon(frame.getWidth(), frame.getHeight());
 		
 		// make sure of the size 
 		frame.pack();

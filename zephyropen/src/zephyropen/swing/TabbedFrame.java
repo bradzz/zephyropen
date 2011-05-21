@@ -29,7 +29,11 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 	/** framework configuration */
 	protected static ZephyrOpen constants = ZephyrOpen.getReference();
 	protected static ApiFactory apiFactory = ApiFactory.getReference();
-
+	
+	/** image size defaults */
+	public static int DEFAULT_X_SIZE = 600;
+	public static int DEFAULT_Y_SIZE = 200;
+	
 	/** add space around the icon image */
 	public static final int X_EDGE = 16;
 	public static final int Y_EDGE = 50;
@@ -40,6 +44,9 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 	/** how often to send an ftp update or recording */
 	private static final int MOD = 30;
 
+	private int xSize = DEFAULT_X_SIZE;
+	private int ySize = DEFAULT_Y_SIZE;
+	
 	private int counter = 1;
 
 	private final JTabbedPane tabbedPane = new JTabbedPane();
@@ -61,8 +68,8 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 		components = parts;
 
 		// start with defaults
-		setPreferredSize(new Dimension(GoogleChart.DEFAULT_X_SIZE, GoogleChart.DEFAULT_Y_SIZE));
-		setSize(new Dimension(GoogleChart.DEFAULT_X_SIZE, GoogleChart.DEFAULT_Y_SIZE));
+		setPreferredSize(new Dimension(DEFAULT_X_SIZE, DEFAULT_Y_SIZE));
+		setSize(new Dimension(DEFAULT_X_SIZE, DEFAULT_Y_SIZE));
 
 		/** add the components onto a pane */
 		createTabs();
@@ -88,8 +95,11 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 		if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
 
-			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
-			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
+			xSize = frame.getWidth() - X_EDGE_OSX;
+			ySize = frame.getHeight() - Y_EDGE_OSX;
+			
+			//constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
+			//constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
 			isOSX = true;
 
 		}
@@ -138,7 +148,7 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 			return;
 
 		/** update current icon */
-		components[tabbedPane.getSelectedIndex()].updateIcon();
+		components[tabbedPane.getSelectedIndex()].updateIcon(xSize, ySize);
 
 		// count updates
 		counter++;
@@ -159,13 +169,19 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 		if (isOSX) {
 
-			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
-			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
+			xSize = frame.getWidth() - X_EDGE_OSX;
+			ySize = frame.getHeight() - Y_EDGE_OSX;
+			
+			//constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE_OSX));
+			//constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE_OSX));
 
 		} else {
 
-			constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE));
-			constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE));
+			xSize = frame.getWidth() - X_EDGE;
+			ySize = frame.getHeight() - Y_EDGE;
+			
+			//constants.put(ZephyrOpen.xSize, String.valueOf(frame.getWidth() - X_EDGE));
+			//constants.put(ZephyrOpen.ySize, String.valueOf(frame.getHeight() - Y_EDGE));
 
 		}
 
@@ -196,26 +212,26 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 				// TODO: put this in some command or keyboard manager
 
 				if(c == 'l')
-					constants.put(ZephyrOpen.loggingEnabled, "true");
+					constants.put(ZephyrOpen.loggingEnabled, true);
 					
 				else if (c == 'r')
-					constants.put(ZephyrOpen.recording, "true");
+					constants.put(ZephyrOpen.recording, true);
 				
 				else if (c == 'f')
-					constants.put(FTPManager.ftpEnabled, "true");
+					constants.put(FTPManager.ftpEnabled, true);
 				
 				else if (c == 's') {
-					constants.put(ZephyrOpen.recording, "false");
-					constants.put(FTPManager.ftpEnabled, "false");
+					constants.put(ZephyrOpen.recording, false);
+					constants.put(FTPManager.ftpEnabled, false);
 				}
 
 				else if (c == 'o') {
-					constants.put(ZephyrOpen.loggingEnabled, "false");
+					constants.put(ZephyrOpen.loggingEnabled, false);
 					constants.info("logging off, still have locked file", this);
 				}
 
 				else if (c == 'p') {
-					constants.put(ZephyrOpen.loggingEnabled, "true");
+					constants.put(ZephyrOpen.loggingEnabled, true);
 					constants.info("logging on, still have locked file", this);
 				}
 			}

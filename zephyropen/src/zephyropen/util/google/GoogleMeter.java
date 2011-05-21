@@ -69,7 +69,7 @@ public class GoogleMeter extends GoogleChart {
         }
     }
     
-    /** @return construct a URL that can be used to display this graph */
+    /** @return construct a URL that can be used to display this graph
     @Override
     public String getURLString(){ // final int x, final int y) {
 
@@ -101,5 +101,6 @@ public class GoogleMeter extends GoogleChart {
             constants.info(e.getMessage(), this);
             return null;
         }
-    }
+    }*/
+    
 }

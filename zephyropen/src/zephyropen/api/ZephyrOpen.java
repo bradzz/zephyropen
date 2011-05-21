@@ -28,7 +28,7 @@ import zephyropen.util.Utils;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.3.6";
+	public static final String VERSION = "2.3.6.1";
 
 	public static final String DEFAULT_PORT = "4444";
 
@@ -395,7 +395,20 @@ public class ZephyrOpen {
 
 	@Override
 	public String toString() {
-		return zephyropen + " v" + VERSION;
+		
+		//return zephyropen + " v" + VERSION;
+
+		String str = "";
+		
+		// now be sure no white space is in any properties!
+		Enumeration<Object> keys = props.keys();
+		while (keys.hasMoreElements()) {
+			String key = (String) keys.nextElement();
+			String value = (String) props.get(key);
+			str += (key + "=" + value + ":");
+		}
+		
+		return str;
 	}
 
 	/**
@@ -605,6 +618,16 @@ public class ZephyrOpen {
 		command.add(action, shutdown);
 		command.send();
 		command.send();
+		command.add(action, kill);
+		command.send();
+		command.send();
+		
+		/* 
+		if(getBoolean(frameworkDebug)){
+			Utils.delay(300);
+			shutdown();
+		}*/
+		
 	}
 
 	/** terminate the application, but clean up first */
@@ -669,5 +692,10 @@ public class ZephyrOpen {
 
 	public synchronized boolean isLocked() {
 		return locked;
+	}
+
+	public synchronized void put(String tag, boolean b) {
+		if(b) props.put(tag, "true");
+		else props.put(tag, "false");
 	}
 }

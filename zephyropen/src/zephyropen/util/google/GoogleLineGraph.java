@@ -1,9 +1,6 @@
 package zephyropen.util.google;
 
 import java.util.Arrays;
-import java.util.Date;
-
-import zephyropen.api.ZephyrOpen;
 import zephyropen.state.State;
 import zephyropen.state.TimedEntry;
 import zephyropen.util.Utils;
@@ -73,10 +70,9 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setSize(x, y);
             chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
 
-            final String titleText = /* "[" + constants.get(ZephyrOpen.userName) + "]  " 
-            + */  title.toUpperCase() + " = " 
+            final String titleText = title.toUpperCase() + " = " 
             + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
-            + Utils.getDate(); //new Date().toString() ;
+            + Utils.getDate(); 
       
             chart.setTitle(titleText);
 
@@ -91,98 +87,6 @@ public class GoogleLineGraph extends GoogleChart {
             return chart.toURLString();
 
         } catch (final Exception e) {
-            // constants.error(e.getMessage(), this);
-            return null;
-        }
-    }
-    
-
-    /** @return construct a URL that can be used to display this graph */
-    @Override
-    public String getURLString(){ 
-
-        try {
-        	
-        	int x = constants.getInteger(ZephyrOpen.xSize);
-    		int y = constants.getInteger(ZephyrOpen.ySize);
-    		
-    		if( x == ERROR ) x = DEFAULT_X_SIZE;
-    		if( y == ERROR ) y = DEFAULT_Y_SIZE;
-
-            final Line valuesLine = Plots.newLine(DataUtil.scale(state.getScaledData()));
-            valuesLine.setColor(dataColor);
-
-            // scaled data
-            final int averageValue = (int) state.scale(state.getAverage());
-            final Line avgLine = Plots.newLine(new Data(averageValue, averageValue));
-            avgLine.setColor(averageColor);
-
-            //Line meanLine = Plots.newLine(DataUtil.scale(avg.getScaledData()));
-            //meanLine.setColor(Color.GOLD);
-
-            //final Line meanH = Plots.newLine(new Data(state.getAverageValue(), state.getAverageValue()));
-            //meanH.setColor(Color.BLACK);
-
-            // put lines on the graph 
-            final Line[] lines = new Line[2];
-            lines[0] = valuesLine;
-            lines[1] = avgLine;
-            //lines[2] = meanLine;
-            //lines[3] = meanH;
-
-            // new chart 
-            final LineChart chart = GCharts.newLineChart(lines);
-
-            // set the size 
-            chart.setSize(x, y);
-            chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
-
-            final String titleText = // "[" + constants.get(ZephyrOpen.userName) + "]  " 
-            title.toUpperCase() + " = " 
-            + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
-            + new Date().toString() ;
-            //	" D:" + getState().getDelta() + ")";  
-
-            //	" A:" + state.getAverageLevel() +
-            //	" T:" + state.getThreshold()
-            //	")";
-
-            //[" + Utils.getTime() + "]"; 
-            chart.setTitle(titleText);
-
-            //double max = 
-            //((double)super.maxIndex / (double)this.size())*100;
-
-            //double min = 
-            //((double)super.minIndex / (double)this.size())*100;
-
-            //if( minIndex < 2 ) minIndex = 2;
-            //if( maxIndex > 98 ) maxIndex = 98;
-
-            // add inflection markers 
-            //chart.addVerticalRangeMarker(max-1, max+1,
-            //	Color.newColor(Color.GREEN, 25));
-
-            //    chart.addVerticalRangeMarker(min-1, min+1,
-            //     		Color.newColor(Color.RED, 25));
-
-            // System.out.println( "max index = " + super.maxIndex +
-            //	" % = " + max);
-            // System.out.println( "min index = " + super.minIndex +
-            //	" % = " + min);
-
-            // add grid 
-            chart.setGrid(5, 20, 3, 2);
-
-            // place three time stamps on y label... oldest, middle, and newest 
-            chart.addXAxisLabels(AxisLabelsFactory.newAxisLabels(Arrays.asList(state.getOldest().getAge(), ((TimedEntry) state.get((getState().size() / 2)))
-                    .getAge(), state.getNewest().getAge()), Arrays.asList(7, 50, 93)));
-
-            // construct a URL that can be used to display this graph  
-            return chart.toURLString();
-
-        } catch (final Exception e) {
-            // constants.error(e.getMessage(), this);
             return null;
         }
     }

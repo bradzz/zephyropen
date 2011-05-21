@@ -312,9 +312,9 @@ public class ControlGUI extends JPanel implements Runnable {
 				command.add(ZephyrOpen.action, ZephyrOpen.frameworkDebug);
 				command.add(ZephyrOpen.action, ZephyrOpen.frameworkDebug);
 				if (source.equals(debugOnItem))
-					command.add(ZephyrOpen.value, ZephyrOpen.enable);
+					command.add(ZephyrOpen.value, true);
 				else
-					command.add(ZephyrOpen.value, ZephyrOpen.disable);
+					command.add(ZephyrOpen.value, false);
 
 				command.send();
 
@@ -546,9 +546,9 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		///constants.put(ZephyrOpen.frameworkDebug, "false");
-		zephyropen.api.ApiFactory.getReference().remove("zephyropen");
-		constants.lock();
+		//constants.put(ZephyrOpen.frameworkDebug, false);
+		//zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
+		//constants.lock();
 
 		/** find devices for prop files */
 		initDevices();
@@ -621,7 +621,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		@Override
 		public void run() {
 
-			// initPorts();
+			initPorts();
 
 			search();
 		}

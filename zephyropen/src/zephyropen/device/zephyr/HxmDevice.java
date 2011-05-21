@@ -52,7 +52,8 @@ public class HxmDevice extends AbstractPort implements Device {
 		
 		while(getDelta() < ZephyrOpen.TIME_OUT) {
 			
-			Utils.delay(300);
+			//Utils.delay(300);
+			
 			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
 
 			if (packet != null) {
