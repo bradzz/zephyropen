@@ -88,9 +88,11 @@ public abstract class AbstractPort implements Port {
 	}
 	
 	public boolean connect() {
-		if (port.connect())
+		if (port.connect()){
+			last = System.currentTimeMillis();
 			return true;
-
+		}
+		
 		return false;
 	}
 	

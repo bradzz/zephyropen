@@ -15,12 +15,12 @@ import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
-import zephyropen.api.PrototypeFactory;
+//import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
-import zephyropen.command.Command;
-import zephyropen.device.zephyr.ZephyrUtils;
+//import zephyropen.command.Command;
+//import zephyropen.device.zephyr.ZephyrUtils;
 import zephyropen.port.Port;
-import zephyropen.util.Utils;
+//import zephyropen.util.Utils;
 
 /**
  * <p>
@@ -121,7 +121,7 @@ public class SearchSPP implements DiscoveryListener, Port {
 
 		try {
 
-			constants.info("url-" + serviceURL, this);
+			constants.info("url:" + serviceURL, this);
 
 			/** open the serial port streams */
 			connection = (StreamConnection) Connector.open(serviceURL);
@@ -129,7 +129,7 @@ public class SearchSPP implements DiscoveryListener, Port {
 			outputStream = connection.openDataOutputStream();
 
 		} catch (Exception e) {
-			constants.error("connect(): " + e.getMessage(), this);
+			// constants.error("connect(): " + e.getMessage(), this);
 			return false;
 		}
 
@@ -313,8 +313,10 @@ public class SearchSPP implements DiscoveryListener, Port {
 	/** Close the serial port profile's streams */
 	public void close() {
 
-		constants.info("closing " + address, this);
+		if(!connected) return;
 
+		constants.info("closing " + address, this);
+		
 		try {
 
 			if (connection != null)
@@ -354,15 +356,14 @@ public class SearchSPP implements DiscoveryListener, Port {
 		return address;
 	}
 
-	/** test utility */
-
+	/** test utility
 	public static void main(String[] args) {
 
 		// use defaults, accept no changes.
 		constants.init();
 		constants.lock();
 
-		/** allocate a byte array for receiving data from the serial port */
+		// allocate a byte array for receiving data from the serial port
 		final int BUFFER_SIZE = 60;
 		byte[] buffer = new byte[BUFFER_SIZE];
 		byte[] packet = new byte[BUFFER_SIZE];
@@ -412,5 +413,8 @@ public class SearchSPP implements DiscoveryListener, Port {
 			Utils.delay(ZephyrOpen.ONE_MINUTE);
 
 		}
-	}
+		
+		*/
+	
+	//}
 }

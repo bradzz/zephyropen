@@ -28,6 +28,9 @@ public class DeviceServer {
 
     /** the device to read from */
     private Device device = null;
+    
+    /** track attempts */
+    private int i = 0; 
 
     /**
      * <p>
@@ -37,39 +40,33 @@ public class DeviceServer {
      */
     public DeviceServer() {
     
+    	/*
         device = DeviceFactory.create();
         if (device == null) {
             constants.error("Can't create device, terminate.", this);
             return;
-        }
+        }*/
 
         // do until stopped with signal ^C
         while(true){
-	        if (device.connect()) {
+	       
+            device = DeviceFactory.create();
+            if (device == null) {
+                constants.error("Can't create device, terminate.", this);
+                return;
+            }
+        	
+        	if (device.connect()) {
 	        	
 	            // blocking call
 	            device.readDevice();
 	            
 	        } else {
-	            constants.info("can't connect: " + device.getDeviceName(), this);
-	            Utils.delay(ZephyrOpen.TIME_OUT);
-	           // return;
+	            constants.info("can't connect [" + i++ + "]: " + device.getDeviceName(), this);
+	            Utils.delay(30000);
 	        }
-	
-	        
-	        // Utils.delay(30000);
-	        // constants.info("closed device name = " + device.getDeviceName(), this);
-	        // constants.shutdown();
-	    
         }   
     }
-
-	/* start watching for hang ups
-    public void startWatchdog(){
-
-    	new WatchDog(device).start();    	
-    }*/
-    
     
     /*
      * Use command line arguments to configure the framework with given properties file

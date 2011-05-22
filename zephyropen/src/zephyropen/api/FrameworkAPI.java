@@ -20,11 +20,8 @@ public class FrameworkAPI implements API {
 
 	/** framework configuration */
 	private final ZephyrOpen constants = ZephyrOpen.getReference();
-
 	private final ApiFactory apiFactory = ApiFactory.getReference();
-
 	private static FrameworkAPI singleton = null;
-
 	private long time = 0;
 
 	/** @return a reference to this singleton class */
@@ -41,7 +38,6 @@ public class FrameworkAPI implements API {
 
 		/** register this API only once per process */
 		apiFactory.add(this);
-
 		time = System.currentTimeMillis();
 	}
 
@@ -49,7 +45,8 @@ public class FrameworkAPI implements API {
 	public void execute(Command command) {
 
 		constants.info("delta = " + getDelta() + " in : " + command.list(), this);
-
+		constants.info(constants.toString());
+		
 		/** Terminate the Process, All of them that are listening */
 		if (command.get(ZephyrOpen.action).equals(ZephyrOpen.shutdown))
 			constants.shutdown("shutdown command received");
@@ -68,7 +65,7 @@ public class FrameworkAPI implements API {
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.close)) {
 			if (apiFactory.containsClass(zephyropen.device.DeviceServer.class.getName()) ||
 					apiFactory.containsClass(zephyropen.device.DeviceTester.class.getName()))
-				constants.shutdown("close command given");
+				constants.shutdown("close command receieved");
 		}
 
 		/** Terminate the Process that are viewers */
@@ -78,11 +75,13 @@ public class FrameworkAPI implements API {
 
 		/** Toggle debugging */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
-			if (command.get(ZephyrOpen.value).equals(ZephyrOpen.enable))
-				constants.put(ZephyrOpen.frameworkDebug, "true");
-			else if (command.get(ZephyrOpen.value).equals(ZephyrOpen.disable))
-				constants.put(ZephyrOpen.frameworkDebug, "false");
+			if (command.get(ZephyrOpen.value).equals("true"))
+				constants.put(ZephyrOpen.frameworkDebug, true);
+			else if (command.get(ZephyrOpen.value).equals("false"))
+				constants.put(ZephyrOpen.frameworkDebug, false);
 		}
+
+		constants.info(constants.toString());
 
 		/** mark last input for getDelta() */
 		time = System.currentTimeMillis();

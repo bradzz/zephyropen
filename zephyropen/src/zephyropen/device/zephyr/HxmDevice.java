@@ -52,14 +52,11 @@ public class HxmDevice extends AbstractPort implements Device {
 		
 		while(getDelta() < ZephyrOpen.TIME_OUT) {
 			
-			//Utils.delay(300);
+			/** track arrival of data packets */
+			last = System.currentTimeMillis();
 			
 			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
-
 			if (packet != null) {
-
-				/** track arrival of data packets */
-				last = System.currentTimeMillis();
 
 				if( ZephyrUtils.vaildHxmPacket(packet)) {
 					
@@ -78,9 +75,11 @@ public class HxmDevice extends AbstractPort implements Device {
 						port.close();
 					}
 
-					System.out.println(command);
+					if(constants.getBoolean(ZephyrOpen.frameworkDebug)) 
+							System.out.println(command);
+					
 					command.send();
-					Utils.delay(600);
+					Utils.delay(300);
 				} 
 			}
 		}

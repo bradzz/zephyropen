@@ -24,7 +24,7 @@ public class ApiFactory {
 	/** framework configuration */
 	private final ZephyrOpen constants = ZephyrOpen.getReference();
 
-	// holds the API's recognised by the application
+	// holds the API's recognized by the application
 	private static Hashtable<String, API> apiTable = null;
 	private static ApiFactory singleton = null;
 

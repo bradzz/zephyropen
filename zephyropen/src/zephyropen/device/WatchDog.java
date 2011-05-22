@@ -18,6 +18,11 @@ public class WatchDog extends Thread implements Runnable {
 		this.setDaemon(true);
 	}
 
+	/*
+	public void reset(){
+		device.
+	}*/
+	
 	/** start() call back */
 	public void run() {
 		

@@ -25,7 +25,7 @@ public class DeviceTester implements API {
 	private final static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/** Time between sending messages */
-	private long delay = 500;
+	private long delay = 1000;
 
 	private String deviceName = null;
 
@@ -80,8 +80,8 @@ public class DeviceTester implements API {
         		// index into the prototype
         		String tag = null;
         		for (int index = 0; index < commandPrototype.length; index++) {
-        			tag = commandPrototype[index];
         			
+        			tag = commandPrototype[index];
         			feedback.add(tag, Utils.formatFloat(i, 3));
         			
         			// feedback.add(tag, Utils.formatFloat(getRandom(tag), 3));

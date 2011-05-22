@@ -270,7 +270,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			long delta = System.currentTimeMillis() - last;
 			if( delta < 1000 ){
-				System.out.println("too fast:" + delta);
+				// System.out.println("too fast:" + delta);
 				return;
 			}
 			
@@ -339,10 +339,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		}
 	};
 
-	/**
-	 * 
-	 * 
-	 */
+	/** create a luanch file for this user and device */
 	private boolean createLaunch() {
 
 		Properties userProps = new Properties();
@@ -424,6 +421,7 @@ public class ControlGUI extends JPanel implements Runnable {
 	}
 
 	// device drop box changed
+	/*
 	class DeviceListener implements ItemListener {
 		public void itemStateChanged(ItemEvent evt) {
 
@@ -431,7 +429,6 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			constants.info(" device :: " + deviceList.getSelectedItem(), this);
 
-			/*
 			if (((String) deviceList.getSelectedItem()).equalsIgnoreCase(PrototypeFactory.polar)) {
 
 				constants.info(" device is polar, search", this);
@@ -462,18 +459,18 @@ public class ControlGUI extends JPanel implements Runnable {
 				}.start();
 				
 				searching = false;
-				
-				*/
+			
 			//}
 		}
-	}
+	}*/
 
 	/** add the menu items to the frame */
 	public void addMenu() {
 
 		/* listen for users */
 		userList.addItemListener(new UserListener());
-		deviceList.addItemListener(new DeviceListener());
+		
+		// deviceList.addItemListener(new DeviceListener());
 
 		/* Add the lit to each menu item */
 		viewerItem.addActionListener(listener);
@@ -537,7 +534,6 @@ public class ControlGUI extends JPanel implements Runnable {
 			return false;
 		}
 
-		// constants.info("Blue Tooth Radio is configured", this);
 		return true;
 	}
 
@@ -546,24 +542,15 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** configuration to ignore kill commands */
 		constants.init();
-		//constants.put(ZephyrOpen.frameworkDebug, false);
-		//zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
-		//constants.lock();
+		constants.put(ZephyrOpen.frameworkDebug, false);
+		zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
+		constants.lock();
 
 		/** find devices for prop files */
 		initDevices();
 		initPorts();
 		initUsers();
 		userList.addItemListener(new UserListener());
-
-		/**
-		 * TODO: nag or put an add here, load image String text =
-		 * "<html><font color=\"#0e1f5b\"> &#169; 2011 Brad Zdanivsky</font>";
-		 * if(!bluetoothEnabled()) text += " (BT disabled)";
-		 * 
-		 * JLabel copy = new JLabel(text);
-		 * copy.setHorizontalAlignment(JLabel.CENTER);
-		 */
 
 		/** add to panel */
 		setLayout(new SpringLayout());
