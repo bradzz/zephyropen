@@ -92,7 +92,7 @@ public class SerialUtils {
 	
 	
 
-	public static byte[] getAvail(Port spp, byte[] buffer, int bufferSize) {
+	public static byte[] getAvail(Port spp, byte[] buffer, int bufferSize) throws IOException {
 		
 		//
 		// read bytes differently based on OS 
@@ -109,23 +109,25 @@ public class SerialUtils {
 	 * @param buffer, int BUFFER_SIZE  
 	 * 
 	 * @return the array of bytes read from the SPP
+	 * @throws IOException 
 	 */
-	public static byte[] getAvailUnix(Port spp, byte[] buffer, int BUFFER_SIZE ) {
+	public static byte[] getAvailUnix(Port spp, byte[] buffer, int BUFFER_SIZE ) throws IOException {
 	
-		// constants.info("getAvailUnix");
+		constants.info("getAvailUnix");
 		
-		if(!spp.isOpen()){
-			spp.close();
-			return null;
-		}
+		//if(!spp.isOpen()){
+		//	spp.close();
+		//	return null;
+		//}
 		
 		int offset = 0;
 		
-		try {
-			if (spp.available() < 1) {
+		// try {
+			
+			//if (spp.available() < 1) {
 				// No bytes available
-				return null;
-			}
+				//return null;
+			//}
 
 			// Read port from buffer until max packet size is reached or no data is incoming
 			while ( offset < BUFFER_SIZE ) {
@@ -142,11 +144,13 @@ public class SerialUtils {
 				offset = offset + bytes;
 				
 			}
-		} catch (Exception e) {
-			constants.error("SerialUtils.getAvail() : " + e);
-			spp.close();
-			return null;
-		}
+		
+	//} catch (Exception e) {
+		//	constants.error("SerialUtils.getAvail() : " + e);
+			
+			// spp.close();
+			//return null;
+		//}
 		
 		// System.out.println("offset: "+offset);	
 		if ( offset < BUFFER_SIZE) {

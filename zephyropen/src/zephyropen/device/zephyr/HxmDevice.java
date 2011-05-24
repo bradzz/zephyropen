@@ -1,5 +1,7 @@
 package zephyropen.device.zephyr;
 
+import java.io.IOException;
+
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
@@ -55,7 +57,12 @@ public class HxmDevice extends AbstractPort implements Device {
 			/** track arrival of data packets */
 			last = System.currentTimeMillis();
 			
-			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
+			try {
+				packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
+			} catch (IOException e) {
+				return;	
+			}
+			
 			if (packet != null) {
 
 				if( ZephyrUtils.vaildHxmPacket(packet)) {
@@ -79,7 +86,7 @@ public class HxmDevice extends AbstractPort implements Device {
 							System.out.println(command);
 					
 					command.send();
-					Utils.delay(300);
+					//Utils.delay(300);
 				} 
 			}
 		}

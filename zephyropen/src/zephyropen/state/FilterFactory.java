@@ -13,8 +13,12 @@ public class FilterFactory {
 
 	private static final int MIN_POINTS = 3;
 
-	protected static ZephyrOpen constants = ZephyrOpen.getReference();
+	private static ZephyrOpen constants = ZephyrOpen.getReference();
+	
+	private static final String heartMax = "heartMax";
+	private static final String heartMin = "heartMim";
 
+	
 	public static Filter create(String type) {
 
 		if (type.equals(PrototypeFactory.beat))
@@ -96,10 +100,9 @@ public class FilterFactory {
 
 					if (!inRange(value, filter)) {
 
-						/*
 						constants.error(commandPrototype[index] + " "
 								+ filter.getClass().getName()
-								+ " not in range: " + value);*/
+								+ " not in range: " + value);
 
 						return false;
 
@@ -214,17 +217,25 @@ public class FilterFactory {
 
 		@Override
 		public int getMax() {
+			
+			int tmp = constants.getInteger(heartMax);
+			if( tmp != ZephyrOpen.ERROR) return tmp;
+			
 			return 130;
 		}
 
 		@Override
 		public int getMin() {
+			
+			int tmp = constants.getInteger(heartMin);
+			if( tmp != ZephyrOpen.ERROR) return tmp;
+			
 			return 30;
 		}
 
 		@Override
 		public double getThreshold() {
-			return 7;
+			return 10;
 		}
 	}
 

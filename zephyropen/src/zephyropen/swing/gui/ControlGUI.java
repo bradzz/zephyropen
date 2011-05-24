@@ -8,6 +8,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.TimerTask;
@@ -54,6 +55,8 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** size of GUI window */
 	static final int XSIZE = 380;
 	static final int YSIZE = 200;
+
+	private static final Object selected = "selected";
 
 	/** mutex to ensure one search thread at a time */
 	static Boolean searching = false;
@@ -119,9 +122,26 @@ public class ControlGUI extends JPanel implements Runnable {
 					addDevice(dev);
 				}
 				
+				System.out.println("found " + found.getProperty((String) selected));
+				deviceList.setSelectedItem(found.get(selected));
+				
 			} catch (Exception e) {
 				constants.error(e.getMessage(), this);
 			}
+		}
+	}
+	
+	public void writeFound(){
+		try {
+			
+			// write to search props 
+			FileWriter fw = new FileWriter(new File(path));
+			found.put(selected, deviceList.getSelectedItem());
+			found.store(fw, "comments");
+			fw.close();
+			
+		} catch (Exception e) {
+			constants.error(e.getMessage(), this);
 		}
 	}
 
@@ -243,17 +263,21 @@ public class ControlGUI extends JPanel implements Runnable {
 							}
 						}
 						
+						writeFound();
+						
+						/*
 						try {
 							
 							// write to search props 
-							File file = new File(path);
 							FileWriter fw = new FileWriter(file);
+							found.put(selected, deviceList.getSelectedItem());
 							found.store(fw, "comments");
 							fw.close();
 							
 						} catch (Exception e) {
 							constants.error(e.getMessage(), this);
 						}
+						*/
 						
 						searching = false;
 						status.setText("search complete");
@@ -374,6 +398,22 @@ public class ControlGUI extends JPanel implements Runnable {
 			}
 		}
 
+
+			
+			/*
+		FileWriter f = new FileWriter("");
+		found.setProperty(selected, deviceList.getSelectedItem().toString());
+		found.store(f, new Date().toString());
+		f.close();
+		}catch(Exception e){
+			constants.error(e.getMessage(), this);
+		}
+		*/
+			
+		
+		writeFound();
+		
+		//.get(selected)
 		// constants.info("creating launch file: " + propFile.getPath(), this);
 
 		// overwrite if existed
@@ -386,7 +426,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 			// write to file
 			FileWriter fw = new FileWriter(propFile);
-			userProps.store(fw, null);
+			userProps.store(fw, new Date().toString());
 			fw.close();
 
 		} catch (Exception e) {
@@ -558,10 +598,10 @@ public class ControlGUI extends JPanel implements Runnable {
 		add(new JLabel("device type"));
 		add(deviceList);
 
-		add(new JLabel("user name "));
+		add(new JLabel("user name"));
 		add(userList);
 
-		add(new JLabel("comm port "));
+		add(new JLabel("comm port"));
 		add(portList);
 
 		add(new JLabel("status"));
@@ -608,7 +648,7 @@ public class ControlGUI extends JPanel implements Runnable {
 		@Override
 		public void run() {
 
-			initPorts();
+			// initPorts();
 
 			search();
 		}

@@ -40,13 +40,6 @@ public class DeviceServer {
      */
     public DeviceServer() {
     
-    	/*
-        device = DeviceFactory.create();
-        if (device == null) {
-            constants.error("Can't create device, terminate.", this);
-            return;
-        }*/
-
         // do until stopped with signal ^C
         while(true){
 	       

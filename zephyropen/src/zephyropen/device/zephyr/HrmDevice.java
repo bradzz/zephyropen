@@ -1,5 +1,7 @@
 package zephyropen.device.zephyr;
 
+import java.io.IOException;
+
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
@@ -55,7 +57,11 @@ public class HrmDevice extends AbstractPort implements Device {
 		
 		while (getDelta() < ZephyrOpen.TIME_OUT) {
 
-			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
+			try {
+				packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
+			} catch (IOException e) {
+				return;
+			}
 
 			if (packet != null) {
 

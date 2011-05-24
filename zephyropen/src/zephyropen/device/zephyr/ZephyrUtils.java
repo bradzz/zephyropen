@@ -213,12 +213,17 @@ public class ZephyrUtils {
 	 * 
 	 * @param packet
 	 *            of raw bytes to display in hex and byte formats
-	 * 
-	 *            public static void print(byte[] packet) { if (packet == null)
-	 *            return; int size = packet.length; for (int c = 0; c < size;
-	 *            c++) System.err.println("[" + c + "] \t hex : " +
-	 *            byteToHex(packet[c]) + "\t byte : " + packet[c]); }
-	 */
+	 */ 
+	   
+	public static void print(byte[] packet) { 
+		
+		if (packet == null) return;
+		
+		int size = packet.length; 
+		for (int c = 0; c < size;c++) 
+			System.err.println("[" + c + "] \t hex : " +
+	             byteToHex(packet[c]) + "\t byte : " + packet[c]); }
+	 
 
 	/**
 	 * Convert a string into an array of hex bytes

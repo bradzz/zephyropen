@@ -125,11 +125,12 @@ public class AbstractViewer {
 		if (constants.getBoolean(ZephyrOpen.recording))
 			text += " -rec";
 
-		/* hold size in constants */
+		/* hold size in constants 
 		if (constants.getBoolean(ZephyrOpen.frameworkDebug))
 			text += "   [" + constants.getInteger(ZephyrOpen.xSize) + ", "
 					+ constants.getInteger(ZephyrOpen.ySize) + "]";
-
+		*/
+		
 		return text;
 	}
 

@@ -1,5 +1,7 @@
 package zephyropen.device.zephyr;
 
+import java.io.IOException;
+
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
@@ -64,8 +66,6 @@ public class BioharnessDevice extends AbstractPort implements Device {
 	/** Loop on BT input */
 	public void readDevice() {
 
-		// command.add(ZephyrOpen.address, port.getAddress());
-
 		/** sanity test if (!connected) return; */
 		ZephyrUtils.setupBioharness(port);
 		ZephyrUtils.setupBioharnessRtoR(port);
@@ -77,7 +77,14 @@ public class BioharnessDevice extends AbstractPort implements Device {
 
 			Utils.delay(200);
 
-			packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
+			try {
+				packet = SerialUtils.getAvail(port, buffer, BUFFER_SIZE);
+			} catch (IOException e) {
+				constants.error(e.getMessage(), this);
+				return;
+			}
+			
+			System.out.println("read device(): buff size: " + buffer.length);
 
 			if (packet != null) {
 
@@ -85,27 +92,46 @@ public class BioharnessDevice extends AbstractPort implements Device {
 				int type = (getPacketType(packet));
 
 				/** parse data, send to listening devices */
-				if (type == DATA_PACKET) {
+			if (type == DATA_PACKET) {
 					
 					constants.info("data packet");
 
 					command = ZephyrUtils.parseBioharnessPacket(packet, command);
+					command.send();
+					
+					//last = System.currentTimeMillis();					
+
 				
-				} else if( type == RTOR_PACKET ) {
+				} else
+					
+					if( type == RTOR_PACKET ) {
 					
 					constants.info("RR packet");
 					
 					command = ZephyrUtils.parseBioharnessRtoR(packet, command);
-				}
+					command.send();
+					//last = System.currentTimeMillis();
+
+				} 
+					
+					//else {
+					
+//					constants.info("data packet");
+
+	//				command = ZephyrUtils.parseBioharnessPacket(packet, command);
+		//			command.send();
+				
+					
+			//	}
 
 				if (i++ % 10 == 0) {
 					ZephyrUtils.setupBioharness(port);
 					ZephyrUtils.setupBioharnessRtoR(port);
 				}
-				
+			
+				//if(constants.getBoolean(ZephyrOpen.frameworkDebug)		
 				constants.info(command.toString());
-				command.send();
-
+		
 				// keep track of incoming data times
 				last = System.currentTimeMillis();
 			}
@@ -124,19 +150,28 @@ public class BioharnessDevice extends AbstractPort implements Device {
 			return ERROR;
 		}
 		
+		if(packet[0] != ZephyrUtils.STX){
+			System.out.println("not start of text");
+			return ERROR;
+		}
+	
 		/*
-		 * if(packet[0] != ZephyrUtils.STX){ constants.info("packet[0] != STX",
-		 * this); return ERROR; }
-		 * 
-		 * if(packet[packet.length-1] != ZephyrUtils.ETX ){
-		 * constants.info("packet[" + packet.length + "] != ETX", this); return
-		 * ERROR; }
-		 * 
-		 * 
-		 * if( ZephyrUtils.checkCRC(packet) ) {
-		 * constants.error("crc error on device [" + deviceName + "]", this);
-		 * return ERROR; }
-		 */
+		if (packet[60] != ZephyrUtils.ETX) {
+			constants.error("ETC error on Bioharness", this);
+			return ERROR;
+		}*/
+
+
+		if (packet.length != 60) {
+			/** most common, happens when not in sync with HXM */
+			constants.error("wrong packet size on Bioharness", this);
+			return ERROR;
+		}
+		
+		if (ZephyrUtils.checkCRC(packet)) {
+			constants.error("CRC error on Bioharness", this);
+			return ERROR;
+		}
 
 		// This happens when two packets come in together..
 		// with ank ack from sending a keep-alive message
@@ -165,10 +200,15 @@ public class BioharnessDevice extends AbstractPort implements Device {
 			constants.info("life packet", this);
 			return LIFE_PACKET;
 		}
+		/*
 		if (packet[1] == 0x26) {
 			constants.info("HXM packet", this);
 			return HXM_PACKET;
-		}
+		}*/
+		
+		// ZephyrUtils.print(packet);
+		
+		//constants.info(SerialUtils.toString(packet, packet.length), this);
 		
 		constants.error("unkown bioharness packet type", this);
 
