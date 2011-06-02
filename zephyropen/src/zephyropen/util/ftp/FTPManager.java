@@ -100,7 +100,7 @@ public class FTPManager {
 		}
 
 		if (!constants.getBoolean(ZephyrOpen.filelock)) {
-			constants.error("do not have the lock file", this);
+			//constants.error("do not have the lock file", this);
 			return;
 		}
 

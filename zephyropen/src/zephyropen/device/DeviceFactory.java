@@ -11,7 +11,7 @@ import zephyropen.device.zephyr.HxmDevice;
 
 /**
  * 
- * Create a device by the given nane -- use conventions for each name/device
+ * Create a device by the given name -- use conventions for each name/device
  * mappings.
  * 
  * @author <a href="mailto:brad.zdanivsky@gmail.com">Brad Zdanivsky</a>

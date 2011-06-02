@@ -65,9 +65,7 @@ public class HrmDevice extends AbstractPort implements Device {
 
 			if (packet != null) {
 
-				// track arrival of data packets
-				last = System.currentTimeMillis();
-
+			
 				if( ZephyrUtils.vaildHxmPacket(packet)) {
 					
 					// add speed, distance etc 
@@ -88,7 +86,10 @@ public class HrmDevice extends AbstractPort implements Device {
 						
 					// send it 
 					command.send();
-					
+						
+					// track arrival of data packets
+					last = System.currentTimeMillis();
+
 				}
 			}
 		}

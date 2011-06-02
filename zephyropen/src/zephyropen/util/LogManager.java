@@ -81,7 +81,7 @@ public class LogManager {
             logfile.seek(logfile.length());
             
             // add date 
-            data = new Date().toString() + ", " + data;
+            // data = new Date().toString() + ", " + data;
 
             // log zephyr.framework.state
             logfile.writeBytes(data + CRLF);

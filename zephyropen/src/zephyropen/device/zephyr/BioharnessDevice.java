@@ -84,7 +84,7 @@ public class BioharnessDevice extends AbstractPort implements Device {
 				return;
 			}
 			
-			System.out.println("read device(): buff size: " + buffer.length);
+			//System.out.println("read device(): buff size: " + buffer.length);
 
 			if (packet != null) {
 
@@ -163,7 +163,7 @@ public class BioharnessDevice extends AbstractPort implements Device {
 
 
 		if (packet.length != 60) {
-			/** most common, happens when not in sync with HXM */
+		
 			constants.error("wrong packet size on Bioharness", this);
 			return ERROR;
 		}
