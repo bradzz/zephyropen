@@ -29,7 +29,7 @@ public class Port implements SerialPortEventListener {
 
 	private static final String test = "test";
 	private static final String home = "home";
-	private static final String PATH = "home";
+	// private static final String PATH = "home";
 
 	// comm channel
 	private SerialPort serialPort = null;
@@ -51,8 +51,6 @@ public class Port implements SerialPortEventListener {
 
 	private String portName = null;
 	private boolean busy = true;
-
-	int max = 0;
 
 	/**  */
 	public Port(String str) {
@@ -119,57 +117,44 @@ public class Port implements SerialPortEventListener {
 	}
 
 	// act on feedback from arduino
-	private void execute() {
+	private  void execute() {
 		String response = "";
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
-
-		// System.out.println("in: " + response);
-		// log.append(response);
+		
+		// System.out.println(getReadDelta() + " : " + response);
 
 		if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
 
-		} else if (response.startsWith(test)) {
+		} else if (response.startsWith(test) || (response.startsWith(home))) {
 
-			System.out.println("test: " + response);
+			System.out.println("execute.test: " + response);
 			String[] reply = response.split(" ");
-			if (reply[1].equals("done")) {
-				busy = false;
-				if (max > 0)
-					System.out.println("max = " + max);
-				max = 0;
-			} else if (reply[1].equals("start")) {
-				busy = true;
-				max = 0;
-			}
-
-		} else if (response.startsWith(home)) {
-
-			System.out.println("home: " + response);
-			String[] reply = response.split(" ");
-			if (reply[1].equals("done"))
-				busy = false;
-			else if (reply[1].equals("start"))
-				busy = true;
-
+			if (reply[1].equals("done")) busy = false;
+			else if (reply[1].equals("start")) busy = true;
+			
 		} else {
+			
+			log.append(getReadDelta() + " " + response);
 
+			/**/ 
+			
 			String[] reply = response.split(" ");
 			try {
+
 				// int step = Integer.parseInt(reply[0]);
 				int value = Integer.parseInt(reply[1]);
 
-				if (value > 2)
-					log.append(response);
-
-				if (value > max)
-					max = value;
-
+				//if (value > 10){
+					System.out.println(getReadDelta() + " : " + response);
+					log.append(getReadDelta() + " " + response);
+				//}
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
+			
 		}
 	}
 
@@ -179,7 +164,7 @@ public class Port implements SerialPortEventListener {
 	 * @param command
 	 *            is a byte array of messages to send
 	 */
-	private/* synchronized */void sendCommand(final byte[] command) {
+	private  void sendCommand(final byte[] command) {
 
 		try {
 
@@ -206,7 +191,7 @@ public class Port implements SerialPortEventListener {
 	public/* synchronized */String getVersion() {
 		if (version == null) {
 			sendCommand(GET_VERSION);
-			Utils.delay(1000);
+			Utils.delay(300);
 		}
 		return version;
 	}
@@ -216,7 +201,7 @@ public class Port implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 
-	public/* synchronized */boolean test(int delay) {
+	public  boolean test(int delay) {
 
 		if (busy)
 			return false;
@@ -226,38 +211,49 @@ public class Port implements SerialPortEventListener {
 
 		Utils.delay(300);
 
-		busy = true;
+		// busy = true;
 		while (busy) {
-			System.out.println("wait");
+			// System.out.println("wait");
 			Utils.delay(1000);
 		}
 		return true;
 	}
+	
+	public  boolean test() {
 
+		if (busy)
+			return false;
+
+		// System.out.println("sending test");
+		sendCommand(new byte[] { TEST });
+
+		Utils.delay(300);
+
+		while (busy) {
+			// System.out.println("wait");
+			Utils.delay(1000);
+		}
+		return true;
+	}
+	
 	/** */
 	public static void main(String[] args) {
 
 		// if (args.length == 1) {
-
 		// configure the framework with properties file
 		constants.init(); // args[0]);
 
 		// properties file must supply the device Name
 		Port port = new Port("COM26");
 		if (port.connect()) {
-
-			Utils.delay(3000);
-
-			System.out.println("starting test with version: " + port.getVersion());
-
-			for (int i = 0; i < 250; i += 20) {
-
-				System.out.println("starting test with: " + i);
-				if (port.test(i)) {
-					System.out.println("test done with: " + i + "\n");
-				} else
-					System.out.println("fault");
-			}
+			Utils.delay(2000);
+			
+			System.out.println("main.starting test with version: " + port.getVersion());
+			while(true){
+			if(port.test(2)) System.out.println("main.done");
+			else System.out.println("main.fault");
+			
+		}
 		}
 		constants.shutdown();
 	}
