@@ -8,11 +8,16 @@ import gnu.io.SerialPortEventListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import com.googlecode.charts4j.Color;
 //import java.util.Date;
 
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
+import zephyropen.util.google.GoogleChart;
+import zephyropen.util.google.GoogleLineGraph;
+import zephyropen.util.google.ScreenShot;
 
 public class Port implements SerialPortEventListener {
 
@@ -51,6 +56,8 @@ public class Port implements SerialPortEventListener {
 
 	private String portName = null;
 	private boolean busy = true;
+
+	public GoogleChart chart = new GoogleLineGraph("beam", "ma", Color.BLUEVIOLET);
 
 	/**  */
 	public Port(String str) {
@@ -117,14 +124,16 @@ public class Port implements SerialPortEventListener {
 	}
 
 	// act on feedback from arduino
-	private  void execute() {
+	private void execute() {
 		String response = "";
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
-		
+
 		// System.out.println(getReadDelta() + " : " + response);
 
-		if (response.startsWith("version:")) {
+		if (response.startsWith("error")) {
+			constants.shutdown("dead");
+		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
 
@@ -132,29 +141,17 @@ public class Port implements SerialPortEventListener {
 
 			System.out.println("execute.test: " + response);
 			String[] reply = response.split(" ");
-			if (reply[1].equals("done")) busy = false;
-			else if (reply[1].equals("start")) busy = true;
-			
+			if (reply[1].equals("done")) {
+				busy = false;
+			} else if (reply[1].equals("start"))
+				busy = true;
+
 		} else {
-			
-			log.append(getReadDelta() + " " + response);
 
-			/**/ 
-			
-			String[] reply = response.split(" ");
-			try {
+			// log.append(response);
 
-				// int step = Integer.parseInt(reply[0]);
-				int value = Integer.parseInt(reply[1]);
-
-				//if (value > 10){
-					System.out.println(getReadDelta() + " : " + response);
-					log.append(getReadDelta() + " " + response);
-				//}
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			}
-			
+			// state.add(new TimedEntry(reply[0]));
+			chart.add(response);
 		}
 	}
 
@@ -164,7 +161,7 @@ public class Port implements SerialPortEventListener {
 	 * @param command
 	 *            is a byte array of messages to send
 	 */
-	private  void sendCommand(final byte[] command) {
+	private void sendCommand(final byte[] command) {
 
 		try {
 
@@ -188,7 +185,7 @@ public class Port implements SerialPortEventListener {
 	}
 
 	/** @return this device's firmware version */
-	public/* synchronized */String getVersion() {
+	public String getVersion() {
 		if (version == null) {
 			sendCommand(GET_VERSION);
 			Utils.delay(300);
@@ -201,13 +198,14 @@ public class Port implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 
-	public  boolean test(int delay) {
+	public boolean test(int delay) {
 
 		if (busy)
 			return false;
 
-		// System.out.println("sending test");
-		sendCommand(new byte[] { TEST, (byte) delay });
+		chart.getState().reset();
+
+		sendCommand(new byte[] { TEST, (byte) delay, 1 });
 
 		Utils.delay(300);
 
@@ -218,43 +216,36 @@ public class Port implements SerialPortEventListener {
 		}
 		return true;
 	}
-	
-	public  boolean test() {
 
-		if (busy)
-			return false;
-
-		// System.out.println("sending test");
-		sendCommand(new byte[] { TEST });
-
-		Utils.delay(300);
-
-		while (busy) {
-			// System.out.println("wait");
-			Utils.delay(1000);
-		}
-		return true;
-	}
-	
 	/** */
 	public static void main(String[] args) {
 
-		// if (args.length == 1) {
-		// configure the framework with properties file
-		constants.init(); // args[0]);
+		constants.init("brad");
+		constants.put(ZephyrOpen.deviceName, "beam");
 
 		// properties file must supply the device Name
 		Port port = new Port("COM26");
 		if (port.connect()) {
 			Utils.delay(2000);
-			
+
 			System.out.println("main.starting test with version: " + port.getVersion());
-			while(true){
-			if(port.test(2)) System.out.println("main.done");
-			else System.out.println("main.fault");
 			
+			for (int i = 5; i < 100; i++) {
+
+			//int i = 5;
+
+			if (port.test(i))
+				System.out.println("main.state max: " + port.chart.getState().getMaxValueString());
+			else
+				System.out.println("main.fault");
+			new ScreenShot(port.chart);
+
+			Utils.delay(3000);
+			
+			}
 		}
-		}
+
+		Utils.delay(2000);
 		constants.shutdown();
 	}
 }

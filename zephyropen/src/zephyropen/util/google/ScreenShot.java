@@ -46,7 +46,7 @@ public class ScreenShot extends Thread {
 		// do it
 		this.start();
 	}
-
+	
 	@Override
 	public void run() {
 
