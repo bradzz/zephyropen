@@ -62,8 +62,7 @@ public class Port implements SerialPortEventListener {
 	/**  */
 	public Port(String str) {
 		portName = str;
-
-		log.open(System.currentTimeMillis() + "_beam.txt");
+		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + "_beam.txt");
 	}
 
 	/** open port, enable read and write, enable events */
