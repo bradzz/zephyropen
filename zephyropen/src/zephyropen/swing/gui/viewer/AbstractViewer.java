@@ -33,6 +33,8 @@ public class AbstractViewer {
 	protected API api = null;
 
 	protected String battery = null;
+	
+	private String disconnected = null; 
 
 	private FTPManager ftpManager = FTPManager.getReference();
 
@@ -77,22 +79,25 @@ public class AbstractViewer {
 			String str =  "[" + constants.get(ZephyrOpen.user) + ", " + constants.get(ZephyrOpen.deviceName) + "] Lost Connection "; 
 			
 			if((api.getDelta() / 1000) > 100){
+				if(disconnected == null)
+					disconnected = new Date().toString();
 				
-				str += "on: " + new Date().toString();
+				str += "on: " + disconnected;
 				
 			} else {
 				
 				str += (api.getDelta() / 1000) + " seconds ago"; 
+				
 			}
 			
 			return str;
 		}
 		
+		// reconnected 
+		disconnected = null;
+		
 		// build string based on configuration and settings
-
-		String text = "[" /* + api.getAddress() + ", " */
-				+ constants.get(ZephyrOpen.user) + "] "
-				+ api.getDeviceName();
+		String text = constants.get(ZephyrOpen.user) + "] "	+ api.getDeviceName();
 
 		if (battery != null)
 			text += " battery = " + battery;
