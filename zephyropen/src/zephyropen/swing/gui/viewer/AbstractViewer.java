@@ -76,9 +76,10 @@ public class AbstractViewer {
 
 		if (dropped){
 			
-			String str =  "[" + constants.get(ZephyrOpen.user) + ", " + constants.get(ZephyrOpen.deviceName) + "] Lost Connection "; 
+			String str =  "[" + constants.get(ZephyrOpen.user) + ", " 
+				+ constants.get(ZephyrOpen.deviceName) + "] Lost Connection "; 
 			
-			if((api.getDelta() / 1000) > 100){
+			if((api.getDelta() / 1000) > 60){
 				if(disconnected == null)
 					disconnected = new Date().toString();
 				
