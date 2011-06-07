@@ -135,21 +135,17 @@ public class Port implements SerialPortEventListener {
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
-
 		} else if (response.startsWith(test) || (response.startsWith(home))) {
-
 			System.out.println("execute.test: " + response);
+			log.append(response);
 			String[] reply = response.split(" ");
 			if (reply[1].equals("done")) {
 				busy = false;
-			} else if (reply[1].equals("start"))
+			} else if (reply[1].equals("start")) {
 				busy = true;
-
+			}
 		} else {
-
-			// log.append(response);
-
-			// state.add(new TimedEntry(reply[0]));
+			log.append(response);
 			chart.add(response);
 		}
 	}
@@ -197,24 +193,46 @@ public class Port implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 
-	public boolean test(int delay) {
+	/**
+	 * 
+	 * @param mod
+	 * @param filter
+	 * @return
+	 */
+	public boolean test(int mod, int filter) {
 
 		if (busy)
 			return false;
 
 		chart.getState().reset();
 
-		sendCommand(new byte[] { TEST, (byte) delay, 1 });
+		sendCommand(new byte[] { TEST, (byte) mod, (byte) filter});
 
 		Utils.delay(300);
 
-		// busy = true;
 		while (busy) {
-			// System.out.println("wait");
 			Utils.delay(1000);
 		}
 		return true;
 	}
+
+	public boolean test() {
+
+		if (busy)
+			return false;
+
+		chart.getState().reset();
+
+		sendCommand(new byte[] { TEST });
+
+		Utils.delay(300);
+
+		while (busy) {
+			Utils.delay(1000);
+		}
+		return true;
+	}
+
 
 	/** */
 	public static void main(String[] args) {
@@ -222,26 +240,21 @@ public class Port implements SerialPortEventListener {
 		constants.init("brad");
 		constants.put(ZephyrOpen.deviceName, "beam");
 
+		String str = new Find().search();
+		Port port = new Port(str);
+		
 		// properties file must supply the device Name
-		Port port = new Port("COM26");
 		if (port.connect()) {
 			Utils.delay(2000);
 
 			System.out.println("main.starting test with version: " + port.getVersion());
-			
-			for (int i = 5; i < 100; i++) {
+			if (port.test(3, 1)) {
 
-			//int i = 5;
-
-			if (port.test(i))
 				System.out.println("main.state max: " + port.chart.getState().getMaxValueString());
-			else
-				System.out.println("main.fault");
-			new ScreenShot(port.chart);
+				new ScreenShot(port.chart);
+				Utils.delay(2000);
 
-			Utils.delay(3000);
-			
-			}
+			} else System.out.println("main.fault");
 		}
 
 		Utils.delay(2000);

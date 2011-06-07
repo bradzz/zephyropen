@@ -172,7 +172,7 @@ public class Find {
 		
 		// send command
 		try {
-			outputStream.write(new byte[]{(char) 'G', (byte) '2', (byte) 13});
+			outputStream.write(new byte[]{ 'y', (byte) 13});
 		} catch (Exception e) {
 			return false;
 		}
