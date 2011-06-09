@@ -105,21 +105,16 @@ public class Find {
 	/**
 	 * Loop through all available serial ports and ask for product id's
 	 */
-	public String search() {
+	public String search(String target) {
 
 		for (int i = ports.size() - 1; i >= 0; i--) {
 			if (connect(ports.get(i))) {
 				Utils.delay(TIMEOUT);
-
 				String id = getProduct();
-				System.out.println("s: " + id);
-				if (id.equalsIgnoreCase("<id:beamscan>")) {
-
-					// state.set(State.lightport, ports.get(i));
+				System.out.println("discovered : " + id);
+				if (id.equalsIgnoreCase(target)) {
 					close();
 					return ports.get(i);
-
-					// other devices here if grows
 				}
 
 				// close on each loop
@@ -176,7 +171,7 @@ public class Find {
 
 		long start = System.currentTimeMillis();
 
-		String com = new Find().search();
+		String com = new Find().search("<id:beamscan>");
 		if (com != null)
 			System.out.println("found beam on: " + com);
 		else

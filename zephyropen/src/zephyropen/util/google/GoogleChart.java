@@ -38,7 +38,9 @@ public abstract class GoogleChart extends JLabel {
 	protected State state = null; 
 
 	/** get the RESTful URL for the chart  */  
+	// public abstract URL getURL(final int x, final int y, String title);
 	public abstract String getURLString(final int x, final int y);
+	public abstract String getURLString(final int x, final int y, String title);
 	
 	/** add new entry */
 	public void add(String data) {
@@ -50,6 +52,18 @@ public abstract class GoogleChart extends JLabel {
 		// add to state keeping object 
 		state.add(new TimedEntry(data)); 
 	}
+	
+
+	public void add(String data, long time) {
+		if (data == null)
+			return;
+		if (data.equals(""))
+			return;
+		
+		// add to state keeping object 
+		state.add(new TimedEntry(data, time)); 
+	}  
+	
 	
 	/** re-draw the icon in this swing app */
 	public void updateIcon(final int x, final int y){
@@ -84,8 +98,7 @@ public abstract class GoogleChart extends JLabel {
 	/** @return the name of the state object for this graph */
 	public String getName(){
 		return state.toString();
-	}  
-	
+	}
 	/** @return a URL String that google can turn into an image 
 	public String toString() {	
 		try {

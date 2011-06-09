@@ -39,7 +39,8 @@ public abstract class Chart extends JLabel {
 
 	/** get the RESTful URL for the chart  */  
 	public abstract String getURLString(final int x, final int y);
-	
+	public abstract String getURLString(final int x, final int y, String title);
+
 	/** add new entry */
 	public void add(String data) {
 		if (data == null)
@@ -49,6 +50,18 @@ public abstract class Chart extends JLabel {
 		
 		// add to state keeping object 
 		state.add(new TimedEntry(data)); 
+	}
+	
+
+	/** add new entry */
+	public void add(String data, long time) {
+		if (data == null)
+			return;
+		if (data.equals(""))
+			return;
+		
+		// add to state keeping object 
+		state.add(new TimedEntry(data, time)); 
 	}
 	
 	/** re-draw the icon in this swing app */

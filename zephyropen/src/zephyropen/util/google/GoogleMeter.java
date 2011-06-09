@@ -1,6 +1,8 @@
 package zephyropen.util.google;
 
 //import zephyropen.state.EventCounter;
+import java.net.URL;
+
 import zephyropen.api.ZephyrOpen;
 import zephyropen.state.State;
 import zephyropen.util.Utils;
@@ -68,6 +70,12 @@ public class GoogleMeter extends GoogleChart {
             return null;
         }
     }
+
+	@Override
+	public String getURLString(int x, int y, String title) {
+		// TODO Auto-generated method stub
+		return null;
+	}
     
     /** @return construct a URL that can be used to display this graph
     @Override

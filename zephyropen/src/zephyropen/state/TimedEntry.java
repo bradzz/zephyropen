@@ -89,6 +89,23 @@ public class TimedEntry implements Entry {
 		this.direction = direction;
 	}
 	
+	public TimedEntry(String data, long time) {
+
+		try {
+
+			this.value = String.valueOf(value);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		this.timestamp = time;
+		
+		// we are interesting
+		//this.inflection = true;
+		//this.direction = direction;
+	}
+
 	public short getInflection(){
 		return direction;
 	}

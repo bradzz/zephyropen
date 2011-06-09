@@ -70,18 +70,20 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setSize(x, y);
             chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
 
-            final String titleText = title.toUpperCase() + " = " 
-            + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
-            + Utils.getDate(); 
+        //    final String titleText = title.toUpperCase() + " = " 
+        //    + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
+        //    + Utils.getDate(); 
       
-            chart.setTitle(titleText);
+    
+            //String t = constants.get("t");
+            //if(t!=null) chart.setTitle();
 
             // add grid 
             chart.setGrid(5, 20, 3, 2);
 
             // place three time stamps on y label... oldest, middle, and newest 
-            chart.addXAxisLabels(AxisLabelsFactory.newAxisLabels(Arrays.asList(state.getOldest().getAge(), ((TimedEntry) state.get((getState().size() / 2)))
-                    .getAge(), state.getNewest().getAge()), Arrays.asList(7, 50, 93)));
+      //      chart.addXAxisLabels(AxisLabelsFactory.newAxisLabels(Arrays.asList(state.getOldest().getAge(), ((TimedEntry) state.get((getState().size() / 2)))
+        //            .getAge(), state.getNewest().getAge()), Arrays.asList(7, 50, 93)));
 
             // construct a URL that can be used to display this graph  
             return chart.toURLString();
@@ -90,4 +92,51 @@ public class GoogleLineGraph extends GoogleChart {
             return null;
         }
     }
+
+	@Override
+	public String getURLString(int x, int y, String title) {
+        try {
+        
+            final Line valuesLine = Plots.newLine(DataUtil.scale(state.getScaledData()));
+            valuesLine.setColor(dataColor);
+
+            // scaled data
+            final int averageValue = (int) state.scale(state.getAverage());
+            final Line avgLine = Plots.newLine(new Data(averageValue, averageValue));
+            avgLine.setColor(averageColor);
+
+            // put lines on the graph 
+            final Line[] lines = new Line[2];
+            lines[0] = valuesLine;
+            lines[1] = avgLine;
+         
+            // new chart 
+            final LineChart chart = GCharts.newLineChart(lines);
+
+            // set the size 
+            chart.setSize(x, y);
+            chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
+
+        //    final String titleText = title.toUpperCase() + " = " 
+        //    + (state.getNewest()).getValueString() + " " + units + "   " + " (" + state.size() + ") "
+        //    + Utils.getDate(); 
+      
+    
+            //String t = constants.get("t");
+            chart.setTitle(title);
+
+            // add grid 
+            chart.setGrid(5, 20, 3, 2);
+
+            // place three time stamps on y label... oldest, middle, and newest 
+      //      chart.addXAxisLabels(AxisLabelsFactory.newAxisLabels(Arrays.asList(state.getOldest().getAge(), ((TimedEntry) state.get((getState().size() / 2)))
+        //            .getAge(), state.getNewest().getAge()), Arrays.asList(7, 50, 93)));
+
+            // construct a URL that can be used to display this graph  
+            return chart.toURLString();
+
+        } catch (final Exception e) {
+            return null;
+        }
+	}
 }

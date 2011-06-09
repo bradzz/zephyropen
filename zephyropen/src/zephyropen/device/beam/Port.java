@@ -135,6 +135,7 @@ public class Port implements SerialPortEventListener {
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
+
 		} else if (response.startsWith(test) || (response.startsWith(home))) {
 			System.out.println("execute.test: " + response);
 			log.append(response);
@@ -147,6 +148,7 @@ public class Port implements SerialPortEventListener {
 		} else {
 			log.append(response);
 			chart.add(response);
+			;
 		}
 	}
 
@@ -206,7 +208,7 @@ public class Port implements SerialPortEventListener {
 
 		chart.getState().reset();
 
-		sendCommand(new byte[] { TEST, (byte) mod, (byte) filter});
+		sendCommand(new byte[] { TEST, (byte) mod, (byte) filter });
 
 		Utils.delay(300);
 
@@ -216,6 +218,7 @@ public class Port implements SerialPortEventListener {
 		return true;
 	}
 
+	/* */
 	public boolean test() {
 
 		if (busy)
@@ -233,31 +236,45 @@ public class Port implements SerialPortEventListener {
 		return true;
 	}
 
-
 	/** */
 	public static void main(String[] args) {
 
 		constants.init("brad");
-		constants.put(ZephyrOpen.deviceName, "beam");
+		constants.put(ZephyrOpen.deviceName, "beamscaner");
 
-		String str = new Find().search();
-		Port port = new Port(str);
-		
-		// properties file must supply the device Name
-		if (port.connect()) {
+		Find find = new Find();
+
+		Port spin = new Port(find.search("<id:beamscan>"));
+		Reader read = new Reader(find.search("<id:beamread>"));
+
+		if (read.connect()) {
+
+			// properties file must supply the device Name
+			if (spin.connect()) {
+				Utils.delay(2000);
+				// for(int mod = 3 ; mod < 50 ; mod+=3)
+				poll(spin, 0, 1);
+
+			} else
+				System.out.println("can't find spin");
+		} else
+			System.out.println("cant find reder");
+
+		// Utils.delay(2000);
+		constants.shutdown();
+	}
+
+	public static void poll(Port port, int mod, int filter) {
+
+		System.out.println("poll.starting test with version: " + port.getVersion());
+		if (port.test()) { // mod, filter)) {
+
+			System.out.println("poll.state max: " + port.chart.getState().getMaxValueString());
+			// constants.put("t", (String.valueOf(mod)));
+			new ScreenShot(port.chart, "mod: " + mod);
 			Utils.delay(2000);
 
-			System.out.println("main.starting test with version: " + port.getVersion());
-			if (port.test(3, 1)) {
-
-				System.out.println("main.state max: " + port.chart.getState().getMaxValueString());
-				new ScreenShot(port.chart);
-				Utils.delay(2000);
-
-			} else System.out.println("main.fault");
-		}
-
-		Utils.delay(2000);
-		constants.shutdown();
+		} else
+			System.out.println("poll.fault");
 	}
 }
