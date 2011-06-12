@@ -121,7 +121,7 @@ public class Find {
 				close();
 			}
 		}
-
+		close();
 		return null;
 
 	}

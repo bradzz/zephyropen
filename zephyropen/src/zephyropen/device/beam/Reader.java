@@ -84,6 +84,8 @@ public class Reader implements SerialPortEventListener {
 			constants.error(e.getMessage());
 			return false;
 		}
+		
+		getVersion();
 		return true;
 	}
 
@@ -128,14 +130,14 @@ public class Reader implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		// System.out.println(getReadDelta() + " : " + response);
+		System.err.println(getReadDelta() + " : " + response);
 
 		if (response.startsWith("error")) {
 			constants.shutdown("dead");
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
-			
+
 		} else if (response.startsWith(test) || (response.startsWith(home))) {
 			System.out.println("execute.test: " + response);
 			log.append(response);
@@ -147,7 +149,8 @@ public class Reader implements SerialPortEventListener {
 			}
 		} else {
 			log.append(response);
-			chart.add(response);;
+			chart.add(response);
+			;
 		}
 	}
 
@@ -202,9 +205,11 @@ public class Reader implements SerialPortEventListener {
 	 */
 	public boolean test(int mod, int filter) {
 
-		if (busy)
+		if (busy){
+			System.err.println("reader.busy");
 			return false;
-
+		}
+		
 		chart.getState().reset();
 
 		sendCommand(new byte[] { TEST, (byte) mod, (byte) filter });
@@ -212,17 +217,21 @@ public class Reader implements SerialPortEventListener {
 		Utils.delay(300);
 
 		while (busy) {
-			Utils.delay(1000);
+			System.out.println("reader.wait");
+			Utils.delay(2000);
 		}
+
 		return true;
 	}
 
 	/* */
 	public boolean test() {
 
-		if (busy)
+		if (busy){
+			System.err.println("reader.busy");
 			return false;
-
+		}
+		
 		chart.getState().reset();
 
 		sendCommand(new byte[] { TEST });
@@ -230,45 +239,47 @@ public class Reader implements SerialPortEventListener {
 		Utils.delay(300);
 
 		while (busy) {
-			Utils.delay(1000);
+			System.out.println("reader.wait");
+			Utils.delay(2000);
 		}
 		return true;
 	}
-	
-	/** */
+
+	/***/
 	public static void main(String[] args) {
 
 		constants.init("brad");
-		constants.put(ZephyrOpen.deviceName, "beamscaner");
+		constants.put(ZephyrOpen.deviceName, "beamscan");
 
 		Find find = new Find();
-		
-		Reader spin = new Reader(find.search("<id:beamscan>"));
+		String portstr = find.search("<id:beamreader>");
 
-		//Port read = new Port(find.search("<id:beamread>"));
+		if (portstr != null) {
 
-		// properties file must supply the device Name
-		if (spin.connect()) {
+			Reader spin = new Reader(portstr);
+
 			Utils.delay(2000);
-			//for(int mod = 3 ; mod < 50 ; mod+=3)
-				poll(spin, 0, 1);
-			
-		}
 
-		//Utils.delay(2000);
+			if (spin.connect()) {
+				Utils.delay(2000);
+				
+				System.out.println("poll.starting test with version: " + spin.getVersion());
+				
+				System.out.println("sending test");
+				spin.test();
+				System.out.println("done test");
+				
+				new ScreenShot(spin.chart, "points = " + spin.chart.getState().size());
+
+				Utils.delay(2000);
+
+				
+				
+			} else System.err.println("cant connect");
+		} else System.err.println("null port");
+
+		// Utils.delay(20000);
 		constants.shutdown();
-	}
+	} 
 
-	public static void poll(Reader port, int mod, int filter) {
-
-		System.out.println("poll.starting test with version: " + port.getVersion());
-		if (port.test()){ //mod, filter)) {
-
-			System.out.println("poll.state max: " + port.chart.getState().getMaxValueString());
-			//constants.put("t", (String.valueOf(mod)));
-			new ScreenShot(port.chart, "mod: " + mod);
-			Utils.delay(2000);
-
-		} else System.out.println("poll.fault");
-	}
 }

@@ -9,14 +9,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-// import com.googlecode.charts4j.Color;
+//import com.googlecode.charts4j.Color;
 //import java.util.Date;
 
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
+//import zephyropen.util.google.GoogleChart;
+//import zephyropen.util.google.GoogleLineGraph;
+//import zephyropen.util.google.ScreenShot;
 
-public class Port implements SerialPortEventListener {
+public class Spin implements SerialPortEventListener {
 
 	/** framework configuration */
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -31,6 +34,7 @@ public class Port implements SerialPortEventListener {
 
 	private static final String test = "test";
 	private static final String home = "home";
+	// private static final String PATH = "home";
 
 	// comm channel
 	private SerialPort serialPort = null;
@@ -53,11 +57,10 @@ public class Port implements SerialPortEventListener {
 	private String portName = null;
 	private boolean busy = true;
 
-	// public GoogleChart chart = new GoogleLineGraph("beam", "ma",
-	// Color.BLUEVIOLET);
+	//public GoogleChart chart = new GoogleLineGraph("beam", "ma", Color.BLUEVIOLET);
 
 	/**  */
-	public Port(String str) {
+	public Spin(String str) {
 		portName = str;
 		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + "_beam.txt");
 	}
@@ -66,7 +69,7 @@ public class Port implements SerialPortEventListener {
 	public boolean connect() {
 		try {
 
-			serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(portName).open(Port.class.getName(), 2000);
+			serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(portName).open(Spin.class.getName(), 2000);
 			serialPort.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 			// open streams
@@ -144,8 +147,8 @@ public class Port implements SerialPortEventListener {
 			}
 		} else {
 			log.append(response);
-			// chart.add(response);
-
+			//chart.add(response);
+			//;
 		}
 	}
 
@@ -203,7 +206,7 @@ public class Port implements SerialPortEventListener {
 		if (busy)
 			return false;
 
-		// chart.getState().reset();
+	//	chart.getState().reset();
 
 		sendCommand(new byte[] { TEST, (byte) mod, (byte) filter });
 
@@ -221,7 +224,7 @@ public class Port implements SerialPortEventListener {
 		if (busy)
 			return false;
 
-		// chart.getState().reset();
+		//chart.getState().reset();
 
 		sendCommand(new byte[] { TEST });
 
@@ -233,7 +236,7 @@ public class Port implements SerialPortEventListener {
 		return true;
 	}
 
-	/** 
+	/**
 	public static void main(String[] args) {
 
 		constants.init("brad");
@@ -254,17 +257,18 @@ public class Port implements SerialPortEventListener {
 			System.out.println("can't find spin");
 
 		constants.shutdown();
-	}*/
-	/*
-	 * public static void poll(Port port, int mod, int filter) {
-	 * 
-	 * System.out.println("poll.starting test with version: " +
-	 * port.getVersion()); if (port.test(10, 10)) { // mod, filter)) {
-	 * 
-	 * //System.out.println("poll.state max: " +
-	 * port.chart.getState().getMaxValueString()); // new ScreenShot(port.chart,
-	 * "mod: " + mod); Utils.delay(2000);
-	 * 
-	 * } else System.out.println("poll.fault"); }
-	 */
+	}
+
+	public static void poll(Spin port, int mod, int filter) {
+
+		System.out.println("poll.starting test with version: " + port.getVersion());
+		if (port.test(10, 10)) { // mod, filter)) {
+
+			/// System.out.println("poll.state max: " + port.chart.getState().getMaxValueString());
+			// new ScreenShot(port.chart, "mod: " + mod);
+			Utils.delay(2000);
+
+		} else
+			System.out.println("poll.fault");
+	} */
 }
