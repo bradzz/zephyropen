@@ -130,27 +130,30 @@ public class Reader implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		System.err.println(getReadDelta() + " : " + response);
+		//System.err.println(getReadDelta() + " : " + response);
 
 		if (response.startsWith("error")) {
 			constants.shutdown("dead");
+			
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
 
 		} else if (response.startsWith(test) || (response.startsWith(home))) {
-			System.out.println("execute.test: " + response);
+
+			constants.info("spin execute: " + response);
 			log.append(response);
+			
 			String[] reply = response.split(" ");
 			if (reply[1].equals("done")) {
 				busy = false;
 			} else if (reply[1].equals("start")) {
 				busy = true;
 			}
+			
 		} else {
 			log.append(response);
 			chart.add(response);
-			;
 		}
 	}
 
@@ -197,12 +200,17 @@ public class Reader implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 
+	/** @return true if the device is busy */
+	public boolean isBusy(){
+		return busy;
+	}
+	
 	/**
 	 * 
 	 * @param mod
 	 * @param filter
 	 * @return
-	 */
+	
 	public boolean test(int mod, int filter) {
 
 		if (busy){
@@ -222,30 +230,37 @@ public class Reader implements SerialPortEventListener {
 		}
 
 		return true;
-	}
+	} */
 
 	/* */
-	public boolean test() {
+	public boolean test(boolean blocking) {
 
-		if (busy){
-			System.err.println("reader.busy");
-			return false;
-		}
+		//if (busy){
+			//System.err.println("reader.busy");
+			//return false;
+	//	}
 		
 		chart.getState().reset();
 
 		sendCommand(new byte[] { TEST });
 
-		Utils.delay(300);
-
-		while (busy) {
-			System.out.println("reader.wait");
-			Utils.delay(2000);
+		if(blocking){
+		
+			Utils.delay(300);
+		
+			//busy = true;
+			while (busy) {
+				constants.info("reader.wait");
+				Utils.delay(2000);
+			}	
 		}
 		return true;
 	}
 
-	/***/
+	
+	
+	
+	/** */
 	public static void main(String[] args) {
 
 		constants.init("brad");
@@ -261,25 +276,22 @@ public class Reader implements SerialPortEventListener {
 			Utils.delay(2000);
 
 			if (spin.connect()) {
+				
 				Utils.delay(2000);
 				
 				System.out.println("poll.starting test with version: " + spin.getVersion());
 				
 				System.out.println("sending test");
-				spin.test();
+				spin.test(true);
 				System.out.println("done test");
 				
 				new ScreenShot(spin.chart, "points = " + spin.chart.getState().size());
 
 				Utils.delay(2000);
 
-				
-				
 			} else System.err.println("cant connect");
 		} else System.err.println("null port");
-
-		// Utils.delay(20000);
+;
 		constants.shutdown();
-	} 
-
+	}
 }

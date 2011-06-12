@@ -9,15 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//import com.googlecode.charts4j.Color;
-//import java.util.Date;
-
 import zephyropen.api.ZephyrOpen;
-import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
-//import zephyropen.util.google.GoogleChart;
-//import zephyropen.util.google.GoogleLineGraph;
-//import zephyropen.util.google.ScreenShot;
 
 public class Spin implements SerialPortEventListener {
 
@@ -34,7 +27,6 @@ public class Spin implements SerialPortEventListener {
 
 	private static final String test = "test";
 	private static final String home = "home";
-	// private static final String PATH = "home";
 
 	// comm channel
 	private SerialPort serialPort = null;
@@ -52,17 +44,12 @@ public class Spin implements SerialPortEventListener {
 	private long lastSent = System.currentTimeMillis();
 	private long lastRead = System.currentTimeMillis();
 
-	private LogManager log = new LogManager();
-
 	private String portName = null;
 	private boolean busy = true;
-
-	//public GoogleChart chart = new GoogleLineGraph("beam", "ma", Color.BLUEVIOLET);
 
 	/**  */
 	public Spin(String str) {
 		portName = str;
-		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + "_beam.txt");
 	}
 
 	/** open port, enable read and write, enable events */
@@ -128,27 +115,22 @@ public class Spin implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		System.out.println(getReadDelta() + " : " + response);
-
 		if (response.startsWith("error")) {
 			constants.shutdown("dead");
+			
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
 
 		} else if (response.startsWith(test) || (response.startsWith(home))) {
-			System.out.println("execute.test: " + response);
-			log.append(response);
+			
+			constants.info("spin execute: " + response);
 			String[] reply = response.split(" ");
 			if (reply[1].equals("done")) {
 				busy = false;
 			} else if (reply[1].equals("start")) {
 				busy = true;
 			}
-		} else {
-			log.append(response);
-			//chart.add(response);
-			//;
 		}
 	}
 
@@ -195,6 +177,11 @@ public class Spin implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 
+	/** @return true if the device is busy */
+	public boolean isBusy(){
+		return busy;
+	}
+	
 	/**
 	 * 
 	 * @param mod
@@ -227,16 +214,48 @@ public class Spin implements SerialPortEventListener {
 		//chart.getState().reset();
 
 		sendCommand(new byte[] { TEST });
-
-		Utils.delay(300);
-
-		while (busy) {
-			Utils.delay(1000);
-		}
+		busy = true;
+		
+		//Utils.delay(300);
+ 
+		//while (busy) {
+		//	Utils.delay(1000);	
+		//	constants.info("wait: test()");
+		//}
+		
+		constants.info("done: test()");
+		
 		return true;
 	}
 
-	/**
+	/* */
+	public boolean startTest() {
+		
+		//if (busy) return false;
+		
+		//new Thread(){
+			//public void run(){
+				
+				sendCommand(new byte[] { TEST });
+				busy = true;
+				
+				// wait to become busy 
+				// Utils.delay(300);
+
+				//while (busy) {
+				//	Utils.delay(1000);	
+				//	constants.info("wait: startTest()");
+				//}
+				
+				constants.info("done: startTest()");
+				
+			//}}.start();
+		
+		return true;
+	}
+
+	
+	
 	public static void main(String[] args) {
 
 		constants.init("brad");
@@ -258,7 +277,7 @@ public class Spin implements SerialPortEventListener {
 
 		constants.shutdown();
 	}
-
+/**
 	public static void poll(Spin port, int mod, int filter) {
 
 		System.out.println("poll.starting test with version: " + port.getVersion());
