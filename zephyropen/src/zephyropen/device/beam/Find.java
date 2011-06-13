@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import zephyropen.api.ZephyrOpen;
@@ -12,6 +13,9 @@ import zephyropen.util.Utils;
 import gnu.io.*;
 
 public class Find {
+	
+	/** framework configuration */
+	public static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/* serial port configuration parameters */
 	public static final int BAUD_RATE = 115200;
@@ -20,11 +24,6 @@ public class Find {
 	public static final int STOPBITS = SerialPort.STOPBITS_1;
 	public static final int PARITY = SerialPort.PARITY_NONE;
 	public static final int FLOWCONTROL = SerialPort.FLOWCONTROL_NONE;
-
-	/* add known devices here, strings returned from the firmware */
-	//public static final String OCULUS_SERVO = "<id:oculusServo>";
-	//public static final String OCULUS_DC = "<id:oculusDC>";
-	//public static final String LIGHTS = "<id:oculusLights>";
 	private static final long RESPONCE_DELAY = 300;
 
 	/* reference to the underlying serial port */
@@ -34,9 +33,11 @@ public class Find {
 
 	/* list of all free ports */
 	private Vector<String> ports = new Vector<String>();
+	private Hashtable<String, String> table = new Hashtable<String, String>();
 
 	/* constructor makes a list of available ports */
 	public Find() {
+		constants.init();
 		getAvailableSerialPorts();
 	}
 
@@ -106,12 +107,20 @@ public class Find {
 	 * Loop through all available serial ports and ask for product id's
 	 */
 	public String search(String target) {
+		
+		constants.info("searching for: " + target);
+		if (table.containsKey(target)) {
+			System.out.println("was found before: " + table.toString());
+			return (String) table.get(target);
+		}
 
 		for (int i = ports.size() - 1; i >= 0; i--) {
 			if (connect(ports.get(i))) {
 				Utils.delay(TIMEOUT);
 				String id = getProduct();
 				System.out.println("discovered : " + id);
+				table.put((String) id, (String) ports.get(i));
+				constants.info("add table: " + table.toString());
 				if (id.equalsIgnoreCase(target)) {
 					close();
 					return ports.get(i);
@@ -123,7 +132,6 @@ public class Find {
 		}
 		close();
 		return null;
-
 	}
 
 	/** send command to get product id */
@@ -166,17 +174,31 @@ public class Find {
 	 * test driver
 	 * 
 	 * @throws Exception
-	 */
+	
 	public static void main(String[] args) throws Exception {
 
 		long start = System.currentTimeMillis();
 
-		String com = new Find().search("<id:beamscan>");
-		if (com != null)
-			System.out.println("found beam on: " + com);
-		else
-			System.out.println("NOT found");
+		Find find = new Find();
+		
+		String spin = find.search("<id:beamspin>");
+		System.out.println("found beam spin on: " + spin);
+		
+		String reader = find.search("<id:beamreader>");
+		System.out.println("found beam on: " + reader);
+		
+		spin = find.search("<id:beamspin>");
+		System.out.println("found beam spin on: " + spin);
+		
+		reader = find.search("<id:beamreader>");
+		System.out.println("found reader on: " + reader);
+		
+		spin = find.search("<id:beamspin>");
+		System.out.println("found beam spin on: " + spin);
+		
+		reader = find.search("<id:beamreader>");
+		System.out.println("found reader on: " + reader);
 
 		System.out.println("scan took: " + (System.currentTimeMillis() - start) + " ms");
-	}
-}
+	}*/
+} 

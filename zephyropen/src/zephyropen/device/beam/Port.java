@@ -9,14 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-// import com.googlecode.charts4j.Color;
-//import java.util.Date;
-
 import zephyropen.api.ZephyrOpen;
-import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
 
-public class Port implements SerialPortEventListener {
+public abstract class Port implements SerialPortEventListener {
 
 	/** framework configuration */
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -25,12 +21,11 @@ public class Port implements SerialPortEventListener {
 	public static final byte TEST = 't';
 	public static final byte[] HOME = { 'h' };
 	public static final byte[] GET_VERSION = { 'y' };
+	private static final byte[] ECHO_ON = { 'e', '1' };
+	private static final byte[] ECHO_OFF = { 'e', '0' };
 
-	// private static final byte[] ECHO_ON = { 'e', '1' };
-	// private static final byte[] ECHO_OFF = { 'e', '0' };
-
-	private static final String test = "test";
-	private static final String home = "home";
+	public static final String test = "test";
+	public static final String home = "home";
 
 	// comm channel
 	private SerialPort serialPort = null;
@@ -41,25 +36,19 @@ public class Port implements SerialPortEventListener {
 	protected String version = null;
 
 	// input buffer
-	private byte[] buffer = new byte[32];
-	private int buffSize = 0;
+	protected byte[] buffer = new byte[32];
+	protected int buffSize = 0;
 
 	// track write times
-	private long lastSent = System.currentTimeMillis();
-	private long lastRead = System.currentTimeMillis();
+	protected long lastSent = System.currentTimeMillis();
+	protected long lastRead = System.currentTimeMillis();
 
-	private LogManager log = new LogManager();
-
-	private String portName = null;
-	private boolean busy = true;
-
-	// public GoogleChart chart = new GoogleLineGraph("beam", "ma",
-	// Color.BLUEVIOLET);
+	protected String portName = null;
+	protected boolean busy = true;
 
 	/**  */
 	public Port(String str) {
 		portName = str;
-		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + "_beam.txt");
 	}
 
 	/** open port, enable read and write, enable events */
@@ -119,44 +108,13 @@ public class Port implements SerialPortEventListener {
 		}
 	}
 
-	// act on feedback from arduino
-	private void execute() {
-		String response = "";
-		for (int i = 0; i < buffSize; i++)
-			response += (char) buffer[i];
-
-		System.out.println(getReadDelta() + " : " + response);
-
-		if (response.startsWith("error")) {
-			constants.shutdown("dead");
-		} else if (response.startsWith("version:")) {
-			if (version == null)
-				version = response.substring(response.indexOf("version:") + 8, response.length());
-
-		} else if (response.startsWith(test) || (response.startsWith(home))) {
-			System.out.println("execute.test: " + response);
-			log.append(response);
-			String[] reply = response.split(" ");
-			if (reply[1].equals("done")) {
-				busy = false;
-			} else if (reply[1].equals("start")) {
-				busy = true;
-			}
-		} else {
-			log.append(response);
-			// chart.add(response);
-
-		}
-	}
-
 	/**
 	 * Send a multi byte command to send the arduino
 	 * 
 	 * @param command
 	 *            is a byte array of messages to send
 	 */
-	private void sendCommand(final byte[] command) {
-
+	protected void sendCommand(final byte[] command) {
 		try {
 
 			// send
@@ -191,80 +149,36 @@ public class Port implements SerialPortEventListener {
 	public long getReadDelta() {
 		return System.currentTimeMillis() - lastRead;
 	}
-
-	/**
-	 * 
-	 * @param mod
-	 * @param filter
-	 * @return
-	 */
-	public boolean test(int mod, int filter) {
-
-		if (busy)
-			return false;
-
-		// chart.getState().reset();
-
-		sendCommand(new byte[] { TEST, (byte) mod, (byte) filter });
-
-		Utils.delay(300);
-
-		while (busy) {
-			Utils.delay(1000);
-		}
-		return true;
+	
+	/** @return true if the device is busy */
+	public boolean isBusy(){
+		return busy;
 	}
 
-	/* */
-	public boolean test() {
-
-		if (busy)
+	/** */ 
+	public boolean test(boolean blocking) {
+		
+		if (busy) {
+			constants.info("busy device: " + this.getClass().getName());
 			return false;
-
-		// chart.getState().reset();
-
+		}
+		
 		sendCommand(new byte[] { TEST });
-
-		Utils.delay(300);
-
-		while (busy) {
-			Utils.delay(1000);
+	
+		if(blocking){
+			busy = true;
+			while (busy) {
+				Utils.delay(1000);	
+				constants.info("waiting device: " + this.getClass().getName());
+			}
+		} else {
+			Utils.delay(300);
 		}
+		
 		return true;
 	}
+	
+	// act on feedback from arduino
+	public abstract void execute();
 
-	/** 
-	public static void main(String[] args) {
-
-		constants.init("brad");
-		constants.put(ZephyrOpen.deviceName, "beamscan");
-
-		Find find = new Find();
-
-		Port spin = new Port(find.search("<id:beamscan>"));
-		if (spin.connect()) {
-			Utils.delay(2000);
-
-			if (spin.test())
-				System.out.println("test done");
-			else
-				System.out.println("fault");
-			
-		} else
-			System.out.println("can't find spin");
-
-		constants.shutdown();
-	}*/
-	/*
-	 * public static void poll(Port port, int mod, int filter) {
-	 * 
-	 * System.out.println("poll.starting test with version: " +
-	 * port.getVersion()); if (port.test(10, 10)) { // mod, filter)) {
-	 * 
-	 * //System.out.println("poll.state max: " +
-	 * port.chart.getState().getMaxValueString()); // new ScreenShot(port.chart,
-	 * "mod: " + mod); Utils.delay(2000);
-	 * 
-	 * } else System.out.println("poll.fault"); }
-	 */
 }
