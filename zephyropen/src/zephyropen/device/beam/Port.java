@@ -21,8 +21,6 @@ public abstract class Port implements SerialPortEventListener {
 	public static final byte TEST = 't';
 	public static final byte[] HOME = { 'h' };
 	public static final byte[] GET_VERSION = { 'y' };
-	private static final byte[] ECHO_ON = { 'e', '1' };
-	private static final byte[] ECHO_OFF = { 'e', '0' };
 
 	public static final String test = "test";
 	public static final String home = "home";
@@ -45,12 +43,43 @@ public abstract class Port implements SerialPortEventListener {
 
 	protected String portName = null;
 	protected boolean busy = true;
-
+	protected long runTime = 0;
+	
+	
 	/**  */
-	public Port(String str) {
+	public Port(String str){
 		portName = str;
 	}
-
+	
+	/**  */
+	public void close(){
+		if(serialPort != null) serialPort.close();
+		
+		if(in != null)
+			try {
+				in.close();
+			} catch (IOException e) {
+				constants.shutdown(e);
+			}
+		
+		if(out != null)
+			try {
+				out.close();
+			} catch (IOException e) {
+				constants.shutdown(e);
+			}
+	}
+	
+	/**  */
+	public long getRuntime() {
+		return runTime;
+	}
+	
+	/**  */
+	public String getPortName() {
+		return portName;
+	}
+	
 	/** open port, enable read and write, enable events */
 	public boolean connect() {
 		try {
@@ -164,12 +193,12 @@ public abstract class Port implements SerialPortEventListener {
 		}
 		
 		sendCommand(new byte[] { TEST });
-	
+	    
 		if(blocking){
 			busy = true;
 			while (busy) {
-				Utils.delay(1000);	
 				constants.info("waiting device: " + this.getClass().getName());
+				Utils.delay(1000);	
 			}
 		} else {
 			Utils.delay(300);
@@ -177,6 +206,29 @@ public abstract class Port implements SerialPortEventListener {
 		
 		return true;
 	}
+	
+	/** 
+	public boolean test(boolean blocking, int arg) {
+		
+		if (busy) {
+			constants.info("busy device: " + this.getClass().getName());
+			return false;
+		}
+		
+		sendCommand(new byte[] { TEST, (byte) arg });
+	
+		if(blocking){	
+			busy = true;
+			while (busy) {
+				constants.info("waiting device: " + this.getClass().getName());
+				Utils.delay(1000);	
+			}
+		} else {
+			Utils.delay(300);
+		}
+		
+		return true;
+	}*/ 
 	
 	// act on feedback from arduino
 	public abstract void execute();

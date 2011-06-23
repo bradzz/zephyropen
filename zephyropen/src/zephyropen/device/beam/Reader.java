@@ -1,24 +1,20 @@
 package zephyropen.device.beam;
 
+import java.util.Date;
+import java.util.Vector;
+
 import gnu.io.SerialPortEventListener;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
-import zephyropen.util.google.GoogleChart;
-import zephyropen.util.google.GoogleLineGraph;
-import zephyropen.util.google.ScreenShot;
-
-import com.googlecode.charts4j.Color;
-
 public class Reader extends Port implements SerialPortEventListener {
+	
+	// hold data points 
+	public Vector<Integer> points = new Vector<Integer>();
 
-	private LogManager log = new LogManager();
-	public GoogleChart chart = new GoogleLineGraph("beam", "ma", Color.BLUEVIOLET);
-
-	/**  */
+	/** constructor */
 	public Reader(String str) {
 		super(str);
-		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + "_beam.txt");
 	}
 
 	@Override
@@ -26,35 +22,43 @@ public class Reader extends Port implements SerialPortEventListener {
 		String response = "";
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
-
 		if (response.startsWith("error")) {
-			
 			busy = false;
-			constants.info("dead, time out?");
-			
+			constants.error("dead, time out?");
+		} else if (response.startsWith("reset")) {
+			busy = false;
 		} else if (response.startsWith("version:")) {
 			if (version == null)
-				version = response.substring(response.indexOf("version:") 
+				version = response.substring(response.indexOf("version:")
 						+ 8, response.length());
-
-		} else if (response.startsWith(test) || (response.startsWith(home))) {
-
-			constants.info("reader execute: " + response);
-			
+		} else if (response.startsWith(test)){ 
 			String[] reply = response.split(" ");
 			if (reply[1].equals("done")) {
-				busy = false;	
-			} else if (reply[1].equals("start")) {
+				runTime = Integer.parseInt(reply[2]);
+				busy = false;
+			} else if(reply[1].equals("wait")) {
 				busy = true;
+				runTime = 0;
+				points.clear();
 			}
-			
-		} else {
-			log.append(response);
-			chart.add(response);
+		} else if(Integer.parseInt(response) >= constants.getInteger(BeamScan.filter)){
+			points.add(Integer.parseInt(response));
 		}
 	}
 
-	/***/
+	/** */
+	public void log() {
+		LogManager log = new LogManager();
+		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beam.log");
+		log.append("date: " + new Date().toString());
+		log.append("data: " + points.size());
+		log.append("read: " + getRuntime());
+		log.append("filter: " +  constants.get(BeamScan.filter));
+		for (int j = 0; j < points.size(); j++)
+			log.append(String.valueOf(points.get(j)));
+	}
+
+	/** test driver only */
 	public static void main(String[] args) {
 
 		constants.init("brad");
@@ -67,14 +71,12 @@ public class Reader extends Port implements SerialPortEventListener {
 			Utils.delay(2000);
 			if (reader.connect()) {
 				Utils.delay(2000);
-				if(reader.test(true)){
-					new ScreenShot(reader.chart, "points = " + reader.chart.getState().size());
+				if (reader.test(true)) {
+					reader.log();
 					Utils.delay(2000);
 				}
-
 			} else System.err.println("cant connect");
 		} else System.err.println("null port");
-
 		constants.shutdown();
-	} 
+	}
 }

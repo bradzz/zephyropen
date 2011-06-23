@@ -64,10 +64,14 @@ public abstract class GoogleChart extends JLabel {
 		state.add(new TimedEntry(data, time)); 
 	}  
 	
+
+	public void add(TimedEntry entry) {
+		state.add(entry);	
+	}
+	
 	
 	/** re-draw the icon in this swing app */
-	public void updateIcon(final int x, final int y){
-		
+	public void updateIcon(final int x, final int y){	
 		try {
 		
 			String str = getURLString(x, y);
@@ -99,6 +103,7 @@ public abstract class GoogleChart extends JLabel {
 	public String getName(){
 		return state.toString();
 	}
+	
 	/** @return a URL String that google can turn into an image 
 	public String toString() {	
 		try {

@@ -430,7 +430,16 @@ public class ZephyrOpen {
 
 		props.put(key.trim(), value.trim());
 	}
+	
+	public synchronized void put(String tag, boolean b) {
+		if(b) props.put(tag, "true");
+		else props.put(tag, "false");
+	}
 
+	public void put(String key, int value) {
+		put(key, String.valueOf(value));
+	}
+	
 	/**
 	 * lookup values from props file
 	 * 
@@ -694,8 +703,5 @@ public class ZephyrOpen {
 		return locked;
 	}
 
-	public synchronized void put(String tag, boolean b) {
-		if(b) props.put(tag, "true");
-		else props.put(tag, "false");
-	}
+
 }
