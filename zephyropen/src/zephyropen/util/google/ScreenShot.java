@@ -73,7 +73,31 @@ public class ScreenShot extends Thread {
 		// do it
 		this.start();
 	}
+	public ScreenShot(GoogleChart googleLabel, int x, int y, String string) {
+		
+		try {
+			url = new URL(googleLabel.getURLString(x, y, string));
+		} catch (MalformedURLException e) {
+			constants.error(e.getMessage(), this);
+		}
 
+		if (url == null) {
+			constants.error("screenshot failed, null URL: " + googleLabel.getName());
+			return;
+		}
+		
+		String path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "screenshots" + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
+
+		// create log dir if not there
+		if((new File(path)).mkdirs())
+			constants.info("created: " + path, this);
+
+		// create file name that will be unique 
+		filename = path + ZephyrOpen.fs + googleLabel.getTitle() + "_" + System.currentTimeMillis() + ".png";
+
+		// do it
+		this.start();
+	}
 	//public ScreenShot(GoogleChart chart, String string) {
 		// TODO Auto-generated constructor stub
 	//}

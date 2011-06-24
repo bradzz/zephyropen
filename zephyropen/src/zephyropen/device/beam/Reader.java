@@ -41,7 +41,7 @@ public class Reader extends Port implements SerialPortEventListener {
 				runTime = 0;
 				points.clear();
 			}
-		} else if(Integer.parseInt(response) >= constants.getInteger(BeamScan.filter)){
+		} else {
 			points.add(Integer.parseInt(response));
 		}
 	}
@@ -53,7 +53,6 @@ public class Reader extends Port implements SerialPortEventListener {
 		log.append("date: " + new Date().toString());
 		log.append("data: " + points.size());
 		log.append("read: " + getRuntime());
-		log.append("filter: " +  constants.get(BeamScan.filter));
 		for (int j = 0; j < points.size(); j++)
 			log.append(String.valueOf(points.get(j)));
 	}

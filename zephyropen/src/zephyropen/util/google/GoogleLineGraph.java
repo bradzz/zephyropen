@@ -103,6 +103,7 @@ public class GoogleLineGraph extends GoogleChart {
             final Line valuesLine = Plots.newLine(DataUtil.scale(state.getScaledData()));
             valuesLine.setColor(dataColor);
             
+            /**/
             int xBeam = constants.getInteger("xBeam");
             int yBeam = constants.getInteger("yBeam");
             if(xBeam!=ZephyrOpen.ERROR) 
@@ -110,7 +111,10 @@ public class GoogleLineGraph extends GoogleChart {
             if(yBeam!=ZephyrOpen.ERROR)
             	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, yBeam);
             
-            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 3, (state.size()/2));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 2, (state.size()/2));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 2, (state.size()/4));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 2, ((state.size()/2) + (state.size()/4)));
+            
             final LineChart chart = GCharts.newLineChart(new Line[] {valuesLine});
 
             // set the size 
@@ -123,7 +127,10 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setGrid(5, 20, 3, 2);
 
             // place three time stamps on y label... oldest, middle, and newest 
-      //      chart.addXAxisLabels(AxisLabelsFactory.newAxisLabels(Arrays.asList(state.getOldest().getAge(), ((TimedEntry) state.get((getState().size() / 2)))
+      
+            // chart.addXAxisLabels(AxisLabelsFactory.newAxisLabels(Arrays.asList( "12", "56", "90" )));
+            		
+            		//state.getOldest().getAge(), ((TimedEntry) state.get((getState().size() / 2)))
         //            .getAge(), state.getNewest().getAge()), Arrays.asList(7, 50, 93)));
 
             
