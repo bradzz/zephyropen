@@ -30,33 +30,42 @@ public class BeamScan {
 
 	/** store past searches */
 	private Properties found = new Properties();
+	private String spinPort = null;
+	private String readPort = null;
 	private Spin spin = null;
 	private Reader reader = null;
 
 	/** */
 	public BeamScan() {
-
 		readProps();
-
+	}
+	
+	/** */
+	public boolean connect(){
+		
 		// need to go look?
-		if ((spin == null) || (reader == null)) {
+		if ((spinPort == null) || (readPort == null)){ 
 			Find find = new Find();
-			if (spin == null) {
-				spin = new Spin(find.search(beamspin));
-			}
-			if (reader == null) {
-				reader = new Reader(find.search(beamreader));
-			}
+			spinPort = find.search(beamspin);
+			readPort = find.search(beamreader);
 		}
-
+		
+		// not found 
+		if (spinPort == null) return false;
+		if (readPort == null) return false;
+		
+		spin = new Spin(spinPort);
 		if (!spin.connect()){
 			constants.error("can't find spin");
 			close();
+			return false;
 		}
-		
+				
+		reader = new Reader(readPort);
 		if (!reader.connect()){
 			constants.error("can't find reader");
 			close();
+			return false;
 		}
 		
 		// re-fresh the file
@@ -68,12 +77,25 @@ public class BeamScan {
 		constants.info("spin version: " + spin.getVersion());
 		constants.info("read version: " + reader.getVersion());
 		Utils.delay(2000);
+		return true;
+	}
+	
+	public boolean isConnected(){
+		if (spinPort == null) return false;
+		if (readPort == null) return false;
+		if(reader == null) return false;
+		if(spin == null) return false;
+		
+		return true;
 	}
 
 	/** */
 	public void close() {
-		reader.close();
-		spin.close();
+		if(reader != null)
+			reader.close();
+		
+		if(spin != null)
+			spin.close();
 	}
 
 	/** add devices that require com port mapping, not searching */
@@ -89,11 +111,12 @@ public class BeamScan {
 				Enumeration<Object> keys = found.keys();
 				while (keys.hasMoreElements()) {
 					String dev = (String) keys.nextElement();
-
 					if (dev.equalsIgnoreCase(beamreader))
-						reader = new Reader(found.getProperty(dev));
+						readPort = found.getProperty(dev);
+						//reader = new Reader(found.getProperty(dev));
 					if (dev.equalsIgnoreCase(beamspin))
-						spin = new Spin(found.getProperty(dev));
+						spinPort = found.getProperty(dev);
+						//spin = new Spin(found.getProperty(dev));
 
 				}
 			} catch (Exception e) {
@@ -118,6 +141,11 @@ public class BeamScan {
 
 	/** */
 	public void test() {
+		
+		if(!isConnected()){
+			constants.error("not connected, can not run BeamScan.test()");
+			return;
+		}
 
 		/* non-blocking */
 		reader.test(false);
@@ -271,14 +299,36 @@ public class BeamScan {
 		log.append("spin version: " + spin.getVersion());
 		log.append("read version: " + reader.getVersion());
 		log.append("date: " + new Date().toString());
-		log.append("data: " + reader.points.size());
-		log.append("spin: " + spin.getRuntime());
 		log.append("step: " + spin.getSteps());
-		log.append("read: " + reader.getRuntime());
+		log.append("data: " + reader.points.size());
+		log.append("spin: " + spin.getRuntime() + " ms");
+		log.append("read: " + reader.getRuntime() + " ms");
 		for (int j = 0; j < reader.points.size(); j++)
 			log.append(j+ "  " +String.valueOf(reader.points.get(j)));
 	}
 
+	public String getReadVersion() {
+		return reader.getVersion();
+	}
+	public String getSpinVersion() {
+		return spin.getVersion();
+	}
+
+	public String getReadPort() {
+		return reader.getPortName();
+	}
+	public String getSpinPort() {
+		return spin.getPortName();
+	}
+
+	public boolean hasResult() {
+		if(reader.points.size() > 0) return true;
+		
+		return false;
+	}
+
+
+	
 	/** test driver 
 	public static void main(String[] args) {
 
