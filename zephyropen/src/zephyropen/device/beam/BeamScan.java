@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Vector;
+//import java.util.Vector;
 
 import com.googlecode.charts4j.Color;
 
@@ -25,14 +25,13 @@ public class BeamScan {
 
 	public final static String beamspin = "<id:beamspin>";
 	public final static String beamreader = "<id:beamreader>";
-	// public final static String filter = "filter";
 
 	final String path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "beam.properties";
 
 	/** store past searches */
-	Properties found = new Properties();
-	Spin spin = null;
-	Reader reader = null;
+	private Properties found = new Properties();
+	private Spin spin = null;
+	private Reader reader = null;
 
 	/** */
 	public BeamScan() {
@@ -50,12 +49,16 @@ public class BeamScan {
 			}
 		}
 
-		if (!spin.connect())
-			constants.shutdown("can't find spin");
-
-		if (!reader.connect())
-			constants.shutdown("can't find reader");
-
+		if (!spin.connect()){
+			constants.error("can't find spin");
+			close();
+		}
+		
+		if (!reader.connect()){
+			constants.error("can't find reader");
+			close();
+		}
+		
 		// re-fresh the file
 		found.put(beamreader, reader.getPortName());
 		found.put(beamspin, spin.getPortName());
@@ -105,7 +108,7 @@ public class BeamScan {
 
 			// write to search props
 			FileWriter fw = new FileWriter(new File(path));
-			found.store(fw, null); // "found on: " + new Date().toString());
+			found.store(fw, null); 
 			fw.close();
 
 		} catch (Exception e) {
@@ -129,6 +132,7 @@ public class BeamScan {
 		constants.info("data: " + reader.points.size());
 		constants.info("spin: " + spin.getRuntime());
 		constants.info("read: " + reader.getRuntime());
+		
 	}
 
 	/** create graph */
@@ -138,7 +142,13 @@ public class BeamScan {
 		for (int j = 0; j < reader.points.size(); j++)
 			chart.add(String.valueOf(reader.points.get(j)));
 
-		new ScreenShot(chart, 900, 300, "data: " + reader.points.size() + " " + txt);
+
+		//txt += "   x1: " + String.valueOf(slice[0]) + "_" + String.valueOf(slice[0]-xCenter) 
+		// + "  x2: " + String.valueOf(slice[1]) + "_" + String.valueOf(slice[1]-xCenter) 
+		// + "  y1: " + String.valueOf(slice[2]) + "_" + String.valueOf(slice[2]-yCenter)
+		// + "  y2: " + String.valueOf(slice[3]) + "_" + String.valueOf(slice[3]-yCenter));
+		
+		new ScreenShot(chart, 1000, 250, "data: " + reader.points.size() + " " + txt);
 	}
 
 	/**  */
@@ -168,9 +178,9 @@ public class BeamScan {
 
 		//constants.info("start : " + j + " target : " + target);
 
-		for (; j < reader.points.size() - 1; j++) {
+		for (; j < reader.points.size(); j++) {
 
-			if (reader.points.get(j) >= target){
+			if (reader.points.get(j) > target){
 				// constants.info( "inc_index: " + j + " value: " + reader.points.get(j));
 				break;
 			}
@@ -185,9 +195,9 @@ public class BeamScan {
 		int j = start;
 		// constants.info("start : " + j + " target : " + target);
 
-		for (; j < reader.points.size() - 1; j++) {
+		for (; j < reader.points.size(); j++) {
 
-			if (reader.points.get(j) <= target){
+			if (reader.points.get(j) < target){
 				// constants.info( "dec_index: " + j + " value: " + reader.points.get(j));
 				break;
 			}
@@ -217,8 +227,7 @@ public class BeamScan {
 		return index;
 	}
 	
-	
-	/** */
+	/** 
 	private int[] getRange(final int target, final int start) {
 
 		int j = start;
@@ -236,8 +245,24 @@ public class BeamScan {
 			ans[i] = reader.points.get(i);
 		
 		return ans;
-	}
+	}*/
 
+	
+	public int getXCenter(){
+		return reader.points.size()/4;
+	}
+	
+	public int getYCenter(){
+		return (reader.points.size()/2) + (reader.points.size()/4);
+	}
+	
+	public int getMaxIndexX(){
+		return getMaxIndex(0, reader.points.size()/2);
+	}
+	
+	public int getMaxIndexY(){
+		return getMaxIndex(reader.points.size()/2, reader.points.size());
+	}
 	
 	/** write report to file */
 	public void log() {
@@ -252,41 +277,61 @@ public class BeamScan {
 		log.append("read: " + reader.getRuntime());
 		for (int j = 0; j < reader.points.size(); j++)
 			log.append(j+ "  " +String.valueOf(reader.points.get(j)));
-		
-		
-		// log.append("data: " + reader.points.size());
 	}
 
-	/** test driver */
+	/** test driver 
 	public static void main(String[] args) {
 
 		constants.init(args[0]);
 		BeamScan scan = new BeamScan();
-		
 		scan.test();
 		
-		final int maxIndex = scan.getMaxIndex(0, scan.reader.points.size()/2);
-		constants.info("max: " + scan.reader.points.get(maxIndex) + " index: " + maxIndex);
+		// final int maxX = scan.getMaxIndex(0, scan.reader.points.size()/2);
+		// constants.info("max: " + scan.reader.points.get(maxX) + " index: " + maxX);
 		
-		final int max2Index = scan.getMaxIndex(scan.reader.points.size()/2, scan.reader.points.size());
-		constants.info("max2: " + scan.reader.points.get(max2Index)  + " index: " + max2Index);
+		// final int maxY = scan.getMaxIndex(scan.reader.points.size()/2, scan.reader.points.size());
+		// constants.info("max2: " + scan.reader.points.get(maxY)  + " index: " + maxY);
 	
-		constants.put("xBeam", maxIndex);
-		constants.put("yBeam", max2Index);
-		
+		//constants.put("xBeam", maxX);
+		//constants.put("yBeam", maxY);
+			
 		scan.log();
-		scan.lineGraph("(" + maxIndex + ", " + max2Index + ")"); 
 		
-		int j = 100;
-		for(; j < 800 ; j+=100){
-			int[] slice = scan.getSlice(j);
-			if (slice != null) 
-				constants.info("slice: " + j + " x: " + (slice[1] - slice[0]) + " y: " + (slice[3] - slice[2]));
+		int j = 200;
+		int[] slice = null;
+		
+		
+		//for(; j <= 700 ; j+=200){
+		
+			slice = scan.getSlice(j);
+			if (slice != null){
+				
+				// constants.info("slice: " + j + " xMax: " + maxX + " yMax: " + maxY);
+				// constants.info("slice: " + j + " xCenter: " + xCenter + " yCenter: " + yCenter);
+				// constants.info("slice: " + j + " x: " + (slice[1] - slice[0]) + " y: " + (slice[3] - slice[2]));
+				
+				constants.put("x1", slice[0]);
+				constants.put("x2", slice[1]);
+				constants.put("y1", slice[2]);
+				constants.put("y2", slice[3]);
+				
+				//constants.put("x1offset", slice[0]-xCenter);
+				//constants.put("x2offset", slice[1]-xCenter);
+				//constants.put("y1offset", slice[2]-yCenter);
+				//constants.put("y2offset", slice[3]-yCenter);
+				
+				scan.lineGraph( "   slice: " + j );
+				
+				//  "   x1: " + String.valueOf(slice[0]) + "_" + String.valueOf(slice[0]-xCenter) 
+				// + "  x2: " + String.valueOf(slice[1]) + "_" + String.valueOf(slice[1]-xCenter) 
+				// + "  y1: " + String.valueOf(slice[2]) + "_" + String.valueOf(slice[2]-yCenter)
+				// + "  y2: " + String.valueOf(slice[3]) + "_" + String.valueOf(slice[3]-yCenter));
+		
+			// }
 		}
-		
 		
 		scan.close();
 		Utils.delay(3000);
 		constants.shutdown();
-	}
+	}*/
 }

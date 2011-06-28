@@ -492,7 +492,7 @@ public class ControlGUI extends JPanel implements Runnable {
 						}
 						if (port != null) {
 							portList.removeAllItems();
-							portList.addItem(port);
+			 				portList.addItem(port);
 							status.setText("found polar usb device");
 						}
 					}

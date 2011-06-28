@@ -47,6 +47,7 @@ public class ScreenShot extends Thread {
 		this.start();
 	}
 	
+	/** */
 	public ScreenShot(GoogleChart googleLabel, String string) {
 	
 		try {
@@ -73,6 +74,9 @@ public class ScreenShot extends Thread {
 		// do it
 		this.start();
 	}
+	
+	
+	/** */
 	public ScreenShot(GoogleChart googleLabel, int x, int y, String string) {
 		
 		try {
@@ -98,10 +102,9 @@ public class ScreenShot extends Thread {
 		// do it
 		this.start();
 	}
-	//public ScreenShot(GoogleChart chart, String string) {
-		// TODO Auto-generated constructor stub
-	//}
-
+	
+	
+	
 	@Override
 	public void run() {
 

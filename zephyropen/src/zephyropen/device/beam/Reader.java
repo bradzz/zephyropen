@@ -1,12 +1,9 @@
 package zephyropen.device.beam;
 
-import java.util.Date;
 import java.util.Vector;
-
 import gnu.io.SerialPortEventListener;
-import zephyropen.api.ZephyrOpen;
-import zephyropen.util.LogManager;
-import zephyropen.util.Utils;
+
+/** */ 
 public class Reader extends Port implements SerialPortEventListener {
 	
 	// hold data points 
@@ -46,7 +43,7 @@ public class Reader extends Port implements SerialPortEventListener {
 		}
 	}
 
-	/** */
+	/**
 	public void log() {
 		LogManager log = new LogManager();
 		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beam.log");
@@ -55,13 +52,13 @@ public class Reader extends Port implements SerialPortEventListener {
 		log.append("read: " + getRuntime());
 		for (int j = 0; j < points.size(); j++)
 			log.append(String.valueOf(points.get(j)));
-	}
+	} */
 
-	/** test driver only */
+	/** test driver only 
 	public static void main(String[] args) {
 
-		constants.init("brad");
-		constants.put(ZephyrOpen.deviceName, "beamscan");
+		//constants.init("brad");
+		//constants.put(ZephyrOpen.deviceName, "beamscan");
 
 		Find find = new Find();
 		String portstr = find.search("<id:beamreader>");
@@ -77,5 +74,5 @@ public class Reader extends Port implements SerialPortEventListener {
 			} else System.err.println("cant connect");
 		} else System.err.println("null port");
 		constants.shutdown();
-	}
+	}*/
 }

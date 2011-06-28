@@ -103,17 +103,35 @@ public class GoogleLineGraph extends GoogleChart {
             final Line valuesLine = Plots.newLine(DataUtil.scale(state.getScaledData()));
             valuesLine.setColor(dataColor);
             
-            /**/
+            /*
             int xBeam = constants.getInteger("xBeam");
             int yBeam = constants.getInteger("yBeam");
             if(xBeam!=ZephyrOpen.ERROR) 
             	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, xBeam);
             if(yBeam!=ZephyrOpen.ERROR)
             	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, yBeam);
+            */
             
-            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 2, (state.size()/2));
-            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 2, (state.size()/4));
-            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 2, ((state.size()/2) + (state.size()/4)));
+            int x1 = constants.getInteger("x1");
+            int x2 = constants.getInteger("x2");  
+            if(x1!=ZephyrOpen.ERROR) 
+            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, x1);
+            if(x2!=ZephyrOpen.ERROR)
+            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, x2);
+           
+            int y1 = constants.getInteger("y1");
+            int y2 = constants.getInteger("y2");  
+            if(x1!=ZephyrOpen.ERROR) 
+            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.GREEN, 2, y1);
+            if(x2!=ZephyrOpen.ERROR)
+            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.GREEN, 2, y2);
+
+
+            // grid 
+            
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 1, (state.size()/2));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 1, (state.size()/4));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 1, ((state.size()/2) + (state.size()/4)));
             
             final LineChart chart = GCharts.newLineChart(new Line[] {valuesLine});
 
