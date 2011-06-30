@@ -76,7 +76,7 @@ public class ScreenShot extends Thread {
 	}
 	
 	
-	/** */
+	/**
 	public ScreenShot(GoogleChart googleLabel, int x, int y, String string) {
 		
 		try {
@@ -102,7 +102,7 @@ public class ScreenShot extends Thread {
 		// do it
 		this.start();
 	}
-	
+	 */
 	
 	
 	@Override

@@ -3,6 +3,7 @@ package zephyropen.util.google;
 import java.util.Arrays;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.device.beam.BeamGUI;
 import zephyropen.state.State;
 import zephyropen.state.TimedEntry;
 import zephyropen.util.Utils;
@@ -102,31 +103,23 @@ public class GoogleLineGraph extends GoogleChart {
         
             final Line valuesLine = Plots.newLine(DataUtil.scale(state.getScaledData()));
             valuesLine.setColor(dataColor);
-            
+        
             /*
-            int xBeam = constants.getInteger("xBeam");
-            int yBeam = constants.getInteger("yBeam");
-            if(xBeam!=ZephyrOpen.ERROR) 
-            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, xBeam);
-            if(yBeam!=ZephyrOpen.ERROR)
-            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, yBeam);
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowX1));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowX2));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowY1));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowY2));
             */
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redX1));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redX2));           
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redY1));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redY2));
             
-            int x1 = constants.getInteger("x1");
-            int x2 = constants.getInteger("x2");  
-            if(x1!=ZephyrOpen.ERROR) 
-            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, x1);
-            if(x2!=ZephyrOpen.ERROR)
-            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.BLUE, 2, x2);
-           
-            int y1 = constants.getInteger("y1");
-            int y2 = constants.getInteger("y2");  
-            if(x1!=ZephyrOpen.ERROR) 
-            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.GREEN, 2, y1);
-            if(x2!=ZephyrOpen.ERROR)
-            	valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.GREEN, 2, y2);
-
-
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeX1));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeX2));           
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeY1));
+            valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeY2));
+            
             // grid 
             
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_FULL, Color.BLACK, 1, (state.size()/2));

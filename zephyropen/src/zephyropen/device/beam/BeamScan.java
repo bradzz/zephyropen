@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Vector;
 //import java.util.Vector;
 
 import com.googlecode.charts4j.Color;
@@ -163,20 +164,9 @@ public class BeamScan {
 		
 	}
 
-	/** create graph */
-	public void lineGraph(String txt) {
 
-		GoogleChart chart = new GoogleLineGraph("beam", "ma", Color.BLUEVIOLET);
-		for (int j = 0; j < reader.points.size(); j++)
-			chart.add(String.valueOf(reader.points.get(j)));
-
-
-		//txt += "   x1: " + String.valueOf(slice[0]) + "_" + String.valueOf(slice[0]-xCenter) 
-		// + "  x2: " + String.valueOf(slice[1]) + "_" + String.valueOf(slice[1]-xCenter) 
-		// + "  y1: " + String.valueOf(slice[2]) + "_" + String.valueOf(slice[2]-yCenter)
-		// + "  y2: " + String.valueOf(slice[3]) + "_" + String.valueOf(slice[3]-yCenter));
-		
-		new ScreenShot(chart, 1000, 250, "data: " + reader.points.size() + " " + txt);
+	public Vector<Integer> getPoints(){
+		return reader.points; // (Vector<Integer>) reader.points.clone();
 	}
 
 	/**  */

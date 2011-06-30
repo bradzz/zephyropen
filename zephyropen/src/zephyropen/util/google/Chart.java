@@ -23,6 +23,7 @@ public abstract class Chart extends JLabel {
 	/** swing needs this */
 	private static final long serialVersionUID = 1L;
 
+
 	/** framework configuration */
 	protected static ZephyrOpen constants = ZephyrOpen.getReference();
 	protected static ApiFactory apiFactory = ApiFactory.getReference();
@@ -41,7 +42,7 @@ public abstract class Chart extends JLabel {
 	public abstract String getURLString(final int x, final int y);
 	public abstract String getURLString(final int x, final int y, String title);
 
-	/** add new entry */
+	/** add new entry 
 	public void add(String data) {
 		if (data == null)
 			return;
@@ -50,7 +51,7 @@ public abstract class Chart extends JLabel {
 		
 		// add to state keeping object 
 		state.add(new TimedEntry(data)); 
-	}
+	}*/
 	
 
 	/** add new entry */
