@@ -265,7 +265,7 @@ public class BeamScan {
 		return ans;
 	}*/
 
-	
+	/*
 	public int getXCenter(){
 		return reader.points.size()/4;
 	}
@@ -280,7 +280,7 @@ public class BeamScan {
 	
 	public int getMaxIndexY(){
 		return getMaxIndex(reader.points.size()/2, reader.points.size());
-	}
+	}*/
 	
 	/** write report to file */
 	public void log() {

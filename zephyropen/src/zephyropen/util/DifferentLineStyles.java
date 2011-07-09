@@ -17,8 +17,10 @@ public class DifferentLineStyles extends JPanel{
      new BasicStroke(20.0f, BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER),
      new BasicStroke(20.0f, BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND), };
 
-     Stroke stroke2 = new BasicStroke(1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_BEVEL, 1.0f, new float[]
+     Stroke stroke2 = new BasicStroke(
+    		 1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_BEVEL, 1.0f, new float[]
 		 { 6.0f, 2.0f, 1.0f, 2.0f },0.0f);
+     
      Font font = new Font("Book Antiqua", Font.BOLD, 15);
      String[] caps = new String[]{ "CAP_BUTT", "CAP_SQUARE", "CAP_ROUND" };
      String[] joins = new String[]{ "JOIN_BEVEL", "JOIN_MITER","JOIN_ROUND" };
