@@ -27,11 +27,8 @@ public class BeamGUI implements MouseMotionListener {
 	public static final Color orange = new Color(252, 176, 64);
 	public static final Color blue = new Color(245, 237, 48);
 	public static final Color red = new Color(241, 83, 40);
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 350;
-	
-//	public static final int BEAM_HEIGHT = 400+48;
-//	public static final int CURVE_HEIGHT = 200;
+	public static final int WIDTH = 700;
+	public static final int HEIGHT = 300;
 	
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
@@ -65,9 +62,9 @@ public class BeamGUI implements MouseMotionListener {
 	String topRight2 = "test";
 	String topRight3 = "test";
 
-	String bottomRight1 = "test";
-	String bottomRight2 = "test";
-	String bottomRight3 = "test";
+	String bottomRight1 = "";
+	String bottomRight2 = "";
+	String bottomRight3 = "";
 	
 	JMenuItem connectItem = new JMenuItem("connect");
 	JMenuItem closeItem = new JMenuItem("close");
@@ -250,10 +247,23 @@ public class BeamGUI implements MouseMotionListener {
 		connect();
 		singleScan();
 	}
-
+	
+	/** */
+	private int[] takeSlice(int target){
+		int[] slice = scan.getSlice(target);
+		if (slice == null) {
+			topLeft1 = "FAULT";
+			topLeft2 = "re-connecting...";
+			topLeft3 = "";
+			scan.close();
+			scan.connect();
+			return null; 
+		}
+		return slice;
+	}
+	
 	/** */
 	public void singleScan() {
-	
 		if(scan.isConnected()){
 			scan.test();
 			scan.log();
@@ -273,64 +283,56 @@ public class BeamGUI implements MouseMotionListener {
 			return;
 		}
 		
-		int[] slice = scan.getSlice(10);
-		if (slice != null) {
-			
-			constants.put("yellowSlice", 100);
-			constants.put(yellowX1, slice[0]);
-			constants.put(yellowX2, slice[1]);
-			constants.put(yellowY1, slice[2]);
-			constants.put(yellowY2, slice[3]);
+		int[] slice = takeSlice(100);
+		if(slice==null) return;
 		
-			yellowX1px = (WIDTH/2) - (xCenterpx - ((double)slice[0] * scale));
-			yellowX2px = (WIDTH/2) - (xCenterpx - ((double)slice[1] * scale));
-			yellowY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
-			yellowY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
-			
-			topRight1 = "yellow (" + Utils.formatFloat(yellowX1px, 0) + ", " + Utils.formatFloat(yellowX2px,0) 
-				+ ")(" + Utils.formatFloat(yellowY1px,0) + ", " + Utils.formatFloat(yellowY2px,0) + ")";
-		}
+		// constants.put("yellowSlice", 100);
+		constants.put(yellowX1, slice[0]);
+		constants.put(yellowX2, slice[1]);
+		constants.put(yellowY1, slice[2]);
+		constants.put(yellowY2, slice[3]);
+	
+		// compute pixels 
+		yellowX1px = (WIDTH/2) - (xCenterpx - ((double)slice[0] * scale));
+		yellowX2px = (WIDTH/2) - (xCenterpx - ((double)slice[1] * scale));
+		yellowY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
+		yellowY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
 		
-		slice = scan.getSlice(300);
-		if (slice != null) {
-			
-			constants.put("orangeSlice", 300);
-			constants.put(orangeX1, slice[0]);
-			constants.put(orangeX2, slice[1]);
-			constants.put(orangeY1, slice[2]);
-			constants.put(orangeY2, slice[3]);
+		topRight1 = "yellow (" + Utils.formatFloat(yellowX1px, 0) + ", " + Utils.formatFloat(yellowX2px,0) 
+			+ ")(" + Utils.formatFloat(yellowY1px,0) + ", " + Utils.formatFloat(yellowY2px,0) + ")";
+	
+		slice = takeSlice(300);
+		if(slice==null) return;
+		// constants.put("orangeSlice", 300);
+		constants.put(orangeX1, slice[0]);
+		constants.put(orangeX2, slice[1]);
+		constants.put(orangeY1, slice[2]);
+		constants.put(orangeY2, slice[3]);
+		orangeX1px = (WIDTH/2) - (xCenterpx - ((double)slice[0] * scale));
+		orangeX2px = (WIDTH/2) - (xCenterpx - ((double)slice[1] * scale));
+		orangeY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
+		orangeY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
+		
+		topRight2 = "orange (" + Utils.formatFloat(orangeX1px, 0) + ", " + Utils.formatFloat(orangeX2px,0) 
+		+ ")(" + Utils.formatFloat(orangeY1px,0) + ", " + Utils.formatFloat(orangeY2px,0) + ")";
 
-			orangeX1px = (WIDTH/2) - (xCenterpx - ((double)slice[0] * scale));
-			orangeX2px = (WIDTH/2) - (xCenterpx - ((double)slice[1] * scale));
-			orangeY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
-			orangeY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
-			
-			topRight2 = "orange (" + Utils.formatFloat(orangeX1px, 0) + ", " + Utils.formatFloat(orangeX2px,0) 
-			+ ")(" + Utils.formatFloat(orangeY1px,0) + ", " + Utils.formatFloat(orangeY2px,0) + ")";
-		}	
+		slice = takeSlice(800);
+		if(slice==null) return;
+		// constants.put("redSlice", 800);
+		constants.put("redX1", slice[0]);
+		constants.put("redX2", slice[1]);
+		constants.put("redY1", slice[2]);
+		constants.put("redY2", slice[3]);
+		redX1px = (WIDTH/2) - (xCenterpx - ((double)slice[0] * scale));
+		redX2px = (WIDTH/2) - (xCenterpx - ((double)slice[1] * scale));
+		redY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
+		redY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
 		
-		slice = scan.getSlice(800);
-		if (slice != null) {
-			
-			constants.put("redSlice", 800);
-			constants.put("redX1", slice[0]);
-			constants.put("redX2", slice[1]);
-			constants.put("redY1", slice[2]);
-			constants.put("redY2", slice[3]);
-			
-			redX1px = (WIDTH/2) - (xCenterpx - ((double)slice[0] * scale));
-			redX2px = (WIDTH/2) - (xCenterpx - ((double)slice[1] * scale));
-			redY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
-			redY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
-			
-			topRight3 = "red (" + Utils.formatFloat(redX1px, 0) + ", " + Utils.formatFloat(redX2px,0) 
-			+ ")(" + Utils.formatFloat(redY1px,0) + ", " + Utils.formatFloat(redY2px,0) + ")";
-		}	
-		
-		
+		topRight3 = "red (" + Utils.formatFloat(redX1px, 0) + ", " + Utils.formatFloat(redX2px,0) 
+		+ ")(" + Utils.formatFloat(redY1px,0) + ", " + Utils.formatFloat(redY2px,0) + ")";
+	
 		beamCompent.repaint();
 		lineGraph();
-		Utils.delay(300);
 		screenCapture(frame);
 	}
 	
@@ -352,35 +354,42 @@ public class BeamGUI implements MouseMotionListener {
 		} 
 	}
 	
+	/** draw cross section chart */
 	public class BeamComponent extends JComponent {
 		private static final long serialVersionUID = 1L;
+		private boolean drawLines = false;
 		public void paint(Graphics g) {
-
 			final int w = getWidth();
 			final int h = getHeight();
 			
 			g.setColor(Color.YELLOW);
 			g.fillOval((int)yellowX1px, (int)yellowY1px, (int)yellowX2px-(int)yellowX1px, (int)yellowY2px-(int)yellowY1px);
-			g.drawLine((int)yellowX1px, 0,(int)yellowX1px, h);
-			g.drawLine((int)yellowX2px, 0,(int)yellowX2px, h);
-			g.drawLine(0, (int)yellowY1px, w,(int)yellowY1px);
-			g.drawLine(0, (int)yellowY2px, w,(int)yellowY2px);
+			if(drawLines){
+				g.drawLine((int)yellowX1px, 0,(int)yellowX1px, h);
+				g.drawLine((int)yellowX2px, 0,(int)yellowX2px, h);
+				g.drawLine(0, (int)yellowY1px, w,(int)yellowY1px);
+				g.drawLine(0, (int)yellowY2px, w,(int)yellowY2px);
+			}
 			
 			g.setColor(Color.ORANGE);
 			g.fillOval((int)orangeX1px, (int)orangeY1px, (int)orangeX2px-(int)orangeX1px, (int)orangeY2px-(int)orangeY1px);
-			g.drawLine((int)orangeX1px, 0,(int)orangeX1px, h);
-			g.drawLine((int)orangeX2px, 0,(int)orangeX2px, h);
-			g.drawLine(0, (int)orangeY1px, w,(int)orangeY1px);
-			g.drawLine(0, (int)orangeY2px, w,(int)orangeY2px);
-			
+			if(drawLines){
+				g.drawLine((int)orangeX1px, 0,(int)orangeX1px, h);
+				g.drawLine((int)orangeX2px, 0,(int)orangeX2px, h);
+				g.drawLine(0, (int)orangeY1px, w,(int)orangeY1px);
+				g.drawLine(0, (int)orangeY2px, w,(int)orangeY2px);
+			}
 			
 			g.setColor(Color.RED);
 			g.fillOval((int)redX1px, (int)redY1px, (int)redX2px-(int)redX1px, (int)redY2px-(int)redY1px);
-			//g.drawLine((int)redX1px, 0,(int)redX1px, h);
-			//g.drawLine((int)redX2px, 0,(int)redX2px, h);
-			//g.drawLine(0, (int)redY1px, w,(int)redY1px);
-			//g.drawLine(0, (int)redY2px, w,(int)redY2px);
+			if(drawLines){
+				g.drawLine((int)redX1px, 0,(int)redX1px, h);
+				g.drawLine((int)redX2px, 0,(int)redX2px, h);
+				g.drawLine(0, (int)redY1px, w,(int)redY1px);
+				g.drawLine(0, (int)redY2px, w,(int)redY2px);
+			}
 			
+			// draw grid 
 			g.setColor(Color.BLACK);
 			g.drawLine(0, h-1, w, h-1);
 			Graphics2D g2d = (Graphics2D) g;
@@ -391,8 +400,23 @@ public class BeamGUI implements MouseMotionListener {
 			g.drawLine(0, h/2, w, h/2);
 			g.drawLine(w/2, 0, w/2, h);
 			
-			bottomRight3 = " h: " + h + " w: " + w;
 			
+			
+			double x = 0; //((WIDTH/2) - ((double)scan.getMaxIndexX()*scale));
+			//g.drawLine(x, 0, x, h);
+			
+			//if(scan!=null){
+				
+				//x = (((WIDTH/2) - ((double)scan.getMaxIndexX()*scale)));
+				//g.drawLine(x, 0, x, h);
+				
+				
+			//}
+			
+			bottomRight1 = " h: " + h + " w: " + w;
+			bottomRight2 = " x: " + Utils.formatFloat(x, 1); 
+			
+			// draw text 
 			if (topRight1 != null) g.drawString(topRight1, (w/2 + 5), 15);
 			if (topRight2 != null) g.drawString(topRight2, (w/2 + 5), 30);
 			if (topRight3 != null) g.drawString(topRight3, (w/2 + 5), 45);
@@ -404,7 +428,6 @@ public class BeamGUI implements MouseMotionListener {
 			if (topLeft1 != null) g.drawString(topLeft1, 15, 15);
 			if (topLeft2 != null) g.drawString(topLeft2, 15, 30);
 			if (topLeft3 != null) g.drawString(topLeft3, 15, 45);
-
 		}
 	}
 }

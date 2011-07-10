@@ -7,17 +7,11 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
-//import java.util.Vector;
-
-import com.googlecode.charts4j.Color;
 
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 
 import zephyropen.util.Utils;
-import zephyropen.util.google.GoogleChart;
-import zephyropen.util.google.GoogleLineGraph;
-import zephyropen.util.google.ScreenShot;
 
 public class BeamScan {
 
@@ -114,10 +108,9 @@ public class BeamScan {
 					String dev = (String) keys.nextElement();
 					if (dev.equalsIgnoreCase(beamreader))
 						readPort = found.getProperty(dev);
-						//reader = new Reader(found.getProperty(dev));
 					if (dev.equalsIgnoreCase(beamspin))
 						spinPort = found.getProperty(dev);
-						//spin = new Spin(found.getProperty(dev));
+						
 
 				}
 			} catch (Exception e) {
@@ -164,7 +157,7 @@ public class BeamScan {
 		
 	}
 
-
+	/**  */
 	public Vector<Integer> getPoints(){
 		return reader.points; // (Vector<Integer>) reader.points.clone();
 	}
@@ -174,17 +167,22 @@ public class BeamScan {
 
 		int[] values = { 0, 0, 0, 0 };
 		
-		values[0] = getDataInc(target, 0);
-		constants.info("x1: " + values[0] + " value: " + reader.points.get(values[0]));
+		try {
+			values[0] = getDataInc(target, 0);
+			// constants.info("x1: " + values[0] + " value: " + reader.points.get(values[0]));
 
-		values[1] = getDataDec(target, values[0]);
-		constants.info("x2: " + values[1] + " value: " + reader.points.get(values[1]));
+			values[1] = getDataDec(target, values[0]);
+			// constants.info("x2: " + values[1] + " value: " + reader.points.get(values[1]));
 
-		values[2] = getDataInc(target, reader.points.size()/2);
-		constants.info("y1: " + values[2] + " value: " + reader.points.get(values[2]));
-		
-		values[3] = getDataDec(target, values[2]);
-		constants.info("y2: " + values[3] + " value: " + reader.points.get(values[3]));
+			values[2] = getDataInc(target, reader.points.size()/2);
+			// constants.info("y1: " + values[2] + " value: " + reader.points.get(values[2]));
+			
+			values[3] = getDataDec(target, values[2]);
+			constants.info("y2: " + values[3] + " value: " + reader.points.get(values[3]));
+		} catch (Exception e) {
+			constants.error("can't take slice of beam");
+			return null;
+		}
 		
 		return values;
 	} 
@@ -226,7 +224,7 @@ public class BeamScan {
 	
 	
 	/** */
-	private int getMaxIndex(final int start, final int stop) {
+	public int getMaxIndex(final int start, final int stop) {
 
 		int j = start;
 		int max = 0;
@@ -273,6 +271,7 @@ public class BeamScan {
 	public int getYCenter(){
 		return (reader.points.size()/2) + (reader.points.size()/4);
 	}
+	*/
 	
 	public int getMaxIndexX(){
 		return getMaxIndex(0, reader.points.size()/2);
@@ -280,7 +279,7 @@ public class BeamScan {
 	
 	public int getMaxIndexY(){
 		return getMaxIndex(reader.points.size()/2, reader.points.size());
-	}*/
+	}
 	
 	/** write report to file */
 	public void log() {

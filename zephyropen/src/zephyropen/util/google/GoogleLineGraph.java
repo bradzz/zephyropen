@@ -146,7 +146,7 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setSize(x, y);
             chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
 
-            chart.setTitle(title);
+            // chart.setTitle(title);
 
             // add grid 
             chart.setGrid(5, 20, 3, 2);
