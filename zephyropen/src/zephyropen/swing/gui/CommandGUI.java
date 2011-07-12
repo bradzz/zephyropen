@@ -15,13 +15,13 @@ import java.util.Vector;
 /** */
 public class CommandGUI {
 	
-	private static String oculus = "oculus";
-	private static String function = "function";
-	private static String argument = "argument";
+	private static final String oculus = "oculus";
+	private static final String function = "function";
+	private static final String argument = "argument";
 
 	/** framework configuration */
 	static ZephyrOpen constants = ZephyrOpen.getReference();
-	static final String title = "command line utility v0.1";
+	static final String title = "command line utility v0.2";
 
 	/** framework configuration */
 	public static final int WIDTH = 300;
@@ -30,18 +30,20 @@ public class CommandGUI {
 	private Vector<String> history = new Vector<String>();
 	private int ptr = 0;
 
-	JFrame frame = new JFrame(title);
-	JTextField user = new JTextField();
-	JMenuItem closeItem = new JMenuItem("close");
-	JMenuItem dockItem = new JMenuItem("autodock");
-	JMenuItem undockItem = new JMenuItem("un-dock");
-	JMenuItem scriptItem = new JMenuItem("run script file");
+	private JFrame frame = new JFrame(title);
+	private JTextField user = new JTextField();
+	private JMenuItem closeItem = new JMenuItem("close");
+	private JMenuItem dockItem = new JMenuItem("autodock");
+	private JMenuItem undockItem = new JMenuItem("un-dock");
+	private JMenuItem scriptItem = new JMenuItem("run script file");
 
 	// JMenuItem screenshotItem = new JMenuItem("screen capture");
 	// JMenu userMenue = new JMenu("Scan");
-	JMenu deviceMenue = new JMenu("Commands");
+	private JMenu deviceMenue = new JMenu("Commands");
+	private Command command = new Command(oculus);
 
-	/** */
+	
+	/** lock out default settings */
 	public static void main(String[] args) {
 		constants.init();
 		ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
@@ -50,7 +52,7 @@ public class CommandGUI {
 		new CommandGUI();
 	}
 
-	/** */
+	/** parse input from text area */
 	public class UserInput implements KeyListener {
 		@Override
 		public void keyTyped(KeyEvent e) {
@@ -66,9 +68,7 @@ public class CommandGUI {
 						ptr = history.indexOf(s);
 					}	
 				}
-
-				frame.setTitle(title + " (" + ptr + " of " + history.size() + ")");
-
+				
 				// parse input string 
 				String fn = null;
 				String ar = null;
@@ -81,12 +81,10 @@ public class CommandGUI {
 				}
 					
 				// create command 
-				Command command = new Command(oculus);
 				if(fn!=null) command.add(function, fn);
 				if(ar!=null) command.add(argument, ar);
 				command.send();
-				System.out.println("out: " + command);
-
+				
 				// clear it
 				user.setText("");
 			}
@@ -94,11 +92,7 @@ public class CommandGUI {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			int keyCode = e.getKeyCode();
-			switch (keyCode) {
-			
-			case KeyEvent.VK_UP:
-			
+			if(e.getKeyCode() == KeyEvent.VK_UP){
 				if (history.isEmpty()) {
 					user.setText("");
 					return;
@@ -107,17 +101,9 @@ public class CommandGUI {
 				user.setText(history.get(ptr));
 				frame.setTitle(title + " (" + ptr + " of " + history.size() + ")");
 
-				if (history.size() > 0)
-					ptr--;
-				if (ptr < 0)
-					ptr = history.size() - 1;
-				if (history.size() > 15)
-					history.remove(0);
-
-				break;
-			
-			case KeyEvent.VK_DOWN:
-				break;	
+				if (history.size() > 0) ptr--;
+				if (ptr < 0) ptr = history.size() - 1;
+				// if (history.size() > 10) history.remove(0);
 			}
 		}
 
@@ -130,37 +116,25 @@ public class CommandGUI {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			Object source = event.getSource();
-			
-			
 			if (source.equals(dockItem)) {
 				new Thread() {
 					public void run() {
-
-						Command command = new Command(oculus);
 						command.add(function, "autodock");
 						command.add(argument, "go");
 						command.send();
-						System.out.println(command.toString());
-
 					}
 				}.start();
 			}
-		
 			
 			if (source.equals(undockItem)) {
 				new Thread() {
 					public void run() {
-						
-						Command command = new Command(oculus);
 						command.add(function, "dock");
 						command.add(argument, "undock");
 						command.send();
-						System.out.println(command.toString());
-
 					}
 				}.start();
 			}
-			
 			
 		}
 	};
@@ -181,7 +155,7 @@ public class CommandGUI {
 		deviceMenue.add(dockItem);
 		deviceMenue.add(dockItem);
 		deviceMenue.add(scriptItem);
-
+		
 		/** Create the menu bar */
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(deviceMenue);
@@ -195,7 +169,7 @@ public class CommandGUI {
 		frame.setAlwaysOnTop(true);
 		frame.setVisible(true);
 
-		/** register shutdown hook */
+		/** register shutdown hook
 		Runtime.getRuntime().addShutdownHook(
 				new Thread() {
 					public void run() {
@@ -203,5 +177,6 @@ public class CommandGUI {
 					}
 				}
 				);
+				*/
 	}
 }
