@@ -150,10 +150,15 @@ public class BeamScan {
 			// constants.info("wait...");
 			Utils.delay(500);
 		}
+		
 
-		constants.info("data: " + reader.points.size());
-		constants.info("spin: " + spin.getRuntime());
-		constants.info("read: " + reader.getRuntime());
+		constants.put("dataPoints", reader.points.size());
+		constants.put("spinTime", spin.getRuntime());
+		constants.put("readTime", reader.getRuntime());
+
+		//constants.info("data: " + reader.points.size());
+		//constants.info("spin: " + spin.getRuntime());
+		//constants.info("read: " + reader.getRuntime());
 		
 	}
 
@@ -166,8 +171,8 @@ public class BeamScan {
 	public int[] getSlice(final int target) {
 
 		int[] values = { 0, 0, 0, 0 };
-		
 		try {
+		
 			values[0] = getDataInc(target, 0);
 			// constants.info("x1: " + values[0] + " value: " + reader.points.get(values[0]));
 
@@ -178,7 +183,8 @@ public class BeamScan {
 			// constants.info("y1: " + values[2] + " value: " + reader.points.get(values[2]));
 			
 			values[3] = getDataDec(target, values[2]);
-			constants.info("y2: " + values[3] + " value: " + reader.points.get(values[3]));
+			// constants.info("y2: " + values[3] + " value: " + reader.points.get(values[3]));
+		
 		} catch (Exception e) {
 			constants.error("can't take slice of beam");
 			return null;

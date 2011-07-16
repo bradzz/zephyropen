@@ -436,7 +436,11 @@ public class ZephyrOpen {
 		else props.put(tag, "false");
 	}
 
-	public void put(String key, int value) {
+	public synchronized void put(String key, int value) {
+		put(key, String.valueOf(value));
+	}
+	
+	public synchronized void put(String key, long value) {
 		put(key, String.valueOf(value));
 	}
 	
@@ -470,7 +474,7 @@ public class ZephyrOpen {
 	 *            is the lookup value
 	 * @return the matching value from properties file (or false if not found)
 	 */
-	public boolean getBoolean(String key) {
+	public synchronized boolean getBoolean(String key) {
 
 		boolean value = false;
 
@@ -492,7 +496,7 @@ public class ZephyrOpen {
 	 *            is the lookup value
 	 * @return the matching value from properties file (or zero if not found)
 	 */
-	public int getInteger(String key) {
+	public synchronized int getInteger(String key) {
 
 		String ans = null;
 		int value = ERROR;
@@ -566,14 +570,14 @@ public class ZephyrOpen {
 			System.exit(0);
 		}
 
-		//if (getBoolean(infoEnable)) {
+		if (getBoolean(frameworkDebug)) {
 			if (logger != null)
 				logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
 
-		System.out.println(Utils.getTime() + " "
+			System.out.println(Utils.getTime() + " "
 					+ clazz.getClass().getName() + " " + line);
 		}
-	//}
+	}
 
 	/** */
 	public void info(String line) {
@@ -583,12 +587,24 @@ public class ZephyrOpen {
 			System.exit(0);
 		}
 
-		//if (getBoolean(infoEnable)) {
+		if (getBoolean(frameworkDebug)) {
 			if (logger != null)
 				logger.append("INFO, " + get(deviceName) + ", " + zephyropen + ", " + line);
 
 			System.out.println(Utils.getTime() + " " + zephyropen + " " + line);
-		//}
+		}
+	}
+	
+	public synchronized void lock() {
+		locked = true;
+	}
+
+	public synchronized void unlock() {
+		locked = false;
+	}
+
+	public synchronized boolean isLocked() {
+		return locked;
 	}
 
 	/** send a "close" message */
@@ -630,13 +646,6 @@ public class ZephyrOpen {
 		command.add(action, kill);
 		command.send();
 		command.send();
-		
-		/* 
-		if(getBoolean(frameworkDebug)){
-			Utils.delay(300);
-			shutdown();
-		}*/
-		
 	}
 
 	/** terminate the application, but clean up first */
@@ -690,18 +699,4 @@ public class ZephyrOpen {
 
 		dataLoggers.add(dataLogger);
 	}
-
-	public synchronized void lock() {
-		locked = true;
-	}
-
-	public synchronized void unlock() {
-		locked = false;
-	}
-
-	public synchronized boolean isLocked() {
-		return locked;
-	}
-
-
 }
