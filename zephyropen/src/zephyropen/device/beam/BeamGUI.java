@@ -28,7 +28,7 @@ public class BeamGUI implements MouseMotionListener {
 	public static final Color orange = new Color(252, 176, 64);
 	public static final Color blue = new Color(245, 237, 48);
 	public static final Color red = new Color(241, 83, 40);
-
+	
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
 	public static final String yellowY1 = "yellowY1";
