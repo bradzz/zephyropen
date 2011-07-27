@@ -1,4 +1,4 @@
-package developer.ftp;
+package ftp;
 
 import java.io.*;
 import java.net.*;

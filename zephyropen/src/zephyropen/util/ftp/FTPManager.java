@@ -1,4 +1,4 @@
-package developer.ftp;
+package ftp;
 
 
 import java.util.Date;
@@ -23,7 +23,7 @@ public class FTPManager implements Observer {
 	
 	private static Logger log = Red5LoggerFactory.getLogger(FTPManager.class, "oculus");
 	private State state = State.getReference();
-	// private java.util.Timer timer = new Timer();
+	private java.util.Timer timer = new Timer();
 	private Settings settings = new Settings();
 	private boolean configured = true;
 	private String folderName = null;
@@ -54,7 +54,7 @@ public class FTPManager implements Observer {
 			state.addObserver(this);
 			
 			// refresh on timer too 
-			// timer.scheduleAtFixedRate(new FtptTask(), State.ONE_MINUTE, State.FIVE_MINUTES);
+			timer.scheduleAtFixedRate(new FtptTask(), State.ONE_MINUTE, State.FIVE_MINUTES);
 		}
 	}
 	
@@ -127,7 +127,7 @@ public class FTPManager implements Observer {
 		return false;
 	}
 
-	/** run on timer
+	/** run on timer */
 	private class FtptTask extends TimerTask {
 		
 		@Override
@@ -147,5 +147,5 @@ public class FTPManager implements Observer {
 					+ ":" + settings.readRed5Setting("http.port") + "/oculus/");
 
 		}
-	}*/
+	}
 }
