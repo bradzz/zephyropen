@@ -1,4 +1,4 @@
-package zephyropen.util.ftp;
+package developer.ftp;
 
 import java.io.*;
 import java.net.*;
@@ -26,7 +26,7 @@ public class FTP {
 	 * @param pass is the matching pass word for this user 
 	 * @throws Exception if the connection fails. FTP error code included 
 	 */
-    public synchronized void connect(String host, int port, String user, String pass) throws IOException {
+    public synchronized void connect(String host, String port, String user, String pass) throws IOException {
 
     	/*
     	System.out.println("host : " + host );
@@ -35,7 +35,7 @@ public class FTP {
     	System.out.println("pass : " + pass );
     	*/
     	
-        socket = new Socket(host, port);
+        socket = new Socket(host, Integer.parseInt(port));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
