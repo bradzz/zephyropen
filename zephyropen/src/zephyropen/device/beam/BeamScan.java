@@ -68,7 +68,7 @@ public class BeamScan {
 		found.put(beamspin, spin.getPortName());
 		writeProps();
 
-		Utils.delay(2000);
+		Utils.delay(3000);
 		constants.info("spin version: " + spin.getVersion());
 		constants.info("read version: " + reader.getVersion());
 		Utils.delay(2000);
@@ -152,9 +152,9 @@ public class BeamScan {
 		}
 		
 
-		constants.put("dataPoints", reader.points.size());
-		constants.put("spinTime", spin.getRuntime());
-		constants.put("readTime", reader.getRuntime());
+		constants.put(BeamGUI.dataPoints, reader.points.size());
+		constants.put(BeamGUI.spinTime, spin.getRuntime());
+		constants.put(BeamGUI.readTime, reader.getRuntime());
 
 		//constants.info("data: " + reader.points.size());
 		//constants.info("spin: " + spin.getRuntime());

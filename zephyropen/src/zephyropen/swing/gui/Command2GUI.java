@@ -72,6 +72,7 @@ public class Command2GUI {
 		if(fn!=null) command.add(function, fn);
 		if(ar!=null) command.add(argument, ar);
 		command.send();
+		System.out.println(command);
 	}
 	
 	/** */

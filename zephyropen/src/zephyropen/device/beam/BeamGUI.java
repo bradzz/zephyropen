@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -29,6 +30,10 @@ public class BeamGUI implements MouseMotionListener {
 	public static final Color blue = new Color(245, 237, 48);
 	public static final Color red = new Color(241, 83, 40);
 	
+	/** these will be found in constants object */
+	public static final String dataPoints = "dataPoints";
+	public static final String readTime = "readTime";
+	public static final String spinTime = "spinTime";
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
 	public static final String yellowY1 = "yellowY1";
@@ -43,10 +48,10 @@ public class BeamGUI implements MouseMotionListener {
 	public static final String redY2 = "redY2";
 	
 	// TODO: get from config 
-    public final int WIDTH = 700;
+    public final int WIDTH = 800;
 	public final int HEIGHT = 300;
 	
-	private final String title = "Beam Scan v0.1 ";
+	private final String title = "Beam Scan v0.2 ";
 	private JFrame frame = new JFrame(title); 
 	private JLabel curve = new JLabel();
 	private BeamScan scan = new BeamScan();
@@ -74,7 +79,7 @@ public class BeamGUI implements MouseMotionListener {
 	private JMenu userMenue = new JMenu("Scan");
 	private JMenu deviceMenue = new JMenu("Device");
 
-	private int dataPoints = 0;
+	/// private int dataPoints = 0;
 	private double scale = 0.0;
 	private double xCenterpx = 0.0;
 	private double yCenterpx = 0.0;
@@ -145,6 +150,9 @@ public class BeamGUI implements MouseMotionListener {
 	
 	/** establish connection to usb ports */
 	private void connect(){
+		
+		System.out.println("connecting...");
+		
 		scan.connect();
 		if(scan.isConnected()){
 			topLeft1 = "CONNECTED";
@@ -153,13 +161,21 @@ public class BeamGUI implements MouseMotionListener {
 			topRight1 = null; 
 			topRight2 = null; 
 			topRight3 = null;
+			
+			userMenue.add(startItem);
+			userMenue.remove(stopItem);
+			userMenue.add(scanItem);
 		} else {
 			topLeft1 = "FAULT";
 			topLeft2 = "connection failed";
-			topLeft3 = null;
+			topLeft3 = new Date().toString();
 			topRight1 = null;
 			topRight2 = null;
 			topRight3 = null;
+			
+			userMenue.remove(startItem);
+			userMenue.remove(stopItem);
+			deviceMenue.add(connectItem);
 		}
 		beamCompent.repaint();	
 	}
@@ -177,11 +193,25 @@ public class BeamGUI implements MouseMotionListener {
 					}
 				}.start();
 			} else if (source.equals(connectItem)) {
-				if(!scan.isConnected())
+				if( ! scan.isConnected()){
+				
+					//topRight1 = "ready...";
+					// beamCompent.repaint(); //0, 100, 0, 100);
+				// } else {
+					
 					connect();
+					/*
+					timer.cancel();
+					timer = null;
+					*/
+					
+					userMenue.add(startItem);
+					userMenue.remove(stopItem);
+					userMenue.add(scanItem);
+				}
 			} else if (source.equals(closeItem)) {
 				
-				/*
+				
 				scan.close();
 				topLeft1 = "DISCONNECTED";
 				topLeft2 = "try device -> connect";
@@ -189,8 +219,11 @@ public class BeamGUI implements MouseMotionListener {
 				topRight1 = null; 
 				topRight2 = null; 
 				topRight3 = null;
-				beamCompent.repaint();
-				*/
+				beamCompent.repaint();	
+				deviceMenue.add(connectItem);
+				userMenue.add(startItem);
+				userMenue.remove(stopItem);
+				userMenue.remove(scanItem);
 				
 			} else if (source.equals(screenshotItem)) {
 				new Thread() {
@@ -201,11 +234,21 @@ public class BeamGUI implements MouseMotionListener {
 				}.start();
 			} else if (source.equals(startItem)) {
 				timer = new java.util.Timer();
-				timer.scheduleAtFixedRate(new ScanTask(), 0, 2000);
+				timer.scheduleAtFixedRate(new ScanTask(), 0, 2500);
+				userMenue.remove(startItem);
+				userMenue.add(stopItem);
+				userMenue.remove(scanItem);
+				userMenue.remove(screenshotItem);
+				deviceMenue.remove(connectItem);
 			} else if(source.equals(stopItem)){
 				if(timer!=null){	
 					timer.cancel();
 					timer = null;
+					userMenue.add(startItem);
+					userMenue.remove(stopItem);
+					userMenue.add(scanItem);			
+					userMenue.add(screenshotItem);
+
 				}
 			}
 		}
@@ -230,11 +273,11 @@ public class BeamGUI implements MouseMotionListener {
 		connectItem.addActionListener(listener);
 
 		/** Add to menu */
-		deviceMenue.add(connectItem);
-		deviceMenue.add(closeItem);
-		userMenue.add(startItem);
-		userMenue.add(stopItem);
-		userMenue.add(scanItem);
+		// deviceMenue.add(connectItem);
+		// deviceMenue.add(closeItem);
+		// userMenue.add(startItem);
+		// userMenue.add(stopItem);
+		// userMenue.add(scanItem);
 		userMenue.add(screenshotItem);
 
 		/** Create the menu bar */
@@ -261,9 +304,9 @@ public class BeamGUI implements MouseMotionListener {
 		Runtime.getRuntime().addShutdownHook(
 			new Thread() {
 				public void run() {
-					System.out.println("close port");
 					scan.close();
 					//constants.shutdown();
+					System.out.println("....close port");
 				}
 			}
 		);
@@ -281,7 +324,7 @@ public class BeamGUI implements MouseMotionListener {
 			topLeft3 = "";
 			beamCompent.repaint();
 			scan.close();
-			scan.connect();
+			connect();
 			return null; 
 		}
 		return slice;
@@ -302,8 +345,9 @@ public class BeamGUI implements MouseMotionListener {
 		
 		scan.test();
 		scan.log();
-		dataPoints = scan.getPoints().size();
-		scale = (double)WIDTH/dataPoints; 
+		
+		// dataPoints = scan.getPoints().size();
+		scale = (double)WIDTH/(double)constants.getInteger(dataPoints); 
 		xCenterpx = (((double)WIDTH) * 0.25);
 		yCenterpx = (((double)WIDTH) * 0.75);
 	
@@ -383,7 +427,9 @@ public class BeamGUI implements MouseMotionListener {
 		private static final long serialVersionUID = 1L;
 		
 		// TODO: TAKE FROM PROPS 
-		private boolean drawLines = true;
+		private boolean drawLines = false;
+		
+		
 		public void paint(Graphics g) {
 			final int w = getWidth();
 			final int h = getHeight();
@@ -439,17 +485,17 @@ public class BeamGUI implements MouseMotionListener {
 				
 			//}
 			
-			topRight1 = "Data Points: " + constants.get("dataPoints");	
-			topRight2 = "Spin Time:   " + constants.get("spinTime") + " ms";	
-			topRight3 = "Read Time:   " + constants.get("readTime") + " ms";	
+			topRight1 = "Data Points: " + constants.get(dataPoints);	
+			topRight2 = "Spin Time:   " + constants.get(spinTime) + " ms";	
+			topRight3 = "Read Time:   " + constants.get(readTime) + " ms";	
 			
 			bottomRight1 = " h: " + h + " w: " + w;
 			bottomRight2 = " x: " + Utils.formatFloat(x, 1); 
 			
 			// draw text 
-			if (topRight1 != null) g.drawString(topRight1, (w/2 + 5), 15);
-			if (topRight2 != null) g.drawString(topRight2, (w/2 + 5), 30);
-			if (topRight3 != null) g.drawString(topRight3, (w/2 + 5), 45);
+			if (topRight1 != null) g.drawString(topRight1, (w/2 + 50), 15);
+			if (topRight2 != null) g.drawString(topRight2, (w/2 + 50), 30);
+			if (topRight3 != null) g.drawString(topRight3, (w/2 + 50), 45);
 			
 			if (bottomRight1 != null) g.drawString(bottomRight1, (w/2 + 5), h - 10);
 			if (bottomRight2 != null) g.drawString(bottomRight2, (w/2 + 5), h - 25);
