@@ -184,7 +184,7 @@ public abstract class Port implements SerialPortEventListener {
 		return busy;
 	}
 
-	/** */ 
+	/**
 	public boolean test(boolean blocking) {
 		
 		if (busy) {
@@ -205,7 +205,7 @@ public abstract class Port implements SerialPortEventListener {
 		}
 		
 		return true;
-	}
+	} */ 
 	
 	/** 
 	public boolean test(boolean blocking, int arg) {

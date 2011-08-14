@@ -2,7 +2,6 @@ package zephyropen.device.beamscan;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
 import java.io.IOException;
@@ -18,17 +17,17 @@ public abstract class Port implements SerialPortEventListener {
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	// ready to be sent
-	public static final byte TEST = 't';
-	public static final byte[] HOME = { 'h' };
+	//public static final byte TEST = 't';
+	//public static final byte[] HOME = { 'h' };
 	public static final byte[] GET_VERSION = { 'y' };
 
-	public static final String test = "test";
-	public static final String home = "home";
+//	public static final String test = "test";
+//	public static final String home = "home";
 
 	// comm channel
 	private SerialPort serialPort = null;
-	private InputStream in;
-	private OutputStream out;
+	protected InputStream in;
+	protected OutputStream out;
 
 	// will be discovered from the device
 	protected String version = null;
@@ -42,8 +41,8 @@ public abstract class Port implements SerialPortEventListener {
 	protected long lastRead = System.currentTimeMillis();
 
 	protected String portName = null;
-	protected boolean busy = true;
-	protected long runTime = 0;
+	//protected boolean busy = true;
+	//protected long runTime = 0;
 	
 	
 	/**  */
@@ -70,10 +69,10 @@ public abstract class Port implements SerialPortEventListener {
 			}
 	}
 	
-	/**  */
+	/**
 	public long getRuntime() {
 		return runTime;
-	}
+	}  */
 	
 	/**  */
 	public String getPortName() {
@@ -100,41 +99,6 @@ public abstract class Port implements SerialPortEventListener {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Buffer input on event and trigger parse on '>' charter
-	 * 
-	 * Note, all feedback must be in single xml tags like: <feedback 123>
-	 */
-	@Override
-	public void serialEvent(SerialPortEvent event) {
-		if (event.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-			try {
-				byte[] input = new byte[32];
-				int read = in.read(input);
-				for (int j = 0; j < read; j++) {
-					// print() or println() from arduino code
-					if ((input[j] == '>') || (input[j] == 13) || (input[j] == 10)) {
-						// do what ever is in buffer
-						if (buffSize > 0)
-							execute();
-						// reset
-						buffSize = 0;
-						// track input from arduino
-						lastRead = System.currentTimeMillis();
-					} else if (input[j] == '<') {
-						// start of message
-						buffSize = 0;
-					} else {
-						// buffer until ready to parse
-						buffer[buffSize++] = input[j];
-					}
-				}
-			} catch (IOException e) {
-				constants.error("event : " + e.getMessage(), this);
-			}
-		}
 	}
 
 	/**
@@ -179,12 +143,12 @@ public abstract class Port implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 	
-	/** @return true if the device is busy */
+	/** @return true if the device is busy 
 	public boolean isBusy(){
 		return busy;
-	}
+	}*/
 
-	/** */ 
+	/**
 	public boolean test(boolean blocking) {
 		
 		if (busy) {
@@ -205,7 +169,7 @@ public abstract class Port implements SerialPortEventListener {
 		}
 		
 		return true;
-	}
+	} */ 
 	
 	// act on feedback from arduino
 	public abstract void execute();

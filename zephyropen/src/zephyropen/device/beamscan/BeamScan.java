@@ -3,63 +3,99 @@ package zephyropen.device.beamscan;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 
 import zephyropen.util.Utils;
+import zephyropen.util.google.GoogleChart;
+import zephyropen.util.google.GoogleLineGraph;
 
 public class BeamScan {
+	
+	/*
 
-	private final static String beamscan = "<id:beamscan>";
+	public static final String yellowX1 = "yellowX1";
+	public static final String yellowX2 = "yellowX2";
+	public static final String yellowY1 = "yellowY1";
+	public static final String yellowY2 = "yellowY2";	
+	public static final String orangeX1 = "orangeX1";
+	public static final String orangeX2 = "orangeX2";
+	public static final String orangeY1 = "orangeY1";
+	public static final String orangeY2 = "orangeY2";
+	public static final String redX1 = "redX1";
+	public static final String redX2 = "redX2";
+	public static final String redY1 = "redY1";
+	public static final String redY2 = "redY2";
+	
+	// TODO: get from config 
+    public final int WIDTH = 700;
+	public final int HEIGHT = 300;
+
+	private int dataPoints = 0;
+	private double scale = 0.0;
+	private double xCenterpx = 0.0;
+	private double yCenterpx = 0.0;
+	private double redX1px = 0.0;	
+	private double redX2px = 0.0;
+	private double redY1px = 0.0;	
+	private double redY2px = 0.0;
+	private double yellowX1px = 0.0;	
+	private double yellowX2px = 0.0;
+	private double yellowY1px = 0.0;	
+	private double yellowY2px = 0.0;
+	private double orangeX1px = 0.0;	
+	private double orangeX2px = 0.0;
+	private double orangeY1px = 0.0;	
+	private double orangeY2px = 0.0;
+*/
+	
 	private static ZephyrOpen constants = ZephyrOpen.getReference();
-	private final String path = constants.get(ZephyrOpen.userHome) 
-		+ ZephyrOpen.fs + "beam.properties";
-
-	/** store past searches */
-	// TODO: TAKE FROM LAUNCH 
-	private Properties found = new Properties();
-	private String port = null;
 	private CommPort comm = null;
 
 	/** */
-	public BeamScan() {
-		readProps();
-	}
-	
-	/** */
-	public boolean connect(){
+	public BeamScan() { 
+		
+		//System.out.println("....connect");
 		
 		// need to go look?
+		/*
 		if (port == null){ 
 			Find find = new Find();
 			port = find.search(beamscan);
 		}
 		
 		// not found 
-		if (port == null) return false;
-		
-		comm = new CommPort(port);
-		if (!comm.connect()){
-			constants.error("can't find spin");
-			close();
+		if (port == null) {
+			System.out.println("can't find beamscan");
 			return false;
+		}
+		*/
+		
+		comm = new CommPort("COM26"); // new Find().search(beamscan));
+		if (!comm.connect()){
+			close();
+			constants.shutdown("can't find spin");
 		}
 				
 		
 		// re-fresh the file
-		// found.put(beamreader, reader.getPortName());
-		// found.put(beamspin, spin.getPortName());
-		writeProps();
+		// found.put(beamscan, port.);
+		// writeProps();
 
+		Utils.delay(3000);	
+		constants.info("beamscan port: " + comm.portName);
+		constants.info("beamscan version: " + comm.getVersion());
 		Utils.delay(2000);
-		constants.info("spin version: " + comm.getVersion());
-		Utils.delay(2000);
-		return true;
+		
 	}
 	
 	/** */
@@ -73,72 +109,6 @@ public class BeamScan {
 	public void close() {
 		if(comm != null)
 			comm.close();
-	}
-
-	/** add devices that require com port mapping, not searching */
-	public void readProps() {
-		if (new File(path).exists()) {
-			try {
-
-				File file = new File(path);
-				FileInputStream fi = new FileInputStream(file);
-				found.load(fi);
-				fi.close();
-
-				Enumeration<Object> keys = found.keys();
-				while (keys.hasMoreElements()) {
-					String dev = (String) keys.nextElement();
-					if (dev.equalsIgnoreCase(beamscan))
-						port = found.getProperty(dev);
-				}
-			} catch (Exception e) {
-				constants.error(e.getMessage(), this);
-			}
-		}
-	}
-
-	/** */
-	public void writeProps() {
-		try {
-
-			// write to search props
-			FileWriter fw = new FileWriter(new File(path));
-			found.store(fw, null); 
-			fw.close();
-
-		} catch (Exception e) {
-			constants.error(e.getMessage(), this);
-		}
-	}
-
-	/** */
-	public void test() {
-		
-		if(!isConnected()){
-			constants.error("not connected, can not run BeamScan.test()");
-			return;
-		}
-
-		/* non-blocking */
-		comm.test(false);
-		//spin.test(false);
-
-		/* wait for both */
-		while (comm.isBusy()){ 
-			// constants.info("wait...");
-			Utils.delay(500);
-		}
-		
-
-		constants.put("dataPoints", comm.points.size());
-		constants.put("spinTime", comm.getRuntime());
-		constants.put("readTime", comm.getRuntime());
-
-
-		constants.info("dataPoints: " + comm.points.size());
-		constants.info("spinTime: " + comm.getRuntime());
-		constants.info("readTime: " + comm.getRuntime());
-		
 	}
 
 	/**  */
@@ -263,85 +233,40 @@ public class BeamScan {
 		return getMaxIndex(comm.points.size()/2, comm.points.size());
 	}
 	
-	/** write report to file */
-	public void log() {
-		LogManager log = new LogManager();
-		// log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beam.log");
-		// log.append("spin version: " + spin.getVersion());
-		log.append("version: " + comm.getVersion());
-		log.append("date: " + new Date().toString());
-		// log.append("step: " + comm.getSteps());
-		log.append("data: " + comm.points.size());
-		log.append("spin: " + comm.getRuntime() + " ms");
-		log.append("read: " + comm.getRuntime() + " ms");
-		for (int j = 0; j < comm.points.size(); j++)
-			log.append(j+ "  " +String.valueOf(comm.points.get(j)));
-	}
+	
 
-	public String getReadVersion() {
-		return comm.getVersion();
-	}
-	public String getcommVersion() {
+	public String getVersion() {
 		return comm.getVersion();
 	}
 
-	public String getReadPort() {
+	public String getPort() {
 		return comm.getPortName();
 	}
 	
-	/** test driver 
+	public void stop() {
+		comm.sendCommand(new byte[] { 's' });
+	}
+
+	public void start() {
+		comm.sendCommand(new byte[] { 'e' });
+	}
+	
+
+	/** test driver */
 	public static void main(String[] args) {
 
-		constants.init(args[0]);
+		constants.init(); // args[0]);
 		BeamScan scan = new BeamScan();
-		scan.test();
 		
-		// final int maxX = scan.getMaxIndex(0, scan.reader.points.size()/2);
-		// constants.info("max: " + scan.reader.points.get(maxX) + " index: " + maxX);
-		
-		// final int maxY = scan.getMaxIndex(scan.reader.points.size()/2, scan.reader.points.size());
-		// constants.info("max2: " + scan.reader.points.get(maxY)  + " index: " + maxY);
-	
-		//constants.put("xBeam", maxX);
-		//constants.put("yBeam", maxY);
-			
-		scan.log();
-		
-		int j = 200;
-		int[] slice = null;
-		
-		
-		//for(; j <= 700 ; j+=200){
-		
-			slice = scan.getSlice(j);
-			if (slice != null){
-				
-				// constants.info("slice: " + j + " xMax: " + maxX + " yMax: " + maxY);
-				// constants.info("slice: " + j + " xCenter: " + xCenter + " yCenter: " + yCenter);
-				// constants.info("slice: " + j + " x: " + (slice[1] - slice[0]) + " y: " + (slice[3] - slice[2]));
-				
-				constants.put("x1", slice[0]);
-				constants.put("x2", slice[1]);
-				constants.put("y1", slice[2]);
-				constants.put("y2", slice[3]);
-				
-				//constants.put("x1offset", slice[0]-xCenter);
-				//constants.put("x2offset", slice[1]-xCenter);
-				//constants.put("y1offset", slice[2]-yCenter);
-				//constants.put("y2offset", slice[3]-yCenter);
-				
-				scan.lineGraph( "   slice: " + j );
-				
-				//  "   x1: " + String.valueOf(slice[0]) + "_" + String.valueOf(slice[0]-xCenter) 
-				// + "  x2: " + String.valueOf(slice[1]) + "_" + String.valueOf(slice[1]-xCenter) 
-				// + "  y1: " + String.valueOf(slice[2]) + "_" + String.valueOf(slice[2]-yCenter)
-				// + "  y2: " + String.valueOf(slice[3]) + "_" + String.valueOf(slice[3]-yCenter));
-		
-			// }
-		}
-		
+		scan.start();
+		Utils.delay(1000);
+		scan.stop();
+		Utils.delay(3000);
+		System.out.println("...done");
 		scan.close();
 		Utils.delay(3000);
 		constants.shutdown();
-	}*/
+	}
+
+	
 }

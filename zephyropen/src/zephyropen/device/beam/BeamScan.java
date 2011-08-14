@@ -141,9 +141,9 @@ public class BeamScan {
 			return;
 		}
 
-		/* non-blocking */
+		/* non-blocking 
 		reader.test(false);
-		spin.test(false);
+		spin.test(false);*/
 
 		/* wait for both */
 		while (spin.isBusy() || reader.isBusy()) {

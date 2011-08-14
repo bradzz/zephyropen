@@ -33,8 +33,6 @@ public class Find {
 	/* list of all free ports */
 	private Vector<String> ports = new Vector<String>();
 	
-	// private Hashtable<String, String> table = new Hashtable<String, String>();
-
 	/* constructor makes a list of available ports */
 	public Find() {
 		constants.init();
@@ -109,18 +107,11 @@ public class Find {
 	public String search(String target) {
 		
 		constants.info("searching for: " + target);
-		//if (table.containsKey(target)) {
-		//	System.out.println("was found before: " + table.toString());
-		//	return (String) table.get(target);
-		//}
-
 		for (int i = ports.size() - 1; i >= 0; i--) {
 			if (connect(ports.get(i))) {
 				Utils.delay(TIMEOUT);
 				String id = getProduct();
 				System.out.println("discovered : " + id);
-				// table.put((String) id, (String) ports.get(i));
-				// constants.info("add table: " + table.toString());
 				if (id.equalsIgnoreCase(target)) {
 					close();
 					return ports.get(i);

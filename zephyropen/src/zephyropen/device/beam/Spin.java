@@ -28,8 +28,7 @@ public class Spin extends Port implements SerialPortEventListener {
 			constants.info("dead");
 		} else if (response.startsWith("version:")) {
 			if (version == null)
-				version = response.substring(response.indexOf("version:")
-						+ 8, response.length());
+				version = response.substring(response.indexOf("version:") + 8, response.length());
 		} else if (response.startsWith(test) || (response.startsWith(home))) {
 			String[] reply = response.split(" ");
 			if (reply[1].equals("done")) {
@@ -57,10 +56,10 @@ public class Spin extends Port implements SerialPortEventListener {
 			Utils.delay(2000);
 
 			// blocking call
-			if (spin.test(true)) {
-				constants.info("test took: " + spin.runTime + "ms, took: "
-						+ spin.getSteps() + " steps");
-			} else
+			//if (spin.test(true)) {
+			//	constants.info("test took: " + spin.runTime + "ms, took: "
+			//			+ spin.getSteps() + " steps");
+			//} else
 				constants.error("fault");
 		} else
 			constants.error("can't find spin");
