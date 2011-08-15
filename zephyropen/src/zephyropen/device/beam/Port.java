@@ -179,10 +179,10 @@ public abstract class Port implements SerialPortEventListener {
 		return System.currentTimeMillis() - lastRead;
 	}
 	
-	/** @return true if the device is busy */
+	/** @return true if the device is busy 
 	public boolean isBusy(){
 		return busy;
-	}
+	}*/
 
 	/**
 	public boolean test(boolean blocking) {

@@ -1,13 +1,13 @@
 package zephyropen.device.beamscan;
 
-import java.awt.Component;
 import java.io.IOException;
 import java.util.Vector;
 
-import javax.swing.Icon;
-
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
+import zephyropen.util.google.GoogleChart;
+import zephyropen.util.google.GoogleLineGraph;
+import zephyropen.util.google.ScreenShot;
 
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
@@ -16,15 +16,13 @@ import gnu.io.SerialPortEventListener;
 public class CommPort extends Port implements SerialPortEventListener {
 	
 	// hold data points 
-	public Vector<Integer> points = new Vector<Integer>();
+	public Vector<Integer> points = new Vector<Integer>(1000);
 	public long start = 0;
 	public long stop = 0;
-	LogManager log = new LogManager();
 	
 	/** constructor */
 	public CommPort(String str) {
 		super(str);
-		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beam.log");
 	}
 
 	@Override
@@ -33,48 +31,62 @@ public class CommPort extends Port implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 		
-		response = response.trim();
-		log.append(response);
+		//response = response.trim();
+		//log.append(response);
+		// System.out.println(response);
 		
 		if(response.startsWith("start")){
 			
-			points.clear();
+			points = new Vector<Integer>(1000);//points.clear();
 			start = System.currentTimeMillis();
 			
 		} else if(response.startsWith("done")){
-			
-			System.out.println("......" + response);
-			
+						
 			if(points.size() > 0){
-				
 				stop = System.currentTimeMillis();		
 				System.out.println("size : " + points.size());
 				System.out.println("took : " + (stop - start) + " ms");	
-			
+						
+				@SuppressWarnings("unchecked")
+				final Vector<Integer> snapshot = ((Vector<Integer>) points.clone());
+
 				new Thread(
-				new Runnable() {
-					public void run() {
+						new Runnable() {
+							public void run() {
 						
-						Vector<Integer> snapshot = (Vector<Integer>) points.clone();
-						log.append("size : " + snapshot.size());
-						log.append("took : " + (stop - start) + " ms");
-						
-						Icon ico = BeamGUI.lineGraph(snapshot);
-						BeamGUI.screenCapture((Component) ico);
-						
+								LogManager log = new LogManager();
+								log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + ".log");
+								log.append(new java.util.Date().toString());
+								log.append("size : " + snapshot.size());
+								log.append("took : " + (stop - start) + " ms");
+					
+								//@SuppressWarnings("unchecked")
+								//GoogleChart chart = new GoogleLineGraph("beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
+								for (int j = 0; j < snapshot.size(); j++){
+									//if(j%5==0) chart.add(String.valueOf(snapshot.get(j)));
+									log.append(j + " " + String.valueOf(snapshot.get(j)));
+								}
+								log.close();
+								//System.out.println("url: " + chart.getURLString(600, 300, " state points = " + chart.getState().size()));
+								//new ScreenShot(chart, " points = " + chart.getState().size());
+					
 					}
 				}).start();
-			
-						
-			
 			}
-		}
-		else if (response.startsWith("version:")) {
+		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
-		} else {
-			points.add(Integer.parseInt(response));
-			log.append(response);
+		} else {	
+			int value = -1;
+			try {
+				value = Integer.parseInt(response);
+			} catch (Exception e) {
+				constants.error(e.getMessage());
+			}
+			if( value != -1 ) {
+				points.add(value);
+				System.out.println(points.size() + " " + value);
+			}
 		}
 	}
 

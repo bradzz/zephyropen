@@ -95,8 +95,8 @@ public class BeamGUI implements MouseMotionListener {
 	/** */
 	public static void main(String[] args) {
 		constants.init();
-		ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
-		constants.put(ZephyrOpen.frameworkDebug, false);
+		// ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
+		// constants.put(ZephyrOpen.frameworkDebug, false);
 		new BeamGUI();
 	}
 
@@ -297,6 +297,11 @@ public class BeamGUI implements MouseMotionListener {
 			beamCompent.repaint();
 			return;
 		}
+		
+		scan.start();
+		Utils.delay(200);
+		scan.stop();
+		Utils.delay(2000);
 		
 		// scan.test();
 		// scan.log();

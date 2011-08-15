@@ -343,7 +343,7 @@ public class BeamGUI implements MouseMotionListener {
 			return;
 		}
 		
-		scan.test();
+		//scan.test();
 		scan.log();
 		
 		// dataPoints = scan.getPoints().size();

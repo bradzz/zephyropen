@@ -112,8 +112,7 @@ public class GoogleLineGraph extends GoogleChart {
             final double orange = (double)constants.getInteger("orangeSlice");
             Line orangeLine = Plots.newLine(new Data(orange/10, orange/10)); 
             orangeLine.setColor(Color.BROWN);
-            */
-            
+          
 
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowX1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowX2));
@@ -130,7 +129,8 @@ public class GoogleLineGraph extends GoogleChart {
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeX2));           
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeY1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeY2));
-       
+         */
+            
             
             // grid 
            
@@ -146,7 +146,7 @@ public class GoogleLineGraph extends GoogleChart {
             chart.setSize(x, y);
             chart.addYAxisLabels(AxisLabelsFactory.newNumericRangeAxisLabels(state.getMinInt(), state.getMaxInt()));
 
-            // chart.setTitle(title);
+            chart.setTitle(title);
 
             // add grid 
             chart.setGrid(5, 20, 3, 2);

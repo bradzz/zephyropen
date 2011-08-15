@@ -32,7 +32,7 @@ public class BeamScan {
 
 	/** */
 	public BeamScan() {
-		readProps();
+		//readProps();
 	}
 	
 	/** */
@@ -66,7 +66,7 @@ public class BeamScan {
 		// re-fresh the file
 		found.put(beamreader, reader.getPortName());
 		found.put(beamspin, spin.getPortName());
-		writeProps();
+	//	writeProps();
 
 		Utils.delay(3000);
 		constants.info("spin version: " + spin.getVersion());
@@ -93,7 +93,7 @@ public class BeamScan {
 			spin.close();
 	}
 
-	/** add devices that require com port mapping, not searching */
+	/** add devices that require com port mapping, not searching 
 	public void readProps() {
 		if (new File(path).exists()) {
 			try {
@@ -117,9 +117,9 @@ public class BeamScan {
 				constants.error(e.getMessage(), this);
 			}
 		}
-	}
+	}*/
 
-	/** */
+	/**
 	public void writeProps() {
 		try {
 
@@ -131,9 +131,9 @@ public class BeamScan {
 		} catch (Exception e) {
 			constants.error(e.getMessage(), this);
 		}
-	}
+	} */
 
-	/** */
+	/**
 	public void test() {
 		
 		if(!isConnected()){
@@ -141,11 +141,11 @@ public class BeamScan {
 			return;
 		}
 
-		/* non-blocking 
+		
 		reader.test(false);
-		spin.test(false);*/
+		spin.test(false);
 
-		/* wait for both */
+		
 		while (spin.isBusy() || reader.isBusy()) {
 			// constants.info("wait...");
 			Utils.delay(500);
@@ -160,11 +160,12 @@ public class BeamScan {
 		//constants.info("spin: " + spin.getRuntime());
 		//constants.info("read: " + reader.getRuntime());
 		
-	}
+	} */
 
 	/**  */
+	@SuppressWarnings("unchecked")
 	public Vector<Integer> getPoints(){
-		return reader.points; // (Vector<Integer>) reader.points.clone();
+		return (Vector<Integer>) reader.points.clone();
 	}
 
 	/**  */

@@ -21,69 +21,30 @@ import zephyropen.util.google.GoogleLineGraph;
 
 public class BeamScan {
 	
-	/*
-
-	public static final String yellowX1 = "yellowX1";
-	public static final String yellowX2 = "yellowX2";
-	public static final String yellowY1 = "yellowY1";
-	public static final String yellowY2 = "yellowY2";	
-	public static final String orangeX1 = "orangeX1";
-	public static final String orangeX2 = "orangeX2";
-	public static final String orangeY1 = "orangeY1";
-	public static final String orangeY2 = "orangeY2";
-	public static final String redX1 = "redX1";
-	public static final String redX2 = "redX2";
-	public static final String redY1 = "redY1";
-	public static final String redY2 = "redY2";
-	
-	// TODO: get from config 
-    public final int WIDTH = 700;
-	public final int HEIGHT = 300;
-
-	private int dataPoints = 0;
-	private double scale = 0.0;
-	private double xCenterpx = 0.0;
-	private double yCenterpx = 0.0;
-	private double redX1px = 0.0;	
-	private double redX2px = 0.0;
-	private double redY1px = 0.0;	
-	private double redY2px = 0.0;
-	private double yellowX1px = 0.0;	
-	private double yellowX2px = 0.0;
-	private double yellowY1px = 0.0;	
-	private double yellowY2px = 0.0;
-	private double orangeX1px = 0.0;	
-	private double orangeX2px = 0.0;
-	private double orangeY1px = 0.0;	
-	private double orangeY2px = 0.0;
-*/
-	
 	private static ZephyrOpen constants = ZephyrOpen.getReference();
 	private CommPort comm = null;
 
 	/** */
 	public BeamScan() { 
 		
-		//System.out.println("....connect");
+		// System.out.println("....connect"); 
+		
+		String port = constants.get("beamscanport");
 		
 		// need to go look?
-		/*
 		if (port == null){ 
 			Find find = new Find();
-			port = find.search(beamscan);
+			port = find.search("<id:beamscan>");
 		}
 		
 		// not found 
-		if (port == null) {
-			System.out.println("can't find beamscan");
-			return false;
-		}
-		*/
-		
-		comm = new CommPort("COM26"); // new Find().search(beamscan));
+		if (port == null) 
+			constants.shutdown("can't find beamscan");
+	
+		comm = new CommPort(port);
 		if (!comm.connect()){
 			close();
-			constants.shutdown("can't find spin");
+			constants.error("can't connect to beamscan");
 		}
 				
 		
@@ -255,16 +216,17 @@ public class BeamScan {
 	/** test driver */
 	public static void main(String[] args) {
 
-		constants.init(); // args[0]);
+		constants.init();
 		BeamScan scan = new BeamScan();
 		
+		for(int i = 0 ; i < 50 ; i++){
 		scan.start();
-		Utils.delay(1000);
+		Utils.delay(200);
 		scan.stop();
-		Utils.delay(3000);
+		Utils.delay(2000);
+		}
 		System.out.println("...done");
 		scan.close();
-		Utils.delay(3000);
 		constants.shutdown();
 	}
 
