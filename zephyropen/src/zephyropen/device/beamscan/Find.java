@@ -11,6 +11,9 @@ import zephyropen.util.Utils;
 
 import gnu.io.*;
 
+/**
+ * @author brad.zdanivsky@gmal.com
+ */
 public class Find {
 	
 	/** framework configuration */
@@ -35,7 +38,7 @@ public class Find {
 	
 	/* constructor makes a list of available ports */
 	public Find() {
-		constants.init();
+		// constants.init();
 		getAvailableSerialPorts();
 	}
 

@@ -21,6 +21,9 @@ import java.net.URL;
 import java.util.TimerTask;
 import java.util.Vector;
 
+/**
+ * @author brad.zdanivsky@gmal.com
+ */
 public class BeamGUI implements MouseMotionListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -49,7 +52,7 @@ public class BeamGUI implements MouseMotionListener {
 	private final String title = "Beam Scan v0.1 ";
 	private JFrame frame = new JFrame(title); 
 	private JLabel curve = new JLabel();
-	private BeamScan scan = null;// new BeamScan();
+	private CommPort device = new CommPort(); //  BeamScan scan = null;// new BeamScan();
 	private BeamComponent beamCompent = new BeamComponent();
 	
 	//private java.util.Timer timer = null;
@@ -144,21 +147,22 @@ public class BeamGUI implements MouseMotionListener {
 	
 	/**  */
 	private void init(){
-		if(scan.isConnected()){
+		//if(scan.isConnected()){
 			topLeft1 = "CONNECTED";
-			topLeft2 = "Port: " + scan.getPort();
-			topLeft3 = "Version: " + scan.getVersion();
+			//topLeft2 = "Port: " + device.getPort();
+			topLeft3 = "Version: " + device.getVersion();
 			topRight1 = null; 
 			topRight2 = null; 
 			topRight3 = null;
-		} else {
+		/*} else {
 			topLeft1 = "FAULT";
 			topLeft2 = "connection failed";
 			topLeft3 = null;
 			topRight1 = null;
 			topRight2 = null;
 			topRight3 = null;
-		}
+		}*/
+			
 		beamCompent.repaint();	
 	}
 	
@@ -203,10 +207,11 @@ public class BeamGUI implements MouseMotionListener {
 					}
 				}.start();
 			} else if (source.equals(startItem)) {
-				scan.start();
-			} else if(source.equals(stopItem)){
-				scan.stop();
+				device.sample();
 				singleScan();
+			} else if(source.equals(stopItem)){
+				//scan.stop();
+				//singleScan();
 			}
 		}
 	};
@@ -261,25 +266,27 @@ public class BeamGUI implements MouseMotionListener {
 			new Thread() {
 				public void run() {
 					System.out.println("close port");
-					scan.close();
+					// scan.close();
 					//constants.shutdown();
 				}
 			}
 		);
 		
-		scan = new BeamScan();
+		//scan = new BeamScan();
 		init();
 	}
 	
 	/** */
 	private int[] takeSlice(int target){
-		int[] slice = scan.getSlice(target);
+
+Vector<Integer> points = null;
+		int[] slice = device.getSlice(target, points );
 		if (slice == null) {
 			topLeft1 = "FAULT";
 			//topLeft2 = "re-connecting...";
 			//topLeft3 = "";
 			//beamCompent.repaint();
-			scan.close();
+			//scan.close();
 			return null; 
 		}
 		return slice;
@@ -287,7 +294,7 @@ public class BeamGUI implements MouseMotionListener {
 	
 	/** take one slice if currently connected */
 	public void singleScan() {
-		if(!scan.isConnected()){
+		/* if(!scan.isConnected()){
 			topLeft1 = "FAULT";
 			topLeft2 = "not connected";
 			topLeft3 = "try connecting first";
@@ -296,16 +303,17 @@ public class BeamGUI implements MouseMotionListener {
 			topRight3 = null;
 			beamCompent.repaint();
 			return;
-		}
+		}*/
 		
-		scan.start();
-		Utils.delay(200);
-		scan.stop();
-		Utils.delay(2000);
+		
+		//scan.start();
+		//Utils.delay(200);
+		//scan.stop();
+		//Utils.delay(2000);
 		
 		// scan.test();
 		// scan.log();
-		dataPoints = scan.getPoints().size();
+		dataPoints = device.getPoints().size();
 		scale = (double)WIDTH/dataPoints; 
 		xCenterpx = (((double)WIDTH) * 0.25);
 		yCenterpx = (((double)WIDTH) * 0.75);
@@ -359,7 +367,7 @@ public class BeamGUI implements MouseMotionListener {
 		+ ")(" + Utils.formatFloat(redY1px,0) + ", " + Utils.formatFloat(redY2px,0) + ")";
 	
 		beamCompent.repaint();
-		curve.setIcon(lineGraph(scan.getPoints()));
+		curve.setIcon(lineGraph(device.getPoints()));
 		screenCapture(frame);
 	}
 	
