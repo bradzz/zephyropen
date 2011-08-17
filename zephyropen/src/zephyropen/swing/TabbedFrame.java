@@ -14,9 +14,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
 import zephyropen.api.ApiFactory;
 import zephyropen.api.ZephyrOpen;
-import zephyropen.util.ftp.FTPManager;
+import zephyropen.util.FTPManager;
 import zephyropen.util.google.GoogleChart;
 import zephyropen.util.google.ScreenShot;
 

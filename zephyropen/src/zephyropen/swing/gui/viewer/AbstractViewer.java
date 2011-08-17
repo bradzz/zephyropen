@@ -9,13 +9,14 @@ package zephyropen.swing.gui.viewer;
 
 import java.util.Date;
 
+
 import zephyropen.api.API;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.state.State;
 import zephyropen.swing.TabbedFrame;
+import zephyropen.util.FTPManager;
 import zephyropen.util.Utils;
-import zephyropen.util.ftp.FTPManager;
 import zephyropen.util.google.GoogleChart;
 
 public class AbstractViewer {

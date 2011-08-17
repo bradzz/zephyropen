@@ -37,7 +37,8 @@ public class CommPort implements SerialPortEventListener {
 	/** constructor */
 	public CommPort() {
 
-		portName = constants.get("beamscanport");
+		System.out.println(constants.toString());
+		portName = constants.get("beam");
 
 		// need to go look?
 		if (portName == null) {
@@ -310,7 +311,7 @@ public class CommPort implements SerialPortEventListener {
 	/** test driver */
 	public static void main(String[] args) {
 
-		constants.init();
+		constants.init("brad");
 		CommPort scan = new CommPort();
 		if (scan.connect()) {
 
