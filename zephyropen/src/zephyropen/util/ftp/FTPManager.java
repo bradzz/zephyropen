@@ -1,125 +1,150 @@
-package ftp;
+package zephyropen.util.ftp;
 
+import java.io.FileInputStream;
+import java.util.Properties;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import oculus.Application;
-import oculus.Observer;
-import oculus.Settings;
-import oculus.State;
-import oculus.Util;
-
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
+import zephyropen.api.ZephyrOpen;
+import zephyropen.util.LogManager;
+import zephyropen.util.google.GoogleChart;
 
 /**
- * Manage FTP configuration and connections. Start new threads for each FTP transaction
+ * Manage FTP configuration and connections. Start new threads for each FTP
+ * transaction
  * 
  * @author <a href="mailto:brad.zdanivsky@gmail.com">Brad Zdanivsky</a>
  */
-public class FTPManager implements Observer {
+public class FTPManager {
+
+	private final ZephyrOpen constants = ZephyrOpen.getReference();
 	
-	private static Logger log = Red5LoggerFactory.getLogger(FTPManager.class, "oculus");
-	private State state = State.getReference();
-	private java.util.Timer timer = new Timer();
-	private Settings settings = new Settings();
-	private boolean configured = true;
+	public final static String ftpEnabled = "ftpEnabled";
+	
+	public final static String host = "host";
+
+	public final static String ftpPort = "ftpPort";
+	
+	final public static String ftpUser = "ftpUser";
+
+	private final String FTP_PROPERTIES = "ftp.properties";
+
+	private static FTPManager singleton = null;
+
+	private int port = 21;
+
+	private int xSize = 450;
+
+	private int ySize = 130;
+
 	private String folderName = null;
+
 	private String ftpURL = null;
+
 	private String userName = null;
+
 	private String password = null;
-	private String port = null;
-	private Application app = null;
+
+	private boolean configured = false;
+
+	private LogManager log = null;
+
+	/** @return a reference to this singleton class */
+	public static FTPManager getReference() {
+		if (singleton == null) {
+			singleton = new FTPManager();
+		}
+		return singleton;
+	}
 
 	/** try to configure FTP parameters */
-	public FTPManager(Application a) {
-		app = a;
-		ftpURL = settings.readSetting("ftp_host");
-		userName = settings.readSetting("ftp_user");
-		folderName = settings.readSetting("ftp_folder");
-		password = settings.readSetting("ftp_password");
-		port = settings.readSetting("ftp_port");
-	
-		if(ftpURL==null)configured = false;
-		if(userName==null)configured = false;
-		if(folderName==null)configured = false;
-		if(ftpURL==null)configured = false;
-		if(port==null) port = "21";
-		
-		if(configured){
-		
-			// register for state changes
-			state.addObserver(this);
-			
-			// refresh on timer too 
-			timer.scheduleAtFixedRate(new FtptTask(), State.ONE_MINUTE, State.FIVE_MINUTES);
-		}
-	}
-	
+	private FTPManager() {
 
-	@Override
-	public void updated(final String key) {
-		
-		if(key.equalsIgnoreCase(State.sonar)) return;
-		
-		System.out.println("_updated in state: " + key + " = " + state.get(key));
-		
-		String value = state.get(key);
-		if(value!=null){
-			
-			if(value.equalsIgnoreCase(State.user))
-				ftpFile("currentuser.php", state.get(State.user).toUpperCase());
-			
-			if(value.equalsIgnoreCase(State.status))
-				ftpFile("status.php", state.get(State.status).toUpperCase());
+		if (parseFile(constants.get(ZephyrOpen.userHome))) {
 
+			configured = true;
+
+		} else {
+
+			// try root if nothing else
+			configured = parseFile(constants.get(ZephyrOpen.root));
 
 		}
-		
+
+		if (configured) {
+
+			// set global flag
+			constants.put(ftpEnabled, "true");
+
+			// toggle from props file
+			log = new LogManager();
+			log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_ftp.log");
+
+		} else {
+			constants.put(ftpEnabled, "false");
+		}
 	}
-	
+
+	/** Create an ftp thread to send this google report to the hosted server */
+	public void upload(GoogleChart report) {
+
+		// constants.info("ftp thread called: " + report.getTitle(), this);
+
+		if (!configured) {
+			constants.error("ftp not configured", this);
+			return;
+		}
+
+		if (!constants.getBoolean(ftpEnabled)) {
+			constants.error("ftp not enabled", this);
+			return;
+		}
+
+		if (!constants.getBoolean(ZephyrOpen.filelock)) {
+			// constants.error("do not have the lock file", this);
+			return;
+		}
+
+		String data = report.getURLString(xSize, ySize);
+		if (data != null) {
+
+			// example: heart.php
+			new ftpThread(data, report.getTitle() + ".php").start();
+
+			if (log != null)
+				log.append(report.getTitle() + ", " + data);
+		}
+	}
+
 	/** FTP given file to host web server */
-	private boolean ftpFile(final String fileName, final String data) {
+	private boolean ftpFile(String data, String fileName) {
 
-		System.out.println("_ftp: " + fileName);
-		
-		if(!configured){
-			log.error("ftp not configured");
-			return false;
-		}
-		
 		FTP ftp = new FTP();
 
 		try {
 
-			ftp.connect(ftpURL, port, userName, password);
+			ftp.connect(ftpURL, String.valueOf(port), userName, password);
 
 		} catch (Exception e) {
-			log.equals(e.getMessage());
-			log.error("FTP can not connect to: " + ftpURL + " user: " + userName, this);
+			constants.error("FTP can not connect to: " + ftpURL + " user: " + userName, this);
 			return false;
 		}
 
 		try {
 
 			if (!ftp.ascii()) {
-				log.error("FTP can not switch to ASCII mode", this);
+				constants.error("FTP can not switch to ASCII mode", this);
 				return false;
 			}
 
 			if (!ftp.cwd(folderName)) {
-				log.error("FTP can not CD to: " + folderName, this);
+				constants.error("FTP can not CD to: " + folderName, this);
 				return false;
 			}
 
-			if (ftp.storString(fileName, data)){
-				app.message("ftp update to: " + ftpURL, null, null);
+			if (ftp.storString(fileName, data))
 				return true;
-			}
+
 		} catch (Exception e) {
-			log.error("FTP upload exception : " + fileName, this);
+			constants.error("FTP upload exception : " + fileName, this);
 			return false;
 		}
 
@@ -127,25 +152,91 @@ public class FTPManager implements Observer {
 		return false;
 	}
 
-	/** run on timer */
-	private class FtptTask extends TimerTask {
-		
+	/** try reading in defaults, add to constants */
+	private boolean parseFile(String path) {
+
+		path = path.trim() + ZephyrOpen.fs + FTP_PROPERTIES;
+
+		Properties props = new Properties();
+
+		try {
+
+			// set up new properties object from file
+			FileInputStream propFile = new FileInputStream(path);
+			props.load(propFile);
+			propFile.close();
+
+			ftpURL = props.getProperty(host);
+			if (ftpURL == null)
+				return false;
+
+			userName = props.getProperty(ftpUser);
+			if (userName == null)
+				return false;
+
+			folderName = props.getProperty(ZephyrOpen.folder);
+			if (folderName == null)
+				return false;
+
+			password = props.getProperty(ZephyrOpen.password);
+			if (password == null)
+				return false;
+
+		} catch (Exception e) {
+			constants.error("can't parse FTP config file: " + path, this);
+			return false;
+		}
+
+		int x = getInt(props.getProperty("xSize"));
+		if (x > ZephyrOpen.ERROR)
+			xSize = x;
+
+		int y = getInt(props.getProperty("ySize"));
+		if (y > ZephyrOpen.ERROR)
+			ySize = y;
+
+		// override default
+		int ftp = getInt(props.getProperty("ftpPort"));
+		if (ftp > ZephyrOpen.ERROR)
+			ySize = y;
+
+		// all set
+		return true;
+	}
+
+	private int getInt(String value) {
+
+		int ans = ZephyrOpen.ERROR;
+
+		try {
+			ans = Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return ZephyrOpen.ERROR;
+		}
+
+		return ans;
+	}
+
+	/** is the ftp configuration valid */
+	public boolean ftpConfigured() {
+		return configured;
+	}
+
+	/** do the work */
+	private class ftpThread extends Thread {
+
+		private String d = null;
+		private String f = null;
+
+		public ftpThread(String value, String name) {
+			d = value;
+			f = name;
+		}
+
 		@Override
 		public void run() {
-			
-			app.message("ftp update to: " + ftpURL, null, null);
-
-			ftpFile("status.php", state.get(State.status));
-			ftpFile("currentuser.php", state.get(State.user));
-			ftpFile("connectedlast.php", state.get(State.boottime)); 
-			ftpFile("boottime.php", state.get(State.logintime));
-		
-			ftpFile("guesthours.php", settings.getBoolean(State.guest_start) 
-					+ ":00 hours until " + settings.readSetting(State.guest_end) + ":00 hours");
-		
-			ftpFile("address.php", "http://" + Util.getExternalIPAddress() 
-					+ ":" + settings.readRed5Setting("http.port") + "/oculus/");
-
+			if (!ftpFile(d, f))
+				constants.error("ftp failed: " + f);
 		}
 	}
 }
