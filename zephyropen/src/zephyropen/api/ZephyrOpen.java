@@ -2,7 +2,12 @@ package zephyropen.api;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -207,7 +212,6 @@ public class ZephyrOpen {
 		props.put(loggingEnabled, "true");
 		props.put(enableWatchDog, "true");
 		props.put(showLAN, "true"); 
-		
 		//props.put(infoEnable, "false");
 	}
 
@@ -230,7 +234,14 @@ public class ZephyrOpen {
 		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties");
 
 		// add all given properites
-		parseConfigFile();
+		if( !  parseConfigFile()){
+			
+			new File(props.getProperty(userHome));
+			new File(props.getProperty(userLog));
+			//new File(props.getProperty(userHome));
+			
+		}
+			
 
 		// will bring down system on fail
 		createHome();
@@ -356,19 +367,19 @@ public class ZephyrOpen {
 	 * @param file
 	 *            is the properties file to configure the framework
 	 */
-	private void parseConfigFile() {
+	private boolean parseConfigFile() {
 
-		final String path = props.getProperty(propFile);
+		final String filepath = props.getProperty(propFile);
 
-		if (path == null) {
+		if (filepath == null) {
 			System.err.println("called parseConfigFile() with null in propFile!");
-			shutdown();
+			return false;
 		}
 
 		try {
 
 			// set up new properties object from file
-			FileInputStream propFile = new FileInputStream(path);
+			FileInputStream propFile = new FileInputStream(filepath);
 
 			props.load(propFile);
 
@@ -383,9 +394,59 @@ public class ZephyrOpen {
 			}
 
 		} catch (Exception e) {
-			System.err.println("can't parse config file [" + path + "], terminate.");
-			System.exit(0);
+			System.err.println("can't parse config file [" + filepath + "], terminate.");
+			return false;
+			//System.exit(0);
 		}
+		
+		return true;
+	}
+	
+	
+	/**
+	 * 
+	 * @return true if written to config file 
+	 */
+	public boolean updateConfifFile(){
+		
+		final String filepath = props.getProperty(propFile);
+		
+		new File(filepath).delete();
+
+		Properties hold = (Properties) props.clone();
+		hold.remove(user);
+		hold.remove(userHome);
+		hold.remove(userLog);
+		hold.remove(os);
+		hold.remove(address);
+		hold.remove(path);
+		hold.remove(port);
+		hold.remove(frameworkDebug);
+		hold.remove(loggingEnabled);
+		hold.remove(networkService);
+		hold.remove(frameworkVersion);
+		hold.remove(enableWatchDog);
+		hold.remove(root);
+		hold.remove(userHome);
+	
+		System.out.println("write to: " + path);
+
+		OutputStream out = null;
+		try {
+			out = new FileOutputStream(filepath);
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+			return false;
+		}
+		
+		try {
+			hold.store(out, "updated: " + new Date().toString());
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			return false;
+		}
+		
+		return true;
 	}
 
 	/** @return a copy of the properties file */

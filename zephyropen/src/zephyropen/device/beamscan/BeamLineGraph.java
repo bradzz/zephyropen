@@ -33,7 +33,7 @@ import com.googlecode.charts4j.Plots;
  * @author <a href="mailto:jasonthrasher@gmail.com">Jason Thrasher</a>
  * 
  */
-public class GoogleLineGraph /*extends GoogleChart*/ {
+public class BeamLineGraph {
 
     /** swing requires */
     // private static final long serialVersionUID = 1L;
@@ -72,7 +72,7 @@ public class GoogleLineGraph /*extends GoogleChart*/ {
 		state.add(new TimedEntry(data)); 
 	}
 	
-    public GoogleLineGraph(final String title, final String units, final Color color) {
+    public BeamLineGraph(final String title, final String units, final Color color) {
     	
     	this.title = title;
     	this.state = new State(title);

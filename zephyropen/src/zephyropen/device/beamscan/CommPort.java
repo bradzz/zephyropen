@@ -33,38 +33,31 @@ public class CommPort implements SerialPortEventListener {
 	private String version = null;
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
+	private ScanResults result = null;
 
 	/** constructor */
 	public CommPort() {
 
-		System.out.println(constants.toString());
-		portName = constants.get("beam");
+		portName = constants.get("beamscan");
 
 		// need to go look?
 		if (portName == null) {
-			Find find = new Find();
-			portName = find.search("<id:beamscan>");
-			System.out.println("found: " + portName);
+			System.out.println(constants.toString());
+			portName = new Find().search("<id:beamscan>");
+			if(portName != null){
+				System.out.println("found: " + portName);
+				constants.put("beamscan", portName);
+				constants.updateConfifFile();			
+			}
 		}
 
 		// not found
-		if (portName == null)
-			constants.shutdown("can't find beamscan");
-
-		// re-fresh the file
-		// found.put(beamscan, port.);
-		// writeProps();
-
+		if (portName == null) constants.error("can't find beamscan");
 	}
 
 	/**@return the name of the port the device is on */
 	public String getPortName() {
 		return portName;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Vector<Integer> getPoints() {
-		return (Vector<Integer>) points.clone();
 	}
 
 	/** open port, enable read and write, enable events */
@@ -91,12 +84,10 @@ public class CommPort implements SerialPortEventListener {
 		getVersion();
 		constants.info("beamscan port: " + portName);
 		constants.info("beamscan version: " + version);
-		Utils.delay(2000);
-
 		return true;
 	}
 
-	/** close the seriql streams */
+	/** close the serial streams */
 	public void close() {
 		if (serialPort != null)
 			serialPort.close();
@@ -145,114 +136,26 @@ public class CommPort implements SerialPortEventListener {
 		return version;
 	}
 
-	/**  */
-	public static int[] getSlice(final int target, final Vector<Integer> points) {
-		int[] values = { 0, 0, 0, 0 };
-		try {
-
-			values[0] = getDataInc(target, 0, points);
-			// constants.info("x1: " + values[0] + " value: " +
-			// reader.points.get(values[0]));
-
-			values[1] = getDataDec(target, values[0], points);
-			// constants.info("x2: " + values[1] + " value: " +
-			// reader.points.get(values[1]));
-
-			values[2] = getDataInc(target, points.size() / 2, points);
-			// constants.info("y1: " + values[2] + " value: " +
-			// reader.points.get(values[2]));
-
-			values[3] = getDataDec(target, values[2], points);
-			// constants.info("y2: " + values[3] + " value: " +
-			// reader.points.get(values[3]));
-
-		} catch (Exception e) {
-			constants.error("can't take slice of beam");
-			return null;
-		}
-
-		return values;
-	}
-
 	/** */
-	private static int getDataInc(final int target, final int start, final Vector<Integer> points) {
-
-		int j = start;
-
-		// constants.info("start : " + j + " target : " + target);
-
-		for (; j < points.size(); j++) {
-			if (points.get(j) > target) {
-				// constants.info( "inc_index: " + j + " value: " +
-				// reader.points.get(j));
-				break;
-			}
-		}
-
-		return j;
-	}
-
-	/** */
-	private static int getDataDec(final int target, final int start, final Vector<Integer> points) {
-
-		int j = start;
-		// constants.info("start : " + j + " target : " + target);
-
-		for (; j < points.size(); j++) {
-			if (points.get(j) < target) {
-				// constants.info( "dec_index: " + j + " value: " +
-				// reader.points.get(j));
-				break;
-			}
-		}
-
-		return j;
-	}
-
-	/** */
-	public static int getMaxIndex(final int start, final int stop, final Vector<Integer> points) {
-
-		int j = start;
-		int max = 0;
-		int index = 0;
-
-		// constants.info("getMaxIndex start: " + start);
-		// constants.info("getMaxIndex stop: " + stop);
-
-		for (; j < stop; j++) {
-			if (points.get(j) > max) {
-				max = points.get(j);
-				index = j;
-			}
-		}
-
-		return index;
-	}
-
-	public static int getMaxIndexX(final Vector<Integer> points) {
-		return getMaxIndex(0, points.size() / 2, points);
-	}
-
-	public static int getMaxIndexY(final Vector<Integer> points) {
-		return getMaxIndex(points.size() / 2, points.size(), points);
-	}
-
-	/** */
+	@SuppressWarnings("unchecked")
 	public void execute() {
 		String response = "";
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		// constants.info("_" + response);
+		//constants.info("_" + response);
 
 		if (response.startsWith("start")) {
 
+			System.out.println("points overwritten");
 			points = new Vector<Integer>(1000);
 
 		} else if (response.startsWith("done")) {
 
-			System.out.println("scan took: " + response);
-			
+			String[] data = response.split(" ");
+			System.out.println("scan took: " + data[1]);
+			result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
+		
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
@@ -302,22 +205,47 @@ public class CommPort implements SerialPortEventListener {
 		}
 	}
 
-	public void sample() {
+	/** 
+	 * @return
+	 */
+	public ScanResults sample() {	
+		
+		result = null;
 		sendCommand(new byte[] { 'e' });
+		//Utils.delay(200);
 		sendCommand(new byte[] { 's' });
+	
+		//while(result==null) Utils.delay(200);
+	
 		Utils.delay(2000);
+		
+		return result;
 	}
+	
 
-	/** test driver */
+	/**  
+	public void start() {
+		sendCommand(new byte[] { 'e' });
+	}*/
+
+	/**  
+	public void stop() {
+		sendCommand(new byte[] { 's' });
+	}*/
+
+	/** test driver
 	public static void main(String[] args) {
 
 		constants.init("brad");
+		constants.put(ZephyrOpen.deviceName, "beamscan");
+		
 		CommPort scan = new CommPort();
 		if (scan.connect()) {
 
-			scan.sample();
+			ScanResults result = scan.sample();
 			Utils.delay(3000);
-			final Vector<Integer> snapshot = scan.getPoints();
+			
+			final Vector<Integer> snapshot = result.points;
 			
 			new Thread( new Runnable() {
 				public void run() {
@@ -329,14 +257,14 @@ public class CommPort implements SerialPortEventListener {
 					log.append(new java.util.Date().toString());
 					log.append("size : " + snapshot.size());
 
-					GoogleChart chart = new GoogleLineGraph("_beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
+					GoogleChart chart = new GoogleLineGraph("beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
 					for (int j = 0; j < snapshot.size(); j++) {
 						if (j % 5 == 0)
 							chart.add(String.valueOf(snapshot.get(j)));
 						log.append(j + " " + String.valueOf(snapshot.get(j)));
 					}
 					log.close();
-					new ScreenShot(chart, " points = " + chart.getState().size());
+					new ScreenShot(chart, "ggg points = " + chart.getState().size());
 
 				}}).start();
 
@@ -349,6 +277,6 @@ public class CommPort implements SerialPortEventListener {
 
 		Utils.delay(5000);
 		constants.shutdown();
-	}
+	} */
 
 }

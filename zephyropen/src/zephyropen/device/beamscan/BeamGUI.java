@@ -2,8 +2,6 @@ package zephyropen.device.beamscan;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
-import zephyropen.api.ApiFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.Utils;
 import zephyropen.util.google.GoogleChart;
@@ -49,35 +47,36 @@ public class BeamGUI implements MouseMotionListener {
     public final static int WIDTH = 700;
 	public final static int HEIGHT = 300;
 	
-	private final String title = "Beam Scan v0.1 ";
+	private final String title = "Beam Scan v2.3";
 	private JFrame frame = new JFrame(title); 
 	private JLabel curve = new JLabel();
-	private CommPort device = new CommPort(); //  BeamScan scan = null;// new BeamScan();
+	private CommPort device = new CommPort(); 
 	private BeamComponent beamCompent = new BeamComponent();
 	
-	//private java.util.Timer timer = null;
+	private java.util.Timer timer = null;
 	private static String path = null;
-
+	private boolean isConnected = false;
+	private boolean isScanning = false;
 	private String topLeft1 = "NOT Connected";
 	private String topLeft2 = "try, device -> connect";
-	private String topLeft3 = "test";
-	private String topRight1 = "test";
-	private String topRight2 = "test";
-	private String topRight3 = "test";
-	private String bottomRight1 = "";
-	private String bottomRight2 = "";
-	private String bottomRight3 = "";
+	private String topLeft3 = null;
+	private String topRight1 = null;
+	private String topRight2 = null;
+	private String topRight3 = null;
+	private String bottomRight1 = null;
+	private String bottomRight2 = null;
+	private String bottomRight3 = null;
 	
-	//private JMenuItem connectItem = new JMenuItem("connect");	
-	//private JMenuItem closeItem = new JMenuItem("close");
-	private JMenuItem closeItem = new JMenuItem("close");
+	private JMenuItem connectItem = new JMenuItem("connect");	
+	private JMenuItem disconnectItem = new JMenuItem("disconnect");
 	private JMenuItem startItem = new JMenuItem("start");
 	private JMenuItem stopItem = new JMenuItem("stop");
-	//private JMenuItem scanItem = new JMenuItem("single scan");
+	private JMenuItem scanItem = new JMenuItem("single scan");
 	private JMenuItem screenshotItem = new JMenuItem("screen capture");
 	private JMenu userMenue = new JMenu("Scan");
 	private JMenu deviceMenue = new JMenu("Device");
 
+	private ScanResults results = null;
 	private int dataPoints = 0;
 	private double scale = 0.0;
 	private double xCenterpx = 0.0;
@@ -97,12 +96,64 @@ public class BeamGUI implements MouseMotionListener {
 	
 	/** */
 	public static void main(String[] args) {
-		constants.init();
-		// ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
-		// constants.put(ZephyrOpen.frameworkDebug, false);
+		constants.init("beamscanner");
+		constants.put(ZephyrOpen.deviceName, "beamscan");
+		zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		new BeamGUI();
 	}
 
+
+	/** create the swing GUI */
+	public BeamGUI() {
+
+		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture" + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
+
+		// create log dir if not there
+		if ((new File(path)).mkdirs()) constants.info("created: " + path);
+		
+		/** Resister listener */
+		startItem.addActionListener(listener);
+		stopItem.addActionListener(listener);
+		screenshotItem.addActionListener(listener);
+		scanItem.addActionListener(listener);
+		disconnectItem.addActionListener(listener);
+		connectItem.addActionListener(listener);
+
+		/** Add to menu */
+		deviceMenue.add(connectItem);
+		userMenue.add(screenshotItem);
+
+		/** Create the menu bar */
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(userMenue);
+		menuBar.add(deviceMenue);
+
+		/** Create frame */
+		frame.setJMenuBar(menuBar);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new GridLayout(2, 1)); 
+		frame.add(beamCompent);
+		frame.add(curve);
+		frame.setSize(WIDTH+6, (HEIGHT*2)+48); // room for the menu 
+		frame.setResizable(false);
+		frame.setAlwaysOnTop(true);
+		frame.setVisible(true);
+		
+		/** Register for mouse events */
+		beamCompent.addMouseMotionListener(this);
+		curve.addMouseMotionListener(this);
+
+		/** register shutdown hook */
+		Runtime.getRuntime().addShutdownHook(
+			new Thread() {
+				public void run() {
+					device.close();
+					System.err.println("close port");
+				}
+			}
+		);
+	}
+	
 	/** Methods to create Image corresponding to the frame. */
 	public static void screenCapture(final Component component) {
 		new Thread() {
@@ -137,67 +188,55 @@ public class BeamGUI implements MouseMotionListener {
 		frame.setTitle(title + "    (" + e.getX() + ", " + e.getY()+")");
 	}
 	
-	/** run on timer	private class ScanTask extends TimerTask {
+	/** run on timer	*/ 
+	private class ScanTask extends TimerTask {
 		@Override
 		public void run() {
 			singleScan();
 		}
-	} */ 
+	} 
 
-	
-	/**  */
-	private void init(){
-		//if(scan.isConnected()){
-			topLeft1 = "CONNECTED";
-			//topLeft2 = "Port: " + device.getPort();
-			topLeft3 = "Version: " + device.getVersion();
-			topRight1 = null; 
-			topRight2 = null; 
-			topRight3 = null;
-		/*} else {
-			topLeft1 = "FAULT";
-			topLeft2 = "connection failed";
-			topLeft3 = null;
-			topRight1 = null;
-			topRight2 = null;
-			topRight3 = null;
-		}*/
-			
-		beamCompent.repaint();	
-	}
-	
 	/** Listen for menu */
 	private ActionListener listener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			Object source = event.getSource();
 			
-			/*if (source.equals(scanItem)) {
+			if (source.equals(scanItem)) {
 				new Thread() {
 					public void run() {
 						if(timer == null)
 							singleScan();
 					}
 				}.start();
-				
-			
 			} else if (source.equals(connectItem)) {
-				if(!scan.isConnected())
-					connect();
-			} else*/ 
-			
-			if (source.equals(closeItem)) {
+				if(!isConnected){
+					isConnected = device.connect();
+					if(isConnected) {
+						topLeft1 = "CONNECTED";
+						topLeft2 = "Port: " + device.getPortName();
+						topLeft3 = "Version: " + device.getVersion();	
+						bottomRight2 = null;
+						beamCompent.repaint();
+					}
+				}
+			} else if (source.equals(disconnectItem)) {
 				
-				/*
-				scan.close();
+				device.close();
+				isConnected = false;
+				isScanning = false;
+				if(timer!=null) timer.cancel();
 				topLeft1 = "DISCONNECTED";
-				topLeft2 = "try device -> connect";
-				topLeft3 = "";
-				topRight1 = null; 
-				topRight2 = null; 
-				topRight3 = null;
+				topLeft2 = "try: Device -> connect";
+				topLeft3 = null;
+				bottomRight1 = null;
+				bottomRight2 = null;
+				bottomRight2 = "usb device disconected";			
+				userMenue.remove(stopItem);
+				deviceMenue.add(connectItem);
+				deviceMenue.remove(disconnectItem);
 				beamCompent.repaint();
-				*/
+				return;
 				
 			} else if (source.equals(screenshotItem)) {
 				new Thread() {
@@ -207,94 +246,44 @@ public class BeamGUI implements MouseMotionListener {
 					}
 				}.start();
 			} else if (source.equals(startItem)) {
-				device.sample();
-				singleScan();
+				timer =  new java.util.Timer();
+				timer.scheduleAtFixedRate(new ScanTask(), 0, 3000);
+				isScanning = true;
+				userMenue.remove(startItem);
 			} else if(source.equals(stopItem)){
-				//scan.stop();
-				//singleScan();
+				timer.cancel();
+				timer = null;
+				isScanning = false;	
+				userMenue.remove(stopItem);
 			}
+			
+			if(isConnected) {
+				
+				if(isScanning){ 
+					userMenue.remove(startItem);
+					userMenue.remove(scanItem);
+					userMenue.add(stopItem);
+				} else {
+					userMenue.add(startItem);
+					userMenue.add(scanItem);
+				}
+				
+				deviceMenue.add(disconnectItem);
+				deviceMenue.remove(connectItem);
+				
+			} else {
+				deviceMenue.add(connectItem);
+				userMenue.remove(startItem);
+				userMenue.remove(scanItem);
+				deviceMenue.remove(disconnectItem);			
+			}	
 		}
 	};
 
-	/** create the swing GUI */
-	public BeamGUI() {
-
-		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "screenshots" + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
-
-		// create log dir if not there
-		if ((new File(path)).mkdirs())
-			constants.info("created: " + path);
-		
-		/** Resister listener */
-		startItem.addActionListener(listener);
-		stopItem.addActionListener(listener);
-		screenshotItem.addActionListener(listener);
-		//scanItem.addActionListener(listener);
-		closeItem.addActionListener(listener);
-		//connectItem.addActionListener(listener);
-
-		/** Add to menu */
-		//deviceMenue.add(connectItem);
-		deviceMenue.add(closeItem);
-		userMenue.add(startItem);
-		userMenue.add(stopItem);
-		//userMenue.add(scanItem);
-		userMenue.add(screenshotItem);
-
-		/** Create the menu bar */
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.add(userMenue);
-		menuBar.add(deviceMenue);
-
-		/** Create frame */
-		frame.setJMenuBar(menuBar);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new GridLayout(2, 1)); 
-		frame.add(beamCompent);
-		frame.add(curve);
-		frame.setSize(WIDTH+6, (HEIGHT*2)+48); // room for the menu 
-		frame.setResizable(false);
-		frame.setAlwaysOnTop(true);
-		frame.setVisible(true);
-  
-		/** Register for mouse events */
-		beamCompent.addMouseMotionListener(this);
-		curve.addMouseMotionListener(this);
-
-		/** register shutdown hook */
-		Runtime.getRuntime().addShutdownHook(
-			new Thread() {
-				public void run() {
-					System.out.println("close port");
-					// scan.close();
-					//constants.shutdown();
-				}
-			}
-		);
-		
-		//scan = new BeamScan();
-		init();
-	}
-	
-	/** */
-	private int[] takeSlice(int target){
-
-Vector<Integer> points = null;
-		int[] slice = device.getSlice(target, points );
-		if (slice == null) {
-			topLeft1 = "FAULT";
-			//topLeft2 = "re-connecting...";
-			//topLeft3 = "";
-			//beamCompent.repaint();
-			//scan.close();
-			return null; 
-		}
-		return slice;
-	}
-	
 	/** take one slice if currently connected */
 	public void singleScan() {
-		/* if(!scan.isConnected()){
+		
+		if(!isConnected){
 			topLeft1 = "FAULT";
 			topLeft2 = "not connected";
 			topLeft3 = "try connecting first";
@@ -303,22 +292,16 @@ Vector<Integer> points = null;
 			topRight3 = null;
 			beamCompent.repaint();
 			return;
-		}*/
+		} 
 		
+		results = device.sample();
 		
-		//scan.start();
-		//Utils.delay(200);
-		//scan.stop();
-		//Utils.delay(2000);
-		
-		// scan.test();
-		// scan.log();
-		dataPoints = device.getPoints().size();
+		dataPoints = results.points.size();
 		scale = (double)WIDTH/dataPoints; 
 		xCenterpx = (((double)WIDTH) * 0.25);
 		yCenterpx = (((double)WIDTH) * 0.75);
 	
-		int[] slice = takeSlice(100);
+		int[] slice = results.getSlice(100);
 		if(slice==null) return;
 		
 		// constants.put("yellowSlice", 100);
@@ -336,7 +319,7 @@ Vector<Integer> points = null;
 		topRight1 = "yellow (" + Utils.formatFloat(yellowX1px, 0) + ", " + Utils.formatFloat(yellowX2px,0) 
 			+ ")(" + Utils.formatFloat(yellowY1px,0) + ", " + Utils.formatFloat(yellowY2px,0) + ")";
 	
-		slice = takeSlice(300);
+		slice = results.getSlice(300);
 		if(slice==null) return;
 		// constants.put("orangeSlice", 300);
 		constants.put(orangeX1, slice[0]);
@@ -351,7 +334,7 @@ Vector<Integer> points = null;
 		topRight2 = "orange (" + Utils.formatFloat(orangeX1px, 0) + ", " + Utils.formatFloat(orangeX2px,0) 
 		+ ")(" + Utils.formatFloat(orangeY1px,0) + ", " + Utils.formatFloat(orangeY2px,0) + ")";
 
-		slice = takeSlice(800);
+		slice = results.getSlice(500);
 		if(slice==null) return;
 		// constants.put("redSlice", 800);
 		constants.put("redX1", slice[0]);
@@ -366,16 +349,17 @@ Vector<Integer> points = null;
 		topRight3 = "red (" + Utils.formatFloat(redX1px, 0) + ", " + Utils.formatFloat(redX2px,0) 
 		+ ")(" + Utils.formatFloat(redY1px,0) + ", " + Utils.formatFloat(redY2px,0) + ")";
 	
-		beamCompent.repaint();
-		curve.setIcon(lineGraph(device.getPoints()));
+		
+		curve.setIcon(lineGraph(results.points));
 		screenCapture(frame);
+		beamCompent.repaint();
 	}
 	
 	/** create graph */
 	public static Icon lineGraph(Vector<Integer> points) {
 		GoogleChart chart = new GoogleLineGraph("beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
 		Icon icon = null;
-		for (int j = 0; j < points.size(); j++)
+		for (int j = 0; j < points.size(); j+=5)
 			chart.add(String.valueOf(points.get(j)));
 
 		try {
@@ -394,11 +378,13 @@ Vector<Integer> points = null;
 		private static final long serialVersionUID = 1L;
 		
 		// TODO: TAKE FROM PROPS 
-		private boolean drawLines = true;
+		private boolean drawLines = false;
 		public void paint(Graphics g) {
 			final int w = getWidth();
 			final int h = getHeight();
 			
+			System.out.println("reddaw");
+				
 			g.setColor(Color.YELLOW);
 			g.fillOval((int)yellowX1px, (int)yellowY1px, (int)yellowX2px-(int)yellowX1px, (int)yellowY2px-(int)yellowY1px);
 			if(drawLines){
@@ -430,32 +416,22 @@ Vector<Integer> points = null;
 			g.setColor(Color.BLACK);
 			g.drawLine(0, h-1, w, h-1);
 			Graphics2D g2d = (Graphics2D) g;
-			Stroke stroke2 = new BasicStroke(
-		    		 1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_BEVEL, 1.0f, new float[]
-				 { 6.0f, 2.0f, 1.0f, 2.0f },0.0f);
+			Stroke stroke2 = new BasicStroke(1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_BEVEL, 1.0f, 
+					new float[]{ 6.0f, 2.0f, 1.0f, 2.0f },0.0f);
 			g2d.setStroke(stroke2);
 			g.drawLine(0, h/2, w, h/2);
 			g.drawLine(w/2, 0, w/2, h);
 			
+	
+			if(results!=null) {		
+				topRight1 = "Data Points: " + results.points.size();
+				topRight2 = "Spin Time:   " + results.scanTime() + " ms";	
+				bottomRight2 = " x: " + results.getMaxIndexX() + " y: " + results.getMaxIndexY();
+			}
 			
-			
-			double x = 0; //((WIDTH/2) - ((double)scan.getMaxIndexX()*scale));
-			//g.drawLine(x, 0, x, h);
-			
-			//if(scan!=null){
-				
-				//x = (((WIDTH/2) - ((double)scan.getMaxIndexX()*scale)));
-				//g.drawLine(x, 0, x, h);
-				
-				
-			//}
-			
-			topRight1 = "Data Points: " + constants.get("dataPoints");	
-			topRight2 = "Spin Time:   " + constants.get("spinTime") + " ms";	
-			topRight3 = "Read Time:   " + constants.get("readTime") + " ms";	
 			
 			bottomRight1 = " h: " + h + " w: " + w;
-			bottomRight2 = " x: " + Utils.formatFloat(x, 1); 
+			
 			
 			// draw text 
 			if (topRight1 != null) g.drawString(topRight1, (w/2 + 5), 15);
