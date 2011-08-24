@@ -19,6 +19,7 @@ public class ScanResults {
 		
 		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + ".log");
 		log.append(new java.util.Date().toString());
+		log.append("time : " + delta + " ms");
 		log.append("size : " + points.size());
 		for (int j = 0; j < points.size(); j++) 
 			log.append(j + " " + String.valueOf(points.get(j)));

@@ -4,9 +4,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.Utils;
-import zephyropen.util.google.GoogleChart;
-import zephyropen.util.google.GoogleLineGraph;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,10 +22,10 @@ import java.util.Vector;
 public class BeamGUI implements MouseMotionListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
-	public static final Color yellow = new Color(245, 237, 48);
-	public static final Color orange = new Color(252, 176, 64);
-	public static final Color blue = new Color(245, 237, 48);
-	public static final Color red = new Color(241, 83, 40);
+//	public static final Color yellow = new Color(245, 237, 48);// new Color(245, 237, 48);
+//	public static final Color orange = new Color(245, 237, 48); //new Color(252, 176, 64);
+//	public static final Color blue =new Color(245, 237, 48);// new Color(245, 237, 48);
+//	public static final Color red = new Color(241, 83, 40);
 	
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
@@ -45,7 +42,7 @@ public class BeamGUI implements MouseMotionListener {
 	
 	// TODO: get from config 
     public final static int WIDTH = 700;
-	public final static int HEIGHT = 300;
+	public final static int HEIGHT = 350;
 	
 	private final String title = "Beam Scan v2.3";
 	private JFrame frame = new JFrame(title); 
@@ -96,7 +93,7 @@ public class BeamGUI implements MouseMotionListener {
 	
 	/** */
 	public static void main(String[] args) {
-		constants.init("beamscanner");
+		constants.init("rrr");
 		constants.put(ZephyrOpen.deviceName, "beamscan");
 		zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		new BeamGUI();
@@ -106,7 +103,8 @@ public class BeamGUI implements MouseMotionListener {
 	/** create the swing GUI */
 	public BeamGUI() {
 
-		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture" + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
+		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture"; 
+		// + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName);
 
 		// create log dir if not there
 		if ((new File(path)).mkdirs()) constants.info("created: " + path);
@@ -139,6 +137,7 @@ public class BeamGUI implements MouseMotionListener {
 		frame.setAlwaysOnTop(true);
 		frame.setVisible(true);
 		
+		
 		/** Register for mouse events */
 		beamCompent.addMouseMotionListener(this);
 		curve.addMouseMotionListener(this);
@@ -148,7 +147,6 @@ public class BeamGUI implements MouseMotionListener {
 			new Thread() {
 				public void run() {
 					device.close();
-					System.err.println("close port");
 				}
 			}
 		);
@@ -158,7 +156,7 @@ public class BeamGUI implements MouseMotionListener {
 	public static void screenCapture(final Component component) {
 		new Thread() {
 			public void run() {
-				String fileName = path + ZephyrOpen.fs + "beam_" + System.currentTimeMillis() + ".png";
+				final String fileName = path + ZephyrOpen.fs + System.currentTimeMillis() + ".png";
 				Point p = new Point(0, 0);
 				SwingUtilities.convertPointToScreen(p, component);
 				Rectangle region = component.getBounds();
@@ -182,7 +180,7 @@ public class BeamGUI implements MouseMotionListener {
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {}
-
+	
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		frame.setTitle(title + "    (" + e.getX() + ", " + e.getY()+")");
@@ -205,8 +203,7 @@ public class BeamGUI implements MouseMotionListener {
 			if (source.equals(scanItem)) {
 				new Thread() {
 					public void run() {
-						if(timer == null)
-							singleScan();
+						if(timer == null) singleScan();
 					}
 				}.start();
 			} else if (source.equals(connectItem)) {
@@ -218,7 +215,7 @@ public class BeamGUI implements MouseMotionListener {
 						topLeft3 = "Version: " + device.getVersion();	
 						bottomRight2 = null;
 						beamCompent.repaint();
-					}
+					} 
 				}
 			} else if (source.equals(disconnectItem)) {
 				
@@ -247,7 +244,7 @@ public class BeamGUI implements MouseMotionListener {
 				}.start();
 			} else if (source.equals(startItem)) {
 				timer =  new java.util.Timer();
-				timer.scheduleAtFixedRate(new ScanTask(), 0, 3000);
+				timer.scheduleAtFixedRate(new ScanTask(), 0, 1500);
 				isScanning = true;
 				userMenue.remove(startItem);
 			} else if(source.equals(stopItem)){
@@ -257,8 +254,18 @@ public class BeamGUI implements MouseMotionListener {
 				userMenue.remove(stopItem);
 			}
 			
+			 updateMenu();
+		
+		}
+	};
+	
+	public void updateMenu(){
 			if(isConnected) {
-				
+				topLeft1 = "CONNECTED";
+				topLeft2 = "Port: " + device.getPortName();
+				topLeft3 = "Version: " + device.getVersion();	
+				bottomRight2 = null;
+				beamCompent.repaint();
 				if(isScanning){ 
 					userMenue.remove(startItem);
 					userMenue.remove(scanItem);
@@ -277,8 +284,7 @@ public class BeamGUI implements MouseMotionListener {
 				userMenue.remove(scanItem);
 				deviceMenue.remove(disconnectItem);			
 			}	
-		}
-	};
+	}
 
 	/** take one slice if currently connected */
 	public void singleScan() {
@@ -301,7 +307,7 @@ public class BeamGUI implements MouseMotionListener {
 		xCenterpx = (((double)WIDTH) * 0.25);
 		yCenterpx = (((double)WIDTH) * 0.75);
 	
-		int[] slice = results.getSlice(100);
+		int[] slice = results.getSlice(10);
 		if(slice==null) return;
 		
 		// constants.put("yellowSlice", 100);
@@ -316,10 +322,10 @@ public class BeamGUI implements MouseMotionListener {
 		yellowY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
 		yellowY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
 		
-		topRight1 = "yellow (" + Utils.formatFloat(yellowX1px, 0) + ", " + Utils.formatFloat(yellowX2px,0) 
-			+ ")(" + Utils.formatFloat(yellowY1px,0) + ", " + Utils.formatFloat(yellowY2px,0) + ")";
+		//topRight1 = "yellow (" + Utils.formatFloat(yellowX1px, 0) + ", " + Utils.formatFloat(yellowX2px,0) 
+		//	+ ")(" + Utils.formatFloat(yellowY1px,0) + ", " + Utils.formatFloat(yellowY2px,0) + ")";
 	
-		slice = results.getSlice(300);
+		slice = results.getSlice(100);
 		if(slice==null) return;
 		// constants.put("orangeSlice", 300);
 		constants.put(orangeX1, slice[0]);
@@ -331,10 +337,10 @@ public class BeamGUI implements MouseMotionListener {
 		orangeY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
 		orangeY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
 		
-		topRight2 = "orange (" + Utils.formatFloat(orangeX1px, 0) + ", " + Utils.formatFloat(orangeX2px,0) 
-		+ ")(" + Utils.formatFloat(orangeY1px,0) + ", " + Utils.formatFloat(orangeY2px,0) + ")";
+		//topRight2 = "orange (" + Utils.formatFloat(orangeX1px, 0) + ", " + Utils.formatFloat(orangeX2px,0) 
+		//+ ")(" + Utils.formatFloat(orangeY1px,0) + ", " + Utils.formatFloat(orangeY2px,0) + ")";
 
-		slice = results.getSlice(500);
+		slice = results.getSlice(400);
 		if(slice==null) return;
 		// constants.put("redSlice", 800);
 		constants.put("redX1", slice[0]);
@@ -346,24 +352,30 @@ public class BeamGUI implements MouseMotionListener {
 		redY1px = (HEIGHT/2) - (yCenterpx - ((double)slice[2] * scale));
 		redY2px = (HEIGHT/2) - (yCenterpx - ((double)slice[3] * scale));
 		
-		topRight3 = "red (" + Utils.formatFloat(redX1px, 0) + ", " + Utils.formatFloat(redX2px,0) 
-		+ ")(" + Utils.formatFloat(redY1px,0) + ", " + Utils.formatFloat(redY2px,0) + ")";
+		//opRight3 = "red (" + Utils.formatFloat(redX1px, 0) + ", " + Utils.formatFloat(redX2px,0) 
+		//+ ")(" + Utils.formatFloat(redY1px,0) + ", " + Utils.formatFloat(redY2px,0) + ")";
 	
 		
+		
 		curve.setIcon(lineGraph(results.points));
-		screenCapture(frame);
 		beamCompent.repaint();
+		screenCapture(frame);
 	}
 	
 	/** create graph */
 	public static Icon lineGraph(Vector<Integer> points) {
-		GoogleChart chart = new GoogleLineGraph("beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
+		
+		BeamLineGraph chart = new BeamLineGraph(); //"beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
 		Icon icon = null;
-		for (int j = 0; j < points.size(); j+=5)
+		for (int j = 0; j < points.size(); j+=2)
 			chart.add(String.valueOf(points.get(j)));
 
 		try {
-			String str = chart.getURLString( WIDTH, HEIGHT, "data: " + points.size()); 
+			String str = chart.getURLString( WIDTH, HEIGHT, "data: " + (points.size()/5)); 
+			
+			System.out.println(constants.toString());
+			System.out.println(str);
+			
 			if(str!=null){
 				icon = new ImageIcon(new URL(str));
 			} 
@@ -383,9 +395,9 @@ public class BeamGUI implements MouseMotionListener {
 			final int w = getWidth();
 			final int h = getHeight();
 			
-			System.out.println("reddaw");
+			// nonSystem.out.println("reddaw");
 				
-			g.setColor(Color.YELLOW);
+			g.setColor(Color.lightGray);
 			g.fillOval((int)yellowX1px, (int)yellowY1px, (int)yellowX2px-(int)yellowX1px, (int)yellowY2px-(int)yellowY1px);
 			if(drawLines){
 				g.drawLine((int)yellowX1px, 0,(int)yellowX1px, h);

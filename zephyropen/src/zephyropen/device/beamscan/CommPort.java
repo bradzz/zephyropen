@@ -6,12 +6,6 @@ import java.io.OutputStream;
 import java.util.Vector;
 
 import zephyropen.api.ZephyrOpen;
-import zephyropen.util.LogManager;
-import zephyropen.util.Utils;
-import zephyropen.util.google.GoogleChart;
-import zephyropen.util.google.GoogleLineGraph;
-import zephyropen.util.google.ScreenShot;
-
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
@@ -24,7 +18,9 @@ public class CommPort implements SerialPortEventListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final byte[] GET_VERSION = { 'y' };
-
+	public static final byte[] ENABLE_MOTOR = { 'e' };
+	public static final byte[] STOP = { 's' };
+	
 	private Vector<Integer> points = new Vector<Integer>(1000);
 	private String portName = null;
 	private SerialPort serialPort = null;
@@ -45,7 +41,7 @@ public class CommPort implements SerialPortEventListener {
 			System.out.println(constants.toString());
 			portName = new Find().search("<id:beamscan>");
 			if(portName != null){
-				System.out.println("found: " + portName);
+				constants.info("found: " + portName);
 				constants.put("beamscan", portName);
 				constants.updateConfifFile();			
 			}
@@ -80,7 +76,7 @@ public class CommPort implements SerialPortEventListener {
 			return false;
 		}
 
-		Utils.delay(2000);
+		zephyropen.util.Utils.delay(2000);
 		getVersion();
 		constants.info("beamscan port: " + portName);
 		constants.info("beamscan version: " + version);
@@ -92,19 +88,21 @@ public class CommPort implements SerialPortEventListener {
 		if (serialPort != null)
 			serialPort.close();
 
-		if (in != null)
+		if (in != null){
 			try {
 				in.close();
 			} catch (IOException e) {
 				constants.shutdown(e);
 			}
-
-		if (out != null)
+		}
+		
+		if (out != null){
 			try {
 				out.close();
 			} catch (IOException e) {
 				constants.shutdown(e);
 			}
+		}
 	}
 
 	/**
@@ -131,7 +129,7 @@ public class CommPort implements SerialPortEventListener {
 	public String getVersion() {
 		if (version == null) {
 			sendCommand(GET_VERSION);
-			Utils.delay(300);
+			zephyropen.util.Utils.delay(300);
 		}
 		return version;
 	}
@@ -143,19 +141,17 @@ public class CommPort implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		//constants.info("_" + response);
-
-		if (response.startsWith("start")) {
-
-			System.out.println("points overwritten");
-			points = new Vector<Integer>(1000);
-
-		} else if (response.startsWith("done")) {
-
-			String[] data = response.split(" ");
-			System.out.println("scan took: " + data[1]);
-			result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
+		// constants.info("_" + response);
 		
+		if (response.startsWith("start")) {
+			points.clear(); 
+		} else if (response.startsWith("done")) {	
+			if(points.size()>0){
+				String[] data = response.split(" ");
+				System.out.println("scan took: " + data[1]);
+				result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
+				points.clear();
+			}
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
@@ -206,77 +202,19 @@ public class CommPort implements SerialPortEventListener {
 	}
 
 	/** 
-	 * @return
+	 * @return a data set after a blocking call
 	 */
 	public ScanResults sample() {	
 		
 		result = null;
-		sendCommand(new byte[] { 'e' });
-		//Utils.delay(200);
-		sendCommand(new byte[] { 's' });
+		sendCommand(ENABLE_MOTOR);
+		sendCommand(STOP);
 	
-		//while(result==null) Utils.delay(200);
-	
-		Utils.delay(2000);
+		while(result==null){
+			zephyropen.util.Utils.delay(200);
+		}
 		
+		zephyropen.util.Utils.delay(200);
 		return result;
 	}
-	
-
-	/**  
-	public void start() {
-		sendCommand(new byte[] { 'e' });
-	}*/
-
-	/**  
-	public void stop() {
-		sendCommand(new byte[] { 's' });
-	}*/
-
-	/** test driver
-	public static void main(String[] args) {
-
-		constants.init("brad");
-		constants.put(ZephyrOpen.deviceName, "beamscan");
-		
-		CommPort scan = new CommPort();
-		if (scan.connect()) {
-
-			ScanResults result = scan.sample();
-			Utils.delay(3000);
-			
-			final Vector<Integer> snapshot = result.points;
-			
-			new Thread( new Runnable() {
-				public void run() {
-
-					// final long started = start;
-
-					LogManager log = new LogManager();
-					log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + ".log");
-					log.append(new java.util.Date().toString());
-					log.append("size : " + snapshot.size());
-
-					GoogleChart chart = new GoogleLineGraph("beam", "ma", com.googlecode.charts4j.Color.BLUEVIOLET);
-					for (int j = 0; j < snapshot.size(); j++) {
-						if (j % 5 == 0)
-							chart.add(String.valueOf(snapshot.get(j)));
-						log.append(j + " " + String.valueOf(snapshot.get(j)));
-					}
-					log.close();
-					new ScreenShot(chart, "ggg points = " + chart.getState().size());
-
-				}}).start();
-
-			System.out.println("...done");
-			scan.close();
-
-		} else {
-			System.out.println("can't connect");
-		}
-
-		Utils.delay(5000);
-		constants.shutdown();
-	} */
-
 }

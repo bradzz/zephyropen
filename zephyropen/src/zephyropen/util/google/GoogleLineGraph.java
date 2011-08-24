@@ -104,7 +104,7 @@ public class GoogleLineGraph extends GoogleChart {
             Line valuesLine = Plots.newLine(DataUtil.scale(state.getScaledData()));
             valuesLine.setColor(dataColor);
      
-            /*
+            /*  
             final double red = (double)constants.getInteger("redSlice");
             Line redLine = Plots.newLine(new Data(red/10, red/10)); 
             redLine.setColor(Color.RED);
@@ -112,26 +112,26 @@ public class GoogleLineGraph extends GoogleChart {
             final double orange = (double)constants.getInteger("orangeSlice");
             Line orangeLine = Plots.newLine(new Data(orange/10, orange/10)); 
             orangeLine.setColor(Color.BROWN);
-          
-
+          */
+    /* 
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowX1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowX2));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowY1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.YELLOW, 2, constants.getInteger(BeamGUI.yellowY2));
         
-            
+       
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redX1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redX2));           
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redY1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.RED, 2, constants.getInteger(BeamGUI.redY2));
-        
+       
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeX1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeX2));           
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeY1));
             valuesLine.addShapeMarker(Shape.VERTICAL_LINE_PARTIAL, Color.ORANGE, 2, constants.getInteger(BeamGUI.orangeY2));
-         */
-            
-            
+          
+             */
+         
             // grid 
            
             //  valuesLine.addShapeMarker(Shape.HORIZONTAL_LINE, Color.BLUE, 1, 3);
