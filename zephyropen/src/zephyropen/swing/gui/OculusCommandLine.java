@@ -14,7 +14,7 @@ import java.awt.event.KeyListener;
 import java.util.Vector;
 
 /** */
-public class Command2GUI {
+public class OculusCommandLine {
 	
 	private static final String oculus = "oculus";
 	private static final String function = "function";
@@ -52,7 +52,7 @@ public class Command2GUI {
 		ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		constants.put(ZephyrOpen.frameworkDebug, false);
 		constants.lock();
-		new Command2GUI();
+		new OculusCommandLine();
 	}
 	
 	/** send to group */
@@ -200,7 +200,7 @@ public class Command2GUI {
 	};
 
 	/** */
-	public Command2GUI() {
+	public OculusCommandLine() {
 
 		/** Resister listener */
 		scriptItem.addActionListener(listener);
@@ -228,6 +228,8 @@ public class Command2GUI {
 		frame.setResizable(false);
 		frame.setAlwaysOnTop(true);
 		frame.setVisible(true);
+		
+		System.out.println(constants.toString());
 
 		/** register shutdown hook
 		Runtime.getRuntime().addShutdownHook(

@@ -118,6 +118,8 @@ public class MulticastChannel extends AbstractOutputChannel implements OutputCha
             /** get sending node's addr */
             String sendersIp = ((InetAddress) packet.getAddress()).getHostAddress();
             
+            System.out.println(sendersIp + " " + input);
+            
             /** test the input */
             if( valid(input, sendersIp) ) {  
             	
