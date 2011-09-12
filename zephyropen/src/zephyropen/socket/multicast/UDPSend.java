@@ -7,7 +7,7 @@ import java.net.InetAddress;
 public class UDPSend {
 
 	public static void main(String args[]) {
-		writeBroadcast("testing writeBroadcast");
+		writeBroadcast("testing writeBroadcast "+ UDPServer.getLocalAddress() );
 	}
 
 	public static void writeBroadcast(String msg) {
@@ -18,7 +18,7 @@ public class UDPSend {
 			byte[] message = msg.getBytes();
 
 			// Get the internet address of the specified host
-			InetAddress address = InetAddress.getByName("0.0.0.0");
+			InetAddress address = InetAddress.getByName("192.168.1.76");
 
 			// Initialize a datagram packet with data and address
 			DatagramPacket packet = new DatagramPacket(message, message.length, address, port);

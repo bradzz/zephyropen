@@ -22,11 +22,7 @@ import java.util.Vector;
 public class BeamGUI implements MouseMotionListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
-//	public static final Color yellow = new Color(245, 237, 48);// new Color(245, 237, 48);
-//	public static final Color orange = new Color(245, 237, 48); //new Color(252, 176, 64);
-//	public static final Color blue =new Color(245, 237, 48);// new Color(245, 237, 48);
-//	public static final Color red = new Color(241, 83, 40);
-	
+	public static final String beamscan = "beamscan";
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
 	public static final String yellowY1 = "yellowY1";
@@ -93,8 +89,8 @@ public class BeamGUI implements MouseMotionListener {
 	
 	/** */
 	public static void main(String[] args) {
-		constants.init("rrr");
-		constants.put(ZephyrOpen.deviceName, "beamscan");
+		constants.init(beamscan);
+		constants.put(ZephyrOpen.deviceName, beamscan);
 		zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		new BeamGUI();
 	}
@@ -436,8 +432,9 @@ public class BeamGUI implements MouseMotionListener {
 			
 	
 			if(results!=null) {		
-				topRight1 = "Data Points: " + results.points.size();
-				topRight2 = "Spin Time:   " + results.scanTime() + " ms";	
+				topRight1 = new java.util.Date().toString();
+				topRight2 = "Data Points: " + results.points.size();
+				topRight3 = "Spin Time:   " + results.scanTime() + " ms";	
 				bottomRight2 = " x: " + results.getMaxIndexX() + " y: " + results.getMaxIndexY();
 			}
 			
