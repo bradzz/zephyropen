@@ -140,6 +140,8 @@ public class ApiFactory {
 	 * @return a string format of the API's in the list
 	 */
 	public String toString() {
+		
+		if(apiTable.isEmpty()) return null;
 
 		StringBuffer buff = new StringBuffer();
 		for (Enumeration<String> e = apiTable.keys(); e.hasMoreElements();) 
@@ -150,6 +152,8 @@ public class ApiFactory {
 
 	/** turn into xml */
 	private String getXML(String[] tag) {
+		
+		if(apiTable.isEmpty()) return null;
 		
 		String str = "";
 		for (int i = 0; i < tag.length; i++)

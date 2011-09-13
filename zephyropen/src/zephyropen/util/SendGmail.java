@@ -12,25 +12,31 @@ import javax.mail.internet.*;
 //
 // ref: http://www.mkyong.com/java/javamail-api-sending-email-via-gmail-smtp-example/
 //
-public class SendMAIL {
+public class SendGmail {
 	
 	// take this from properties 
 	private static final int SMTP_HOST_PORT = 587;
 	private static final String SMTP_HOST_NAME = "smtp.gmail.com";
-	private static final String SMTP_AUTH_USER = "brad.zdanivsky@gmail.com";
-	private static final String SMTP_AUTH_PWD = "";
-
-	/* test driver */
+	
+	private String gmail = null;
+	private String gpass = null;
+	
+	/* test driver 
 	public static void main(String[] args) throws Exception {
 		
 		if (sendMessage("Important Event", "testing attachment", ".classpath"))
 			System.out.println("email sent");
 		else
 			System.out.println("email failed, check your settings");
-	}
+	}*/
 
+	public SendGmail(String usr, String pass){
+		gmail = usr;
+		gpass = pass;
+	}
+	
 	/**
-t	 * 
+	 * 
 	 * Send yourself an error message from the robot. This method requires a
 	 * Gmail user account.
 	 * 
@@ -38,7 +44,7 @@ t	 *
 	 *            is the message body to form the email body
 	 * @return True if mail was sent successfully
 	 */
-	public static boolean sendMessage(final String sub, final String text) {
+	public boolean sendMessage(final String sub, final String text) {
 		try {
 			Properties props = new Properties();
 			props.put("mail.smtps.host", SMTP_HOST_NAME);
@@ -52,13 +58,12 @@ t	 *
 			MimeMessage message = new MimeMessage(mailSession);
 			message.setSubject(sub);
 			message.setContent(text, "text/plain");
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(SMTP_AUTH_USER));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(gmail));
 
-			transport.connect(SMTP_HOST_NAME, SMTP_HOST_PORT, SMTP_AUTH_USER, SMTP_AUTH_PWD);
+			transport.connect(SMTP_HOST_NAME, SMTP_HOST_PORT, gmail, gpass);
 			transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
 			transport.close();
 		} catch (Exception e) {
-			// e.printStackTrace();
 			return false;
 		}
 
@@ -66,7 +71,7 @@ t	 *
 		return true;
 	}
 	
-	public static boolean sendMessage(final String sub, final String text, final String path) {
+	public boolean sendMessage(final String sub, final String text, final String path) {
 		
 		try{
 		
@@ -81,7 +86,7 @@ t	 *
 	
 			MimeMessage message = new MimeMessage(mailSession);
 			message.setSubject(sub);
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(SMTP_AUTH_USER));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(gmail));
 	    	 
 	        BodyPart messageBodyPart = new MimeBodyPart();
 	        messageBodyPart.setText(text);
@@ -96,7 +101,7 @@ t	 *
 	        multipart.addBodyPart(messageBodyPart);
 	        message.setContent(multipart);
 	        
-	        transport.connect(SMTP_HOST_NAME, SMTP_HOST_PORT, SMTP_AUTH_USER, SMTP_AUTH_PWD);
+	        transport.connect(SMTP_HOST_NAME, SMTP_HOST_PORT, gmail, gpass);
 			transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
 			transport.close();
 			
@@ -109,5 +114,4 @@ t	 *
 	    // all well
 	    return true;
 	}
-
 }

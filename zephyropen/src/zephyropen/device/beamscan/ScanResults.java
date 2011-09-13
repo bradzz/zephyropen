@@ -6,32 +6,61 @@ import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 
 public class ScanResults {
-	
+
 	private ZephyrOpen constants = ZephyrOpen.getReference();
-	LogManager log = new LogManager();
-	Vector<Integer> points = null;
-	int delta = 0;
-	
-	public ScanResults(final Vector<Integer> data, int ms){
-		
+	public static final int DEFUALT_LIMIT = 10;
+	private LogManager log = new LogManager();
+	public Vector<Integer> points = null;
+	private int delta = 0;
+	private int filtered = 0;
+	private int lowLevel = 0;
+
+	/** */
+	public ScanResults(final Vector<Integer> data, int ms) {
+
 		points = data;
 		delta = ms;
+
+		lowLevel = constants.getInteger("lowLevel");
+		if (lowLevel == ZephyrOpen.ERROR) {
+			lowLevel = DEFUALT_LIMIT;
+			constants.put("lowLevel", DEFUALT_LIMIT);
+			constants.updateConfifFile();
+		}
 		
+		for(int i = 0 ; i < points.size() ; i++){
+			if(points.get(i) < lowLevel){
+				points.set(i, 0);
+				filtered++;
+			}
+		}	
+		
+		if(constants.getBoolean(ZephyrOpen.loggingEnabled)) writeLog();
+	}
+	
+	/** */
+	public void writeLog() {
 		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + ".log");
 		log.append(new java.util.Date().toString());
+		log.append("filtered : " + filtered);
+		log.append("filter : " + constants.get("lowLevel"));
 		log.append("time : " + delta + " ms");
 		log.append("size : " + points.size());
-		for (int j = 0; j < points.size(); j++) 
+		for (int j = 0; j < points.size(); j++)
 			log.append(j + " " + String.valueOf(points.get(j)));
 		log.close();
 	}
-	
-	public int scanTime(){
+
+	public int scanTime() {
 		return delta;
 	}
 
+	public int getFilered() {
+		return filtered;
+	}
+
 	/**  */
-	public int[] getSlice(final int target){ 
+	public int[] getSlice(final int target) {
 		int[] values = { 0, 0, 0, 0 };
 		try {
 
@@ -60,8 +89,8 @@ public class ScanResults {
 	}
 
 	/** */
-	public int getDataInc(final int target, final int start){ //, final Vector<Integer> points) {
-
+	public int getDataInc(final int target, final int start) {
+		
 		int j = start;
 
 		// constants.info("start : " + j + " target : " + target);
@@ -78,8 +107,8 @@ public class ScanResults {
 	}
 
 	/** */
-	public int getDataDec(final int target, final int start){ //, final Vector<Integer> points) {
-
+	public int getDataDec(final int target, final int start) { 
+		
 		int j = start;
 		// constants.info("start : " + j + " target : " + target);
 
@@ -114,11 +143,15 @@ public class ScanResults {
 		return index;
 	}
 
-	public int getMaxIndexX(){ // final Vector<Integer> points) {
+	public int getMaxIndexX() { 
 		return getMaxIndex(0, points.size() / 2);
 	}
 
-	public int getMaxIndexY(){ //final Vector<Integer> points) {
+	public int getMaxIndexY() {
 		return getMaxIndex(points.size() / 2, points.size());
+	}
+
+	public void setFiltered(int filtered) {
+		this.filtered = filtered;
 	}
 }

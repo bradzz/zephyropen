@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 
+
 import zephyropen.api.ZephyrOpen;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -30,18 +31,19 @@ public class CommPort implements SerialPortEventListener {
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
 	private ScanResults result = null;
-
+	
 	/** constructor */
 	public CommPort() {
 
 		portName = constants.get("beamscan");
-
+		
 		// need to go look?
 		if (portName == null) {
-			System.out.println(constants.toString());
+			constants.toString();
+			constants.info("looking for beam scaner... ");
 			portName = new Find().search("<id:beamscan>");
 			if(portName != null){
-				constants.info("found: " + portName);
+				constants.info("found scanner: " + portName);
 				constants.put("beamscan", portName);
 				constants.updateConfifFile();			
 			}
@@ -202,17 +204,16 @@ public class CommPort implements SerialPortEventListener {
 	}
 
 	/** 
-	 * @return a data set after a blocking call
+	 * @return a data set after a blocking call. do one scan only
 	 */
 	public ScanResults sample() {	
-		
 		result = null;
 		sendCommand(ENABLE_MOTOR);
 		sendCommand(STOP);
 	
-		while(result==null){
+		// wait
+		while(result==null)
 			zephyropen.util.Utils.delay(200);
-		}
 		
 		zephyropen.util.Utils.delay(200);
 		return result;

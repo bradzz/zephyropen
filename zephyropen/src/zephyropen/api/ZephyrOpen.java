@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -33,7 +32,7 @@ import zephyropen.util.Utils;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.3.6.1";
+	public static final String VERSION = "2.4.0";
 
 	public static final String DEFAULT_PORT = "4444";
 
@@ -107,23 +106,23 @@ public class ZephyrOpen {
 
 	// public static final String delta = "delta";
 
-	//public static final String elapsed = "elapsed";
+	// public static final String elapsed = "elapsed";
 
+	// final public static String lock = "lock";
+
+	// public static final String infoEnable = "infoEnable";
+	
 	public static final String dropped = "dropped";
 
 	final public static String folder = "folder";
 
-	final public static String home = "home";
-
-	// final public static String lock = "lock";
+//	final public static String home = "home";
 
 	final public static String path = "path";
 
 	final public static String password = "password";
 
 	public static final String com = "com";
-
-	// public static final String infoEnable = "infoEnable";
 
 	public static final String showLAN = "showLAN";
 
@@ -148,7 +147,7 @@ public class ZephyrOpen {
 	public static final String userLog = "userLog";
 
 	public static final String root = "root";
-	
+
 	/** decimal points truncated for display, not rounded */
 	public static final int PRECISION = 2;
 
@@ -195,31 +194,32 @@ public class ZephyrOpen {
 		return singleton;
 	}
 
-	/** private constructor for this singleton class */
+	/**
+	 *  private constructor for this singleton class
+	 * 
+	 * load minimal defaults, ensure version is avail to all
+	 *  
+	 */
 	private ZephyrOpen() {
-
-		/** load minimal defaults, ensure version is avail to all */
 		props.put(frameworkVersion, VERSION);
 		props.put(os, System.getProperty("os.name"));
-		props.put(home, System.getProperty("java.home"));
+		//props.put(home, System.getProperty("java.home"));
 		props.put(path, System.getProperty("java.class.path"));
 		props.put(root, System.getProperty("user.home") + fs + zephyropen);
 		props.put(networkService, multicast);
 		props.put(address, DEFAULT_ADDRESS);
 		props.put(port, DEFAULT_PORT);
 		props.put(frameworkDebug, "true");
-		props.put(loopback, "true");
 		props.put(loggingEnabled, "true");
 		props.put(enableWatchDog, "true");
-		props.put(showLAN, "true"); 
-		//props.put(infoEnable, "false");
+		props.put(loopback, "true");
+		props.put(showLAN, "true");
 	}
 
 	/** Configure the Framework with given properties file */
 	public void init(String file) {
 
-		if (configured)
-			return;
+		if (configured) return;
 
 		// find userName/launch.properties
 		props.put(user, file);
@@ -233,15 +233,11 @@ public class ZephyrOpen {
 		// the full path to the properties file
 		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties");
 
-		// add all given properites
-		if( !  parseConfigFile()){
-			
-			new File(props.getProperty(userHome));
-			new File(props.getProperty(userLog));
-			//new File(props.getProperty(userHome));
-			
+		// add settings, test if done
+		if (!parseConfigFile()) {
+			init();
+			return;
 		}
-			
 
 		// will bring down system on fail
 		createHome();
@@ -253,15 +249,18 @@ public class ZephyrOpen {
 	/** Configure the Framework with Defaults */
 	public void init() {
 
-		if (configured)
-			return;
+		if (configured) return;
 
 		// create no name directories for unnamed user/device
 		props.put(user, zephyropen);
 		props.put(deviceName, zephyropen);
 		props.put(userHome, props.getProperty(root) + fs + zephyropen);
 		props.put(userLog, props.getProperty(userHome) + fs + log);
-
+		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties");
+		
+		if(new File(get(propFile)).exists())
+			parseConfigFile();
+		
 		// will bring down system on fail
 		createHome();
 
@@ -309,8 +308,7 @@ public class ZephyrOpen {
 		Runtime.getRuntime().addShutdownHook(new CleanUpThread());
 
 		/** open log file and register the frame work for debugging */
-		if (getBoolean(frameworkDebug))
-			enableDebug();
+		if (getBoolean(frameworkDebug)) enableDebug();
 
 		/** all set */
 		configured = true;
@@ -319,20 +317,14 @@ public class ZephyrOpen {
 
 	/** setup framework to debug */
 	private void enableDebug() {
-
-		/** start logging errors */
 		logger = new LogManager();
-		logger.open(props.getProperty(userLog) + fs
-				+ props.getProperty(deviceName) + "_debug.log");
-
-		/** messages on */
-		//props.put(ZephyrOpen.infoEnable, "true");
+		logger.open(props.getProperty(userLog) + fs + props.getProperty(deviceName) + "_debug.log");
 	}
 
 	/** ready the folders needed for this user */
 	private void createHome() {
 
-		// create user_home/zephyropen/userName directory if not there
+		// create directory if not there
 		if (new File(props.getProperty(userLog)).mkdirs())
 			System.err.println("created log: " + log);
 
@@ -380,9 +372,8 @@ public class ZephyrOpen {
 
 			// set up new properties object from file
 			FileInputStream propFile = new FileInputStream(filepath);
-
+			System.out.println("parsed config file [" + filepath + "]");
 			props.load(propFile);
-
 			propFile.close();
 
 			// now be sure no white space is in any properties!
@@ -395,41 +386,24 @@ public class ZephyrOpen {
 
 		} catch (Exception e) {
 			System.err.println("can't parse config file [" + filepath + "], terminate.");
-			return false;
-			//System.exit(0);
+			System.exit(0);
 		}
-		
+
 		return true;
 	}
-	
-	
+
 	/**
 	 * 
-	 * @return true if written to config file 
+	 * @return true if written to config file
 	 */
-	public boolean updateConfifFile(){
-		
+	public boolean updateConfifFile() {
+
 		final String filepath = props.getProperty(propFile);
-		
+
 		new File(filepath).delete();
 
 		Properties hold = (Properties) props.clone();
-		hold.remove(user);
-		hold.remove(userHome);
-		hold.remove(userLog);
-		hold.remove(os);
-		hold.remove(address);
-		hold.remove(path);
-		hold.remove(port);
-		hold.remove(frameworkDebug);
-		hold.remove(loggingEnabled);
-		hold.remove(networkService);
-		hold.remove(frameworkVersion);
-		hold.remove(enableWatchDog);
-		hold.remove(root);
-		hold.remove(userHome);
-	
-		System.out.println("write to: " + path);
+		System.out.println("write to: " + propFile);
 
 		OutputStream out = null;
 		try {
@@ -438,14 +412,14 @@ public class ZephyrOpen {
 			System.err.println(e.getMessage());
 			return false;
 		}
-		
+
 		try {
-			hold.store(out, "updated: " + new Date().toString());
+			hold.store(out, null);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -456,11 +430,11 @@ public class ZephyrOpen {
 
 	@Override
 	public String toString() {
-		
-		//return zephyropen + " v" + VERSION;
+
+		// return zephyropen + " v" + VERSION;
 
 		String str = "";
-		
+
 		// now be sure no white space is in any properties!
 		Enumeration<Object> keys = props.keys();
 		while (keys.hasMoreElements()) {
@@ -468,7 +442,7 @@ public class ZephyrOpen {
 			String value = (String) props.get(key);
 			str += (key + "=" + value + ":");
 		}
-		
+
 		return str;
 	}
 
@@ -485,26 +459,28 @@ public class ZephyrOpen {
 			return;
 		}
 
-		if(getBoolean(frameworkDebug))
+		if (getBoolean(frameworkDebug))
 			if (props.containsKey(key))
 				info("refreshing property for: " + key + " = " + value);
 
 		props.put(key.trim(), value.trim());
 	}
-	
+
 	public synchronized void put(String tag, boolean b) {
-		if(b) props.put(tag, "true");
-		else props.put(tag, "false");
+		if (b)
+			props.put(tag, "true");
+		else
+			props.put(tag, "false");
 	}
 
 	public synchronized void put(String key, int value) {
 		put(key, String.valueOf(value));
 	}
-	
+
 	public synchronized void put(String key, long value) {
 		put(key, String.valueOf(value));
 	}
-	
+
 	/**
 	 * lookup values from props file
 	 * 
@@ -605,7 +581,8 @@ public class ZephyrOpen {
 			if (logger != null)
 				logger.append("ERROR, " + clazz.getClass().getName() + ", " + line);
 
-		System.err.println(Utils.getTime() + " " + clazz.getClass().getName() + ", " + line);
+		System.err.println(Utils.getTime() + " " + clazz.getClass().getName()
+				+ ", " + line);
 	}
 
 	/** */
@@ -633,7 +610,8 @@ public class ZephyrOpen {
 
 		if (getBoolean(frameworkDebug)) {
 			if (logger != null)
-				logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
+				logger.append("INFO, " + clazz.getClass().getName() + ", "
+						+ line);
 
 			System.out.println(Utils.getTime() + " "
 					+ clazz.getClass().getName() + " " + line);
@@ -655,7 +633,7 @@ public class ZephyrOpen {
 			System.out.println(Utils.getTime() + " " + zephyropen + " " + line);
 		}
 	}
-	
+
 	public synchronized void lock() {
 		locked = true;
 	}
@@ -670,28 +648,28 @@ public class ZephyrOpen {
 
 	/** send a "close" message */
 	public void killDevice(String dev, String usr) {
-		
+
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.kill);
 		kill.add(user, usr);
 		kill.add(deviceName, dev);
 		kill.send();
 		kill.send();
-		
+
 		info("sent: " + kill.toString(), this);
 	}
 
 	/** send a "close" message */
 	public void closeServers() {
-		
+
 		Command kill = new Command();
 		kill.add(action, ZephyrOpen.close);
 		kill.send();
 		kill.send();
 
-		info("sent: " + kill.toString(),this);
+		info("sent: " + kill.toString(), this);
 	}
-	
+
 	/** send shutdown messages to group */
 	public void shutdownFramework() {
 
@@ -726,7 +704,7 @@ public class ZephyrOpen {
 	public void shutdown(Exception e) {
 		if (logger != null)
 			logger.append(e.getMessage());
-		
+
 		e.printStackTrace(System.err);
 		shutdown();
 	}
@@ -754,7 +732,7 @@ public class ZephyrOpen {
 	/** track open loggers */
 	public void addLogger(DataLogger dataLogger) {
 
-		// optional creation 
+		// optional creation
 		if (dataLoggers == null)
 			dataLoggers = new Vector<DataLogger>();
 

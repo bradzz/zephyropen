@@ -1,12 +1,6 @@
 package zephyropen.util.google;
 
-import java.util.Arrays;
-
-import zephyropen.api.ZephyrOpen;
-import zephyropen.device.beam.BeamGUI;
 import zephyropen.state.State;
-import zephyropen.state.TimedEntry;
-import zephyropen.util.Utils;
 
 import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.Shape;

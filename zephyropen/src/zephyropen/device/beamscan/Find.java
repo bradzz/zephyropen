@@ -38,7 +38,6 @@ public class Find {
 	
 	/* constructor makes a list of available ports */
 	public Find() {
-		// constants.init();
 		getAvailableSerialPorts();
 	}
 
@@ -69,16 +68,14 @@ public class Find {
 			outputStream = serialPort.getOutputStream();
 
 		} catch (Exception e) {
-			System.out.println("error connecting to: " + address);
+			constants.info("error connecting to: " + address);
 			close();
 			return false;
 		}
 
 		// be sure
-		if (inputStream == null)
-			return false;
-		if (outputStream == null)
-			return false;
+		if (inputStream == null) return false;
+		if (outputStream == null) return false;
 
 		return true;
 	}
@@ -163,36 +160,4 @@ public class Find {
 
 		return device.trim();
 	}
-
-	/**
-	 * test driver
-	 * 
-	 * @throws Exception
-	
-	public static void main(String[] args) throws Exception {
-
-		long start = System.currentTimeMillis();
-
-		Find find = new Find();
-		
-		String spin = find.search("<id:beamspin>");
-		System.out.println("found beam spin on: " + spin);
-		
-		String reader = find.search("<id:beamreader>");
-		System.out.println("found beam on: " + reader);
-		
-		spin = find.search("<id:beamspin>");
-		System.out.println("found beam spin on: " + spin);
-		
-		reader = find.search("<id:beamreader>");
-		System.out.println("found reader on: " + reader);
-		
-		spin = find.search("<id:beamspin>");
-		System.out.println("found beam spin on: " + spin);
-		
-		reader = find.search("<id:beamreader>");
-		System.out.println("found reader on: " + reader);
-
-		System.out.println("scan took: " + (System.currentTimeMillis() - start) + " ms");
-	}*/
 } 
