@@ -211,7 +211,7 @@ public class ZephyrOpen {
 		props.put(port, DEFAULT_PORT);
 		props.put(frameworkDebug, "true");
 		props.put(loggingEnabled, "true");
-		props.put(enableWatchDog, "true");
+		//props.put(enableWatchDog, "true");
 		props.put(loopback, "true");
 		props.put(showLAN, "true");
 	}

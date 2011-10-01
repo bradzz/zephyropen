@@ -2,11 +2,14 @@ package zephyropen.util;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
 import java.awt.geom.GeneralPath;
 
 public class DifferentLineStyles extends JPanel{
-    public String getName() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public String getName() {
     return "Lines";
     }
     int[] x = new int[] { 50, 100 , 0 }; 

@@ -10,8 +10,6 @@ import zephyropen.device.WatchDog;
 import zephyropen.port.AbstractPort;
 import zephyropen.port.bluetooth.SearchSPP;
 import zephyropen.port.bluetooth.SerialUtils;
-import zephyropen.util.Utils;
-
 /**
  * 
  * <p> A Basic server for the Zephyr BlueTooth HXM 
