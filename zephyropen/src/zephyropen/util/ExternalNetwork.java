@@ -80,7 +80,7 @@ public class ExternalNetwork {
 			
 			Utils.delay(ZephyrOpen.FIVE_MINUTES);
 						
-			old = (String) constants.get("externalAddress");
+			old = (String) constants.get(ZephyrOpen.externalAddress);
 			now = getExternalIPAddress();
 			
 			if( old != null )
