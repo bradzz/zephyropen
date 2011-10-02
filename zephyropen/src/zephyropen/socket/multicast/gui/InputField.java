@@ -13,17 +13,15 @@ import java.awt.event.*;
  */
 public class InputField extends JTextField implements ActionListener {
 	
+	private static final long serialVersionUID = 1L;
 	private Socket socket = null;
 	private PrintWriter out = null;
 	private String userInput = null;
 	  
-	// build the input feild 
-	public InputField(Socket socket) {
-
-	  	// create textfield with start message
-	    super( " *type your messages here*" );
-	      
-	    this.socket = socket; 
+	// build the input field 
+	public InputField(Socket s) {
+	    super("cam");	      
+	    socket = s; 
 	      
 	    try{
 	    	out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);

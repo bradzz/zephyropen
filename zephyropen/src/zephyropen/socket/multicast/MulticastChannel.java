@@ -162,7 +162,6 @@ public class MulticastChannel extends AbstractOutputChannel implements OutputCha
    
 	/** @param out is a string to write to the socket */
 	private void write(String out) {
-
 		try {
 
 			/** dump it into the socket */

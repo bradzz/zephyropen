@@ -2,7 +2,6 @@ package zephyropen.socket.multicast.gui;
 
 import java.io.*;
 import java.net.*;
-import javax.swing.*;
 
 /**
  *	Start the chat client, and connect to the server using the given IP and port numbers 
