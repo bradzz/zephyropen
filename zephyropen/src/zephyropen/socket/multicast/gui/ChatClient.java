@@ -11,32 +11,34 @@ import java.net.*;
  */
 public class ChatClient {
    
-   /**
-    * Constructs an chat client with a specified server name and a
-    * specified port number.
-    *
-    * @param host is the server name.
-    * @param port is the server port number.
-    */
-   public ChatClient(String host, int port) throws IOException {  
-	   try {
-		   
-		// construct the client socket
-		Socket s = new Socket(host, port);
-				
-		// create a useful title 
-		String title = "Connected " + s.toString();
-		   	
-		// pass socket on to read and write swing components 
-      		ChatFrame frame = new ChatFrame(new InputField(s), new OutputArea(s), title);
-      		
-      		// create and show this application's GUI. 		
-      		javax.swing.SwingUtilities.invokeLater(frame);
-     		
-      } catch(Exception e) {
-    	  e.printStackTrace();
-      }
-   }
+	/**
+	 * Constructs an chat client with a specified server name and a specified
+	 * port number.
+	 * 
+	 * @param host
+	 *            is the server name.
+	 * @param port
+	 *            is the server port number.
+	 */
+	public ChatClient(String host, int port) throws IOException {
+		try {
+
+			// construct the client socket
+			Socket s = new Socket(host, port);
+
+			// create a useful title
+			String title = s.getInetAddress().toString();
+
+			// pass socket on to read and write swing components
+			ChatFrame frame = new ChatFrame(new InputField(s), new OutputArea(s), title);
+
+			// create and show this application's GUI.
+			javax.swing.SwingUtilities.invokeLater(frame);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
   
    // driver
    public static void main(String args[]) throws IOException {
