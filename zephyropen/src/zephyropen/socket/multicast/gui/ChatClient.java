@@ -11,26 +11,17 @@ import java.net.*;
  */
 public class ChatClient {
    
-	/**
-	 * Constructs an chat client with a specified server name and a specified
-	 * port number.
-	 * 
-	 * @param host
-	 *            is the server name.
-	 * @param port
-	 *            is the server port number.
-	 */
-	public ChatClient(String host, int port) throws IOException {
+	public ChatClient(String host, int port, final String usr, final String pass) throws IOException {
 		try {
 
 			// construct the client socket
 			Socket s = new Socket(host, port);
 
 			// create a useful title
-			String title = s.getInetAddress().toString();
+			String title = usr + s.getInetAddress().toString();
 
 			// pass socket on to read and write swing components
-			ChatFrame frame = new ChatFrame(new InputField(s), new OutputArea(s), title);
+			ChatFrame frame = new ChatFrame(new InputField(s, usr, pass), new OutputArea(s), title);
 
 			// create and show this application's GUI.
 			javax.swing.SwingUtilities.invokeLater(frame);
@@ -43,11 +34,9 @@ public class ChatClient {
    // driver
    public static void main(String args[]) throws IOException {
 
-      // get the parameters from the command line
-      String hostname = args[0];
       int port = Integer.parseInt(args[1]);
 
       // instantiate and execute the client
-      new ChatClient(hostname, port);
+      new ChatClient(args[0], port, args[2], args[3]);
    }
 }

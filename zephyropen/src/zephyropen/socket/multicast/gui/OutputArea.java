@@ -23,7 +23,7 @@ public class OutputArea extends JTextArea implements Runnable {
 		try {
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (Exception e) {
-			System.out.println("OuputArea() : " + e.getMessage());
+			System.exit(-1);
 		}
 
 		// read from sock as a new thread
@@ -41,15 +41,15 @@ public class OutputArea extends JTextArea implements Runnable {
 
 				// block on input and then update text area
 				input = in.readLine();
+				
+				if(input==null) break;
 
-				// /append("\n <!--   " + new Date() + "    -->");
 				append(input + "\n");
 
 				// move focus to it new line we just added
 				setCaretPosition(getDocument().getLength());
 
 			} catch (Exception e) {
-				System.out.println("OuputArea() : " + e.getMessage());
 				System.exit(0);
 			}
 		}
