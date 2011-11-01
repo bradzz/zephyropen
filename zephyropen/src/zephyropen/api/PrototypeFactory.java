@@ -109,7 +109,7 @@ public class PrototypeFactory {
 	/** List the required tags for the Bioharness XML */
 	public final static String[] BIOHARNESS_PROTOTYPE = { beat, heart, respiration, posture, temperature, battery };
 
-	public static final String[] ELEVATION_PROTOTYPE = { seat, back, heart };
+	public static final String[] ELEVATION_PROTOTYPE = { seat, back };
 
 	/** Determine the type of device this is via the naming convention */
 	public static int getDeviceType(String deviceName) {

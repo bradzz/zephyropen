@@ -38,7 +38,7 @@ public class DeviceViewer implements API {
 		/** create the associated display for this device */
 		viewer = ViewerFactory.create(this);
 		if (viewer == null) {
-			constants.error("can't creat viewer for: " + deviceName, this);
+			constants.error("can't create viewer for: " + deviceName, this);
 			constants.shutdown();
 		}
 
@@ -55,12 +55,11 @@ public class DeviceViewer implements API {
 	/** Update graphs with incoming XML packets */
 	public void execute(Command command) {
 
-		// System.out.println("viewer exe: " + command.toString());
+		System.out.println("viewer exe: " + command.toString());
 
 		// not for us
 		if (!constants.get(ZephyrOpen.user).equals(command.get(ZephyrOpen.user))) {
-			// constants.error("wrong userName: " +
-			// command.get(ZephyrOpen.userName), this);
+			constants.error("wrong userName: " + command.get(ZephyrOpen.user), this);
 			return;
 		}
 
@@ -99,21 +98,21 @@ public class DeviceViewer implements API {
 	 */
 	public static void main(String[] args) {
 
-		if (args.length == 1) {
+	//	if (args.length == 2) {
 
 			/** configure the framework, use properties file given */
-			constants.init(args[0]);
-			
-		// run default 
-		//} else {
-			
-			constants.init("brad");
+			// constants.init(args[0]);
+		
+			constants.init();
+			constants.put(ZephyrOpen.user, "brad");
+			constants.put("drawdelay", "3000");
+			constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
 			
 		//}
 		
-		/** launch new report */
-		new DeviceViewer();
+			/** launch new report */
+			new DeviceViewer();
 		
-		}
+	//	}
 	}
 }

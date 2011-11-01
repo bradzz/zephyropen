@@ -52,6 +52,8 @@ public class ZephyrOpen {
 
 	public static final String port = "port";
 
+	public static final String sender = "sender";
+
 	public static final String localAddress = "lan";
 
 	public static final String close = "close";
@@ -114,13 +116,15 @@ public class ZephyrOpen {
 	
 	public static final String dropped = "dropped";
 
-	final public static String folder = "folder";
+	public static final String folder = "folder";
 
-//	final public static String home = "home";
+	public static final String home = "home";
 
-	final public static String path = "path";
+	public static final String path = "path";
 
-	final public static String password = "password";
+	public static final String password = "password";
+
+	public static final String serialPort = "serialPort";
 
 	public static final String com = "com";
 
@@ -165,6 +169,7 @@ public class ZephyrOpen {
 	public static final long TEN_MINUTES = 600000;
 
 	public static final long TIME_OUT = TWO_MINUTES;
+
 
 	/** communication channels to the framework */
 	private InputChannel inputchannel = null;

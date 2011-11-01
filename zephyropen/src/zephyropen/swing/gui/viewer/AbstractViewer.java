@@ -7,9 +7,6 @@
  */
 package zephyropen.swing.gui.viewer;
 
-import java.util.Date;
-
-
 import zephyropen.api.API;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
@@ -25,7 +22,7 @@ public class AbstractViewer {
 
 	protected static final long DROPPED = 6000;
 
-	protected static long DRAW_DELAY = 1500;
+	protected static int DRAW_DELAY = 1500;
 
 	protected TabbedFrame frame = null;
 
@@ -35,7 +32,7 @@ public class AbstractViewer {
 
 	protected String battery = null;
 	
-	private String disconnected = null; 
+	//private String disconnected = null; 
 
 	private FTPManager ftpManager = FTPManager.getReference();
 
@@ -47,9 +44,12 @@ public class AbstractViewer {
 	/** */
 	public void poll() {
 
+		int delay = constants.getInteger("drawdelay");
+		if(delay == ZephyrOpen.ERROR) delay = DRAW_DELAY;
+		
 		while (true) {
-
-			Utils.delay(DRAW_DELAY);
+			
+			Utils.delay(delay);
 
 			if (api.getDelta() < DROPPED) {
 
@@ -75,6 +75,7 @@ public class AbstractViewer {
 	/** what should the frame say based on connection info */
 	private String getText(boolean dropped) {
 
+		/*
 		if (dropped){
 			
 			String str =  "[" + constants.get(ZephyrOpen.user) + ", " 
@@ -94,12 +95,13 @@ public class AbstractViewer {
 			
 			return str;
 		}
+		*/
 		
 		// reconnected 
-		disconnected = null;
+		// disconnected = null;
 		
 		// build string based on configuration and settings
-		String text = constants.get(ZephyrOpen.user) + "] "	+ api.getDeviceName();
+		String text = "[" + constants.get(ZephyrOpen.user) + "] "	+ api.getDeviceName();
 
 		if (battery != null)
 			text += " battery = " + battery;

@@ -1,4 +1,4 @@
-package developer.swing;
+package zephyropen.socket.multicast.gui;
 
 import javax.swing.*;
 import java.awt.*;
