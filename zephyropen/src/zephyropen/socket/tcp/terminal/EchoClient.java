@@ -1,4 +1,4 @@
-package zephyropen.socket.multicast;
+package zephyropen.socket.tcp.terminal;
 
 import java.io.*;
 import java.net.*;
@@ -33,7 +33,11 @@ public class EchoClient implements Runnable {
 		   out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
 				   
       } catch(Exception e) {
-    	  e.printStackTrace();
+
+    	  //e.printStackTrace();
+
+    	  System.out.println( " connect fail: " + e.getMessage() );
+			shutDown(); 
       } 
       
       // start listening for server input 
@@ -115,24 +119,10 @@ public class EchoClient implements Runnable {
 	   }
    }
 
-
-   /** 
-    * We don't want to see our own output coming back from the server 
-    * 
-    * @param string is the input from the server in the format  
-    * message format : [xxxxxx] : message text
-    */
-  // private boolean isLoopback(String str){
-	//   return false;
-   //}
-
-   
    /**
     *   Safely close down the client 
     */
    private void shutDown(){
-	   
-	    // close resources
 	    try {   
 			in.close();
 			out.close();
