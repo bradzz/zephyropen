@@ -1,36 +1,31 @@
-package zephyropen.socket.multicast.gui;
+package developer.terminal.swingapp;
 
 import java.io.*;
 import java.net.*;
-import java.util.Vector;
 
 import javax.swing.*;
 
+import oculus.PlayerCommands;
+
 import java.awt.event.*;
 
-/**
- * A minimal SWING input field to write to a given socket
- * 
- * @author Brad Zdanivsky Created: 2007.11.3
- */
 public class InputField extends JTextField implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	private Socket socket = null;
 	private PrintWriter out = null;
 	private String userInput = null;
-	private Vector<String> history = new Vector<String>();
-	int ptr = 0;
+	private int ptr = 0;
 
 	public InputField(Socket s, final String usr, final String pass) {
-		super("users");
+		super("move");
 		socket = s;
 
 		try {
 			out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 			out.println(usr + ":" + pass);
 		} catch (Exception e) {
-			System.out.println("InputField() : " + e.getMessage());
+			System.exit(-1);
 		}
 
 		addKeyListener(this);
@@ -43,10 +38,6 @@ public class InputField extends JTextField implements KeyListener {
 			// get keyboard input
 			userInput = getText().trim();
 			
-			history.add(userInput);
-			
-			if (history.size() > 10) history.remove(0);
-
 			// log to console
 			System.out.println("user typed :" + userInput);
 			
@@ -54,9 +45,11 @@ public class InputField extends JTextField implements KeyListener {
 			if (userInput.length() > 0) out.println(userInput);
 			
 			if (out.checkError()) System.exit(-1);
+			
+			if (userInput.equalsIgnoreCase("quit")) System.exit(-1);
 
 		} catch (Exception e) {
-			System.exit(0);
+			System.exit(-1);
 		}
 	}
 
@@ -76,16 +69,42 @@ public class InputField extends JTextField implements KeyListener {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_UP){
-			if (history.isEmpty()) {
-				setText("");
-				return;
-			}
+	public void keyPressed(KeyEvent e) {		
+		
+		PlayerCommands[] cmds = PlayerCommands.values();
 
-			setText(history.get(ptr));
-			if (history.size() > 0) ptr--;
-			if (ptr < 0) ptr = history.size() - 1;
+		if(e.getKeyCode() == KeyEvent.VK_UP){
+				
+			if(ptr++ >= cmds.length) ptr = 0;
+			
+			setText(cmds[ptr].toString() + " ");
+			
+			setCaretPosition(getText().length() + 2);
+
+		} else if(e.getKeyCode() == KeyEvent.VK_DOWN){
+				
+			if(ptr-- <= 0) ptr = cmds.length;
+			
+			setText(cmds[ptr].toString() + " ");
+			
+			setCaretPosition(getText().length() + 2);
+			
+		} else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			
+			String text = getText().trim();
+			String[] list = text.split(" ");
+			
+			if(list[0].equals(PlayerCommands.move.toString())){
+				
+				if(list[1].equals("backward")) setText(list[0] + " forward");
+				if(list[1].equals("left")) setText(list[0] + " right");
+				if(list[1].equals("forward")) setText(list[0] + " backward");
+				if(list[1].equals("right")) setText(list[0] + " left");
+
+				setCaretPosition(getText().length() + 2);
+				
+				
+			}
 		}
 	}
 

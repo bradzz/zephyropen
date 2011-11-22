@@ -1,4 +1,4 @@
-package zephyropen.socket.multicast.gui;
+package developer.terminal.swingapp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,13 +21,14 @@ public class ChatFrame extends JFrame implements Runnable {
 		setDefaultLookAndFeelDecorated(true);
 		setLayout(new BorderLayout());
 		JScrollPane chatScroller = new JScrollPane(out);
-		chatScroller.setPreferredSize(new Dimension(250, 520));
+		chatScroller.setPreferredSize(new Dimension(280, 410));
 		this.setResizable(false);
 		this.setAlwaysOnTop(true);
 		getContentPane().add(chatScroller, BorderLayout.NORTH);
 		getContentPane().add(in, BorderLayout.PAGE_END);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
+		
 	}
 
 	// swing will call us

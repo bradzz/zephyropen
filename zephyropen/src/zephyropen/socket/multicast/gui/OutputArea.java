@@ -1,15 +1,9 @@
-package zephyropen.socket.multicast.gui;
+package developer.terminal.swingapp;
 
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
-///import java.util.*;
 
-/**
- * A minimal SWING input field to read from a given socket
- * 
- * @author Brad Zdanivsky Created: 2007.11.3
- */
 public class OutputArea extends JTextArea implements Runnable {
 
 	private static final long serialVersionUID = 1L;
