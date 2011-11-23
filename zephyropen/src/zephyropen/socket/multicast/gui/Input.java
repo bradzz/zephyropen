@@ -9,7 +9,7 @@ import oculus.PlayerCommands;
 
 import java.awt.event.*;
 
-public class InputField extends JTextField implements KeyListener {
+public class Input extends JTextField implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	private Socket socket = null;
@@ -17,7 +17,7 @@ public class InputField extends JTextField implements KeyListener {
 	private String userInput = null;
 	private int ptr = 0;
 
-	public InputField(Socket s, final String usr, final String pass) {
+	public Input(Socket s, final String usr, final String pass) {
 		super();
 		socket = s;
 

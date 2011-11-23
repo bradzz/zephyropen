@@ -6,12 +6,12 @@ import javax.swing.*;
 
 import oculus.Util;
 
-public class OutputArea extends JTextArea implements Runnable {
+public class Output extends JTextArea implements Runnable {
 
 	private static final long serialVersionUID = 1L;
 	private BufferedReader in = null;
 
-	public OutputArea(Socket socket) {
+	public Output(Socket socket) {
 
 		// don't allow editing the textArea
 		setEditable(false);

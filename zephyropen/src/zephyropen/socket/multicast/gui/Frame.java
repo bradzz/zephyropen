@@ -3,11 +3,11 @@ package developer.terminal.control.gui;
 import javax.swing.*;
 import java.awt.*;
 
-public class ChatFrame extends JFrame implements Runnable {
+public class Frame extends JFrame implements Runnable {
 	
 	private static final long serialVersionUID = 1L;
 
-	public ChatFrame(JTextField in, JTextArea out, String title) {
+	public Frame(JTextField in, JTextArea out, String title) {
 
 		// do minimal layout
 		setTitle(title);
