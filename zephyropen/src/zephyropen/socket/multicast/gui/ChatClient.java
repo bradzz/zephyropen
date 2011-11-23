@@ -1,14 +1,8 @@
-package developer.terminal.swingapp;
+package developer.terminal.control.gui;
 
 import java.io.*;
 import java.net.*;
 
-/**
- *	Start the chat client, and connect to the server using the given IP and port numbers 
- *
- * Created: 2007.11.3
- * @author Brad Zdanivsky 
- */
 public class ChatClient {
    
 	public ChatClient(String host, int port, final String usr, final String pass) throws IOException {
@@ -27,16 +21,13 @@ public class ChatClient {
 			javax.swing.SwingUtilities.invokeLater(frame);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.exit(-1);
 		}
 	}
   
    // driver
    public static void main(String args[]) throws IOException {
-
-      int port = Integer.parseInt(args[1]);
-
-      // instantiate and execute the client
-      new ChatClient(args[0], port, args[2], args[3]);
+      new ChatClient(args[0], Integer.parseInt(args[1]), args[2], args[3]);
    }
 }

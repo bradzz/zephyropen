@@ -1,15 +1,8 @@
-package developer.terminal.swingapp;
+package developer.terminal.control.gui;
 
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Create a SWING frame to display the input/output components.
- * 
- * Created: 2007.11.3
- * 
- * @author Brad Zdanivsky
- */
 public class ChatFrame extends JFrame implements Runnable {
 	
 	private static final long serialVersionUID = 1L;
@@ -21,18 +14,17 @@ public class ChatFrame extends JFrame implements Runnable {
 		setDefaultLookAndFeelDecorated(true);
 		setLayout(new BorderLayout());
 		JScrollPane chatScroller = new JScrollPane(out);
-		chatScroller.setPreferredSize(new Dimension(280, 410));
-		this.setResizable(false);
-		this.setAlwaysOnTop(true);
+		chatScroller.setPreferredSize(new Dimension(320, 410));
 		getContentPane().add(chatScroller, BorderLayout.NORTH);
 		getContentPane().add(in, BorderLayout.PAGE_END);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		pack();
-		
 	}
 
-	// swing will call us
+	// swing will call us when ready 
 	public void run() {
+		setResizable(false);
+		setAlwaysOnTop(true);
+		pack();
 		setVisible(true);
 	}
 }

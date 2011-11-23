@@ -1,8 +1,10 @@
-package developer.terminal.swingapp;
+package developer.terminal.control.gui;
 
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
+
+import oculus.Util;
 
 public class OutputArea extends JTextArea implements Runnable {
 
@@ -11,7 +13,7 @@ public class OutputArea extends JTextArea implements Runnable {
 
 	public OutputArea(Socket socket) {
 
-		// don't alow editing the textArea
+		// don't allow editing the textArea
 		setEditable(false);
 
 		try {
@@ -28,6 +30,9 @@ public class OutputArea extends JTextArea implements Runnable {
 	// Manage input coming from server
 	public void run() {
 
+		long last = System.currentTimeMillis();
+		String delta = null;
+		
 		// loop on input from socket
 		String input = null;
 		while (true) {
@@ -37,12 +42,22 @@ public class OutputArea extends JTextArea implements Runnable {
 				input = in.readLine();
 				
 				if(input==null) break;
+				
+				input = input.trim();
+				
+				if(input.length()>3){
+				
+					// calc time stamp 
+					delta = Util.formatFloat((double)((System.currentTimeMillis()-last)/(double)1000), 3);
+					
+					append("[" + delta + "] " + input + "\n");
+					
+					// move focus to it new line we just added
+					setCaretPosition(getDocument().getLength());
+					
+					last = System.currentTimeMillis();
 
-				append(input + "\n");
-
-				// move focus to it new line we just added
-				setCaretPosition(getDocument().getLength());
-
+				}
 			} catch (Exception e) {
 				System.exit(0);
 			}

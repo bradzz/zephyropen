@@ -1,4 +1,4 @@
-package developer.terminal.swingapp;
+package developer.terminal.control.gui;
 
 import java.io.*;
 import java.net.*;
@@ -18,16 +18,23 @@ public class InputField extends JTextField implements KeyListener {
 	private int ptr = 0;
 
 	public InputField(Socket s, final String usr, final String pass) {
-		super("move");
+		super();
 		socket = s;
 
 		try {
 			out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-			out.println(usr + ":" + pass);
 		} catch (Exception e) {
 			System.exit(-1);
 		}
 
+		
+		// if connected, login now
+		out.println(usr + ":" + pass);
+		
+		// get up to date 
+		// out.println("state");
+		
+		// listen for key input 
 		addKeyListener(this);
 	}
 	
@@ -39,7 +46,7 @@ public class InputField extends JTextField implements KeyListener {
 			userInput = getText().trim();
 			
 			// log to console
-			System.out.println("user typed :" + userInput);
+			// System.out.println("user typed :" + userInput);
 			
 			// send the user input to the server if is valid
 			if (userInput.length() > 0) out.println(userInput);
