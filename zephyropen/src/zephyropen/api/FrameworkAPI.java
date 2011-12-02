@@ -75,9 +75,9 @@ public class FrameworkAPI implements API {
 
 		/** Toggle debugging */
 		else if (command.get(ZephyrOpen.action).equals(ZephyrOpen.frameworkDebug)) {
-			if (command.get(ZephyrOpen.value).equals("true"))
+			if (command.get("value").equals("true"))
 				constants.put(ZephyrOpen.frameworkDebug, true);
-			else if (command.get(ZephyrOpen.value).equals("false"))
+			else if (command.get("value").equals("false"))
 				constants.put(ZephyrOpen.frameworkDebug, false);
 		}
 

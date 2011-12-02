@@ -1,4 +1,4 @@
-package developer.terminal.control.gui;
+package zephyropen.socket.multicast.gui;
 
 import java.io.*;
 import java.net.*;

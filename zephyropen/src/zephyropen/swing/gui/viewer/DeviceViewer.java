@@ -5,6 +5,7 @@ import zephyropen.api.ApiFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.command.Command;
+import zephyropen.state.State;
 import zephyropen.util.DataLogger;
 
 /**
@@ -32,6 +33,8 @@ public class DeviceViewer implements API {
 
 	/** Constructor only takes a device name */
 	public DeviceViewer() {
+		
+//		System.out.println("KK: \n"+constants.toString());
 
 		deviceName = PrototypeFactory.getDeviceTypeString(constants.get(ZephyrOpen.deviceName));
 
@@ -55,19 +58,20 @@ public class DeviceViewer implements API {
 	/** Update graphs with incoming XML packets */
 	public void execute(Command command) {
 
-		System.out.println("viewer exe: " + command.toString());
+		constants.info("viewer exe: " + command.toString());
 
 		// not for us
 		if (!constants.get(ZephyrOpen.user).equals(command.get(ZephyrOpen.user))) {
-			constants.error("wrong userName: " + command.get(ZephyrOpen.user), this);
+			// constants.error("wrong userName: " + command.get(ZephyrOpen.user), this);
 			return;
 		}
-
+		
 		// manage logging
 		if (constants.getBoolean(ZephyrOpen.loggingEnabled)) {
 			if (logger == null) {
 				logger = new DataLogger();
 			} else {
+				command.add(ZephyrOpen.timestamp, String.valueOf(System.currentTimeMillis()));
 				logger.append(command.toXML());
 			}
 		}
@@ -98,21 +102,25 @@ public class DeviceViewer implements API {
 	 */
 	public static void main(String[] args) {
 
-	//	if (args.length == 2) {
+//		if (args.length == 2) {
 
 			/** configure the framework, use properties file given */
-			// constants.init(args[0]);
+	//		 constants.init(args[0]);
 		
-			constants.init();
+	//	} else {
+
+		    constants.put(ZephyrOpen.loggingEnabled, true);
+		    constants.put(ZephyrOpen.frameworkDebug, true);
 			constants.put(ZephyrOpen.user, "brad");
-			constants.put("drawdelay", "3000");
+			constants.put(State.pack, true);
+			constants.put("drawdelay", "2000");
 			constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
+			constants.init();
 			
 		//}
+			
+		/** launch new report */
+		new DeviceViewer();
 		
-			/** launch new report */
-			new DeviceViewer();
-		
-	//	}
 	}
 }

@@ -1,10 +1,8 @@
-package developer.terminal.control.gui;
+package zephyropen.socket.multicast.gui;
 
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
-
-import oculus.Util;
 
 public class Output extends JTextArea implements Runnable {
 
@@ -48,7 +46,8 @@ public class Output extends JTextArea implements Runnable {
 				if(input.length()>3){
 				
 					// calc time stamp 
-					delta = Util.formatFloat((double)((System.currentTimeMillis()-last)/(double)1000), 3);
+					delta = zephyropen.util.Utils.formatFloat(
+							(double)((System.currentTimeMillis()-last)/(double)1000), 3);
 					
 					append("[" + delta + "] " + input + "\n");
 					

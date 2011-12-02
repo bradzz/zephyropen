@@ -11,17 +11,7 @@ import zephyropen.command.Command;
 import zephyropen.util.LogManager;
 import zephyropen.util.Utils;
 
-/**
- * 
- * Read the Polar Heart Rate Monitor Board over COM Port
- * 
- * @see http://danjuliodesigns.com/sparkfun/sparkfun.html
- * @see http://www.sparkfun.com/commerce/product_info.php?products_id=8661
- * 
- * @author <a href="mailto:brad.zdanivsky@gmail.com">Brad Zdanivsky</a>
- * 
- */
-public class ArdunioSerialPort implements SerialPortEventListener /* implements Port */{
+public class ArdunioSerialPort implements SerialPortEventListener {
 
     /* framework configuration */
     public static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -53,7 +43,7 @@ public class ArdunioSerialPort implements SerialPortEventListener /* implements 
     	
         if(connect()){        
                 
-        	log.open(constants.get(ZephyrOpen.userHome) + "\\elevation.log");
+        	log.open(constants.get(ZephyrOpen.userLog) + "\\elevation_raw.log");
         	
         	Utils.delay(Long.MAX_VALUE);
         
@@ -182,10 +172,12 @@ public class ArdunioSerialPort implements SerialPortEventListener /* implements 
 	public static void main(String args[]) {
 		
 		constants = ZephyrOpen.getReference();
-		constants.init();
 		constants.put(ZephyrOpen.serialPort, "COM4");
 		constants.put(ZephyrOpen.user, "brad");
+		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
 
+		constants.init();
+		
 		new ArdunioSerialPort();
 	}
     

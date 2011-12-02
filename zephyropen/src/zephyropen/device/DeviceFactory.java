@@ -3,6 +3,7 @@ package zephyropen.device;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.device.arduino.ArduinoDevice;
+import zephyropen.device.elevation.ElevationDevice;
 import zephyropen.device.polar.PolarDevice;
 import zephyropen.device.zephyr.BioharnessDevice;
 import zephyropen.device.zephyr.HrmDevice;
@@ -63,8 +64,8 @@ public class DeviceFactory {
 		if (type == PrototypeFactory.POLAR)
 			return new PolarDevice(com);
 
-	//	if (type == PrototypeFactory.ELEVATION)
-	//		return new ElevationDevice(com);
+		if (type == PrototypeFactory.ELEVATION)
+			return new ElevationDevice(com);
 
 		if (type == PrototypeFactory.ARDUINO)
 			return new ArduinoDevice(com);

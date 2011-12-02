@@ -15,7 +15,8 @@ public class ViewerFactory {
 	
 	public static Viewer create(API api) {
 		
-		int viewType = PrototypeFactory.getDeviceType(api.getDeviceName()); 	
+		int viewType = PrototypeFactory.getDeviceType(api.getDeviceName()); 
+		
 		if( viewType == PrototypeFactory.ERROR ){
 			constants.error("can't lookup type for viewer type for: " + api.getDeviceName());
 			constants.shutdown();

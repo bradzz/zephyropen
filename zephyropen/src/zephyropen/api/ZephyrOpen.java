@@ -32,124 +32,55 @@ import zephyropen.util.Utils;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.4.0";
-
+	public static final String VERSION = "2.4.2";
 	public static final String DEFAULT_PORT = "4444";
-
 	public static final String DEFAULT_ADDRESS = "230.0.0.1";
-
 	public static final String zephyropen = "zephyropen";
 
-	public static final String TIME_MS = "time";
-
+	public static final String TIME_MS = "timestamp";
+	public static final String timestamp = "timestamp";
 	public static final String frameworkVersion = "frameworkVersion";
-
 	public static final String networkService = "networkService";
-
 	public static final String externalLookup = "externalLookup";
-
 	public static final String externalAddress = "wan";
-
 	public static final String port = "port";
-
 	public static final String sender = "sender";
-
 	public static final String localAddress = "lan";
-
 	public static final String close = "close";
-
 	public static final String frameworkDebug = "frameworkDebug";
-
 	public static final String loopback = "loopback";
-
 	public static final String multicast = "multicast";
-
 	public static final String displayRecords = "displayRecords";
-
 	public static final String discovery = "discovery";
-
 	public static final String services = "services";
-
 	public static final String address = "address";
-
 	public static final String deviceName = "deviceName";
-
 	public static final String shutdown = "shutdown";
-
 	public static final String command = "command";
-
 	public static final String action = "action";
-
 	public static final String launch = "launch";
-
 	public static final String kill = "kill";
-
 	public static final String status = "status";
-
 	public static final String kind = "kind";
-
 	public static final String server = "server";
-
 	public static final String xSize = "xSize";
-
 	public static final String ySize = "ySize";
-
 	public static final String code = "code";
-
 	public static final String os = "os";
-
 	public static final String log = "log";
-
-	public static final String value = "value";
-
-	public static final String enable = "enable";
-
-	public static final String disable = "disable";
-
-	// public static final String delta = "delta";
-
-	// public static final String elapsed = "elapsed";
-
-	// final public static String lock = "lock";
-
-	// public static final String infoEnable = "infoEnable";
-	
-	public static final String dropped = "dropped";
-
 	public static final String folder = "folder";
-
 	public static final String home = "home";
-
-	public static final String path = "path";
-
 	public static final String password = "password";
-
 	public static final String serialPort = "serialPort";
-
 	public static final String com = "com";
-
 	public static final String showLAN = "showLAN";
-
-	public static final String showIP = "showIP";
-
-	public static final String showInput = "showInput";
-
 	public static final String user = "user";
-
 	public static final String loggingEnabled = "loggingEnabled";
-
 	public static final String recording = "recording";
-
 	public static final String filelock = "filelock";
-
 	public static final String propFile = "propFile";
-
-	public static final String enableWatchDog = "enableWatchDog";
-
 	public static final String userHome = "userHome";
-
 	public static final String userLog = "userLog";
-
 	public static final String root = "root";
 
 	/** decimal points truncated for display, not rounded */
@@ -190,6 +121,7 @@ public class ZephyrOpen {
 	/** collection of data loggers to close on shutdown */
 	private Vector<DataLogger> dataLoggers = null;
 
+	/** prevent changes */
 	private boolean locked = false;
 
 	public static ZephyrOpen getReference() {
@@ -208,21 +140,15 @@ public class ZephyrOpen {
 	private ZephyrOpen() {
 		props.put(frameworkVersion, VERSION);
 		props.put(os, System.getProperty("os.name"));
-		//props.put(home, System.getProperty("java.home"));
-		props.put(path, System.getProperty("java.class.path"));
 		props.put(root, System.getProperty("user.home") + fs + zephyropen);
 		props.put(networkService, multicast);
 		props.put(address, DEFAULT_ADDRESS);
 		props.put(port, DEFAULT_PORT);
-		props.put(frameworkDebug, "true");
-		props.put(loggingEnabled, "true");
-		//props.put(enableWatchDog, "true");
-		props.put(loopback, "true");
-		props.put(showLAN, "true");
+		props.put(loopback, "true");		
 	}
 
 	/** Configure the Framework with given properties file */
-	public void init(String file) {
+	public synchronized void init(String file) {
 
 		if (configured) return;
 
@@ -252,25 +178,26 @@ public class ZephyrOpen {
 	}
 
 	/** Configure the Framework with Defaults */
-	public void init() {
+	public synchronized void init() {
 
 		if (configured) return;
-
-		// create no name directories for unnamed user/device
-		props.put(user, zephyropen);
-		props.put(deviceName, zephyropen);
-		props.put(userHome, props.getProperty(root) + fs + zephyropen);
-		props.put(userLog, props.getProperty(userHome) + fs + log);
-		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties");
 		
-		if(new File(get(propFile)).exists())
-			parseConfigFile();
+		// create no name directories for unnamed user/device
+		if(!props.containsKey(user)) props.put(user, zephyropen);
+		if(!props.containsKey(deviceName)) props.put(deviceName, zephyropen);
+		
+		if(!props.containsKey(userHome))
+			put(userHome, props.getProperty(root) + fs + props.getProperty(user));
+
+		if(!props.containsKey(userLog))
+			put(userLog, props.getProperty(userHome) + fs + log);
 		
 		// will bring down system on fail
 		createHome();
 
 		/** boot me */
 		startFramework();
+		
 	}
 
 	/**
@@ -317,21 +244,29 @@ public class ZephyrOpen {
 
 		/** all set */
 		configured = true;
-		info("started version " + VERSION);
 	}
 
 	/** setup framework to debug */
 	private void enableDebug() {
 		logger = new LogManager();
-		logger.open(props.getProperty(userLog) + fs + props.getProperty(deviceName) + "_debug.log");
+		if(props.containsKey(deviceName))
+			logger.open(props.getProperty(userLog) + fs + props.getProperty(deviceName)+ ".log");
+		else
+			logger.open(props.getProperty(root) + fs + "debug.log");
+		logger.append("started version " + VERSION);
 	}
 
 	/** ready the folders needed for this user */
 	private void createHome() {
+		
+		if (new File(props.getProperty(root)).mkdirs())
+			System.err.println("created directory: " + get(root));
+		
+		if (new File(props.getProperty(userHome)).mkdirs())
+			System.err.println("created directory: " + get(userHome));
 
-		// create directory if not there
 		if (new File(props.getProperty(userLog)).mkdirs())
-			System.err.println("created log: " + log);
+			System.err.println("created directory: " + get(userLog));
 
 		// be sure are there
 		testFolders();
@@ -401,6 +336,7 @@ public class ZephyrOpen {
 	 * 
 	 * @return true if written to config file
 	 */
+	
 	public boolean updateConfifFile() {
 
 		final String filepath = props.getProperty(propFile);
@@ -436,16 +372,12 @@ public class ZephyrOpen {
 	@Override
 	public String toString() {
 
-		// return zephyropen + " v" + VERSION;
-
 		String str = "";
-
-		// now be sure no white space is in any properties!
 		Enumeration<Object> keys = props.keys();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
-			String value = (String) props.get(key);
-			str += (key + "=" + value + ":");
+			String value = ((String) (props.get(key))).trim();
+			str += (key + " : " + value + "\n");
 		}
 
 		return str;
@@ -460,29 +392,27 @@ public class ZephyrOpen {
 	public synchronized void put(String key, String value) {
 
 		if (locked) {
-			info("framework constants locked, can't put(): " + key);
+			System.out.println("... framework constants locked, can't put(): " + key);
 			return;
 		}
 
-		if (getBoolean(frameworkDebug))
+	//	if (getBoolean(frameworkDebug))
 			if (props.containsKey(key))
-				info("refreshing property for: " + key + " = " + value);
+				System.out.println(".... refreshing property for: " + key + " = " + value);
 
 		props.put(key.trim(), value.trim());
 	}
 
-	public synchronized void put(String tag, boolean b) {
-		if (b)
-			props.put(tag, "true");
-		else
-			props.put(tag, "false");
+	public /*synchronized*/ void put(String tag, boolean b) {
+		if (b)put(tag, "true");
+		else put(tag, "false");
 	}
 
-	public synchronized void put(String key, int value) {
+	public /*synchronized*/ void put(String key, int value) {
 		put(key, String.valueOf(value));
 	}
 
-	public synchronized void put(String key, long value) {
+	public /*synchronized*/ void put(String key, long value) {
 		put(key, String.valueOf(value));
 	}
 
@@ -516,7 +446,7 @@ public class ZephyrOpen {
 	 *            is the lookup value
 	 * @return the matching value from properties file (or false if not found)
 	 */
-	public synchronized boolean getBoolean(String key) {
+	public /*synchronized*/ boolean getBoolean(String key) {
 
 		boolean value = false;
 
@@ -538,7 +468,7 @@ public class ZephyrOpen {
 	 *            is the lookup value
 	 * @return the matching value from properties file (or zero if not found)
 	 */
-	public synchronized int getInteger(String key) {
+	public /*synchronized*/ int getInteger(String key) {
 
 		String ans = null;
 		int value = ERROR;

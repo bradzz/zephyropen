@@ -204,6 +204,7 @@ public class TabbedFrame extends AbstractFrame implements ComponentListener, Key
 
 			if (c == 'x') {
 				components[tabbedPane.getSelectedIndex()].getState().reset();
+				components[tabbedPane.getSelectedIndex()].updateIcon(xSize, ySize);
 				return;
 			}
 

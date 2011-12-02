@@ -12,8 +12,10 @@ public class Loader {
 	
 	/** need to launch new proc */
 	static Runtime runtime = Runtime.getRuntime();
-	
-	private String path = constants.get(ZephyrOpen.path);
+	// props.put(path, System.getProperty("java.class.path"));
+ 	private String path = System.getProperty("java.class.path"); 
+ 	
+ 	// constants.get(ZephyrOpen.path);
 	private String code = null;
 	private String arg = null;
 

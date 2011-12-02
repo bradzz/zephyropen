@@ -1,11 +1,9 @@
-package developer.terminal.control.gui;
+package zephyropen.socket.multicast.gui;
 
 import java.io.*;
 import java.net.*;
 
 import javax.swing.*;
-
-import oculus.PlayerCommands;
 
 import java.awt.event.*;
 
@@ -77,8 +75,8 @@ public class Input extends JTextField implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {		
-		
-		PlayerCommands[] cmds = PlayerCommands.values();
+		/*
+	//	PlayerCommands[] cmds = PlayerCommands.values();
 
 		if(e.getKeyCode() == KeyEvent.VK_UP){
 				
@@ -110,9 +108,9 @@ public class Input extends JTextField implements KeyListener {
 
 				setCaretPosition(getText().length() + 2);
 				
-				
-			}
-		}
+			*/	
+			//}
+		//}
 	}
 
 	@Override
