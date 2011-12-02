@@ -5,6 +5,7 @@ package zephyropen.device;
 import zephyropen.command.Command;
 // import zephyropen.state.Filter;
 // import zephyropen.state.FilterFactory;
+import zephyropen.state.State;
 import zephyropen.util.Utils;
 import zephyropen.api.API;
 import zephyropen.api.ApiFactory;
@@ -183,7 +184,24 @@ public class DeviceTester implements API {
 
 	/** Find log file by naming convention given in args[] */
 	public static void main(String[] args) throws Exception {
-		constants.init(args[0]);
+
+		//System.out.println("args: " + args.length);
+		//System.out.println(constants);
+
+		if(args.length==0){
+		
+	    constants.put(ZephyrOpen.loggingEnabled, true);
+	    constants.put(ZephyrOpen.frameworkDebug, true);
+		constants.put(ZephyrOpen.user, "brad");
+		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
+		constants.init();
+		
+		}
+		
+		if(args.length==2){
+			constants.init(args[0], args[1]);			
+		}
+		
 		new DeviceTester();
 	}
 }

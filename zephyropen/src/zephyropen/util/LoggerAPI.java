@@ -208,7 +208,8 @@ public class LoggerAPI implements API {
 		if (args.length == 1) {
 
 			// configure the framework with properties file
-			constants.init(args[0]);
+			constants.init(args[0], "");
+			//TODO: TEST
 
 			// properties file must supply the device Name */
 			new LoggerAPI();

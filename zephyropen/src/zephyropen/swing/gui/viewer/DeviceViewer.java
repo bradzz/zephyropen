@@ -58,7 +58,7 @@ public class DeviceViewer implements API {
 	/** Update graphs with incoming XML packets */
 	public void execute(Command command) {
 
-		constants.info("viewer exe: " + command.toString());
+		// constants.info("viewer exe: " + command.toString());
 
 		// not for us
 		if (!constants.get(ZephyrOpen.user).equals(command.get(ZephyrOpen.user))) {
@@ -101,24 +101,29 @@ public class DeviceViewer implements API {
 	 * 
 	 */
 	public static void main(String[] args) {
-
-//		if (args.length == 2) {
-
-			/** configure the framework, use properties file given */
-	//		 constants.init(args[0]);
 		
-	//	} else {
+		System.out.println("args: " + args.length);
+		System.out.println(constants);
 
-		    constants.put(ZephyrOpen.loggingEnabled, true);
-		    constants.put(ZephyrOpen.frameworkDebug, true);
-			constants.put(ZephyrOpen.user, "brad");
-			constants.put(State.pack, true);
-			constants.put("drawdelay", "2000");
-			constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
-			constants.init();
-			
-		//}
-			
+		if(args.length==0){
+		
+	    constants.put(ZephyrOpen.loggingEnabled, true);
+	    constants.put(ZephyrOpen.frameworkDebug, true);
+		constants.put(ZephyrOpen.user, "brad");
+		constants.put(State.pack, true);
+		constants.put("drawdelay", "2000");
+		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
+		constants.init();
+		
+		}
+		
+		if(args.length==2){
+			constants.init(args[0], args[1]);			
+		}
+		
+		System.out.println("-----------------------");
+		System.out.println(constants);
+		
 		/** launch new report */
 		new DeviceViewer();
 		

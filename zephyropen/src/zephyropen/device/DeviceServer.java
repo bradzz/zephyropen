@@ -1,5 +1,6 @@
 package zephyropen.device;
 
+import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.util.Utils;
 
@@ -68,14 +69,24 @@ public class DeviceServer {
     */
     public static void main(String[] args) {
 
-        if (args.length == 1) {
+		if(args.length==0){
+		
+	    constants.put(ZephyrOpen.loggingEnabled, true);
+	    constants.put(ZephyrOpen.frameworkDebug, true);
+		constants.put(ZephyrOpen.user, "brad");
+		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
+		constants.init();
+		
+		}
+		
+		if(args.length==2){
+			constants.init(args[0], args[1]);			
+		}
+		
 
-            // configure the framework with properties file 
-            constants.init(args[0]);
-
-            // properties file must supply the device Name 
-            new DeviceServer();
+		new DeviceServer();
     
-        }
+    
+     
     } 
 }

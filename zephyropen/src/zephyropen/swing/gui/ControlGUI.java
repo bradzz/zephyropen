@@ -345,17 +345,20 @@ public class ControlGUI extends JPanel implements Runnable {
 			} else if (source.equals(viewerItem)) {
 				if (createLaunch())
 					new Loader("zephyropen.swing.gui.viewer.DeviceViewer",
-							(String) userList.getSelectedItem());
+							(String) userList.getSelectedItem()
+							+ " " + (String) deviceList.getSelectedItem());
 
 			} else if (source.equals(serverItem)) {
 				if (createLaunch())
 					new Loader("zephyropen.device.DeviceServer",
-							(String) userList.getSelectedItem());
+							(String) userList.getSelectedItem()
+							+ " " + (String) deviceList.getSelectedItem());
 
 			} else if (source.equals(testerItem)) {
 				if (createLaunch())
 					new Loader("zephyropen.device.DeviceTester",
-							(String) userList.getSelectedItem());
+							(String) userList.getSelectedItem() 
+							+ " " + (String) deviceList.getSelectedItem());
 			}
 			
 			// don't let event be handled too often 
@@ -383,7 +386,7 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		// user/deviceName.prperties
 		File propFile = new File(constants.get(ZephyrOpen.root) + ZephyrOpen.fs
-				+ userList.getSelectedItem() + ZephyrOpen.fs + LAUNCH_FILE_NAME);
+				+ userList.getSelectedItem() + ZephyrOpen.fs + dev + ".properties");
 
 		if (propFile.exists()) {
 			try {
@@ -635,12 +638,10 @@ public class ControlGUI extends JPanel implements Runnable {
 
 		/** create and set up the content pane, content panes must be opaque */
 		this.setOpaque(true);
-		frame.setContentPane(this);
-
-		/** set min size */
 		frame.setPreferredSize(new Dimension(XSIZE, YSIZE));
-
-		/** display the window */
+		frame.setContentPane(this);
+		frame.setResizable(false);
+		frame.setAlwaysOnTop(true);
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -12,11 +12,8 @@ public class Loader {
 	
 	/** need to launch new proc */
 	static Runtime runtime = Runtime.getRuntime();
-	// props.put(path, System.getProperty("java.class.path"));
  	private String path = System.getProperty("java.class.path"); 
- 	
- 	// constants.get(ZephyrOpen.path);
-	private String code = null;
+ 	private String code = null;
 	private String arg = null;
 
 	public Loader(String c, String a) {
@@ -74,10 +71,19 @@ public class Loader {
 	 * Start a windows proc for the given class 
 	 */
 	public void winProc() {
+		
+		String[] param = arg.split(" ");
+		String[] args = null; 
+		
+		if(param.length == 2){
+			
+			args = new String[] { "javaw", "-classpath", path, code, param[0], param[1] };
+			
+		} else {
 
-		/** javaw for no screen */
-		String[] args = new String[] { "javaw", "-classpath", path, code, arg };
-
+			args = new String[] { "javaw", "-classpath", path, code, arg };
+		}
+		
 		try {
 
 			for (int i = 0; i < args.length; i++)

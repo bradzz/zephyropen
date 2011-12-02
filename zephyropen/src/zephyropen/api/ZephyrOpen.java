@@ -144,30 +144,25 @@ public class ZephyrOpen {
 		props.put(networkService, multicast);
 		props.put(address, DEFAULT_ADDRESS);
 		props.put(port, DEFAULT_PORT);
-		props.put(loopback, "true");		
+		props.put(loopback, "true");
+
+		props.put(frameworkDebug, "true");		
+
 	}
 
 	/** Configure the Framework with given properties file */
-	public synchronized void init(String file) {
+	public synchronized void init(final String usr, final String dev) {
 
 		if (configured) return;
 
-		// find userName/launch.properties
-		props.put(user, file);
-
-		// home dir
-		props.put(userHome, props.getProperty(root) + fs + file);
-
-		// log files
+		props.put(user, usr);
+		props.put(deviceName, dev);
+		props.put(userHome, props.getProperty(root) + fs + usr);
 		props.put(userLog, props.getProperty(userHome) + fs + log);
+		props.put(propFile, props.getProperty(userHome) + fs + dev + ".properties" );
 
-		// the full path to the properties file
-		props.put(propFile, props.getProperty(userHome) + fs + "launch.properties");
-
-		// add settings, test if done
 		if (!parseConfigFile()) {
-			init();
-			return;
+			System.out.println("error paring file: " + props.getProperty(propFile));
 		}
 
 		// will bring down system on fail
@@ -233,15 +228,13 @@ public class ZephyrOpen {
 		if (getBoolean(externalLookup))
 			props.put(externalAddress, ExternalNetwork.getExternalIPAddress());
 
-		/** register this API with the framework */
-		FrameworkAPI.getReference();
-
 		/** register shutdown hook */
 		Runtime.getRuntime().addShutdownHook(new CleanUpThread());
 
 		/** open log file and register the frame work for debugging */
-		if (getBoolean(frameworkDebug)) enableDebug();
-
+		if (getBoolean(frameworkDebug)) FrameworkAPI.getReference();
+		if (getBoolean(loggingEnabled)) enableDebug();
+		
 		/** all set */
 		configured = true;
 	}

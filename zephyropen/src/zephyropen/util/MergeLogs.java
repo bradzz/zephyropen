@@ -181,7 +181,7 @@ public class MergeLogs {
 	/** Find log file by naming convention given in args[] */
 	public static void main(String[] args) throws Exception {
 
-		constants.init(args[0]);
+		constants.init(args[0], "");
 
 		// username
 		new MergeLogs();
