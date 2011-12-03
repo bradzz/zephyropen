@@ -36,7 +36,7 @@ public class ZephyrOpen {
 	public static final String DEFAULT_PORT = "4444";
 	public static final String DEFAULT_ADDRESS = "230.0.0.1";
 	public static final String zephyropen = "zephyropen";
-
+	public final static String fs = System.getProperty("file.separator");
 	public static final String TIME_MS = "timestamp";
 	public static final String timestamp = "timestamp";
 	public static final String frameworkVersion = "frameworkVersion";
@@ -85,22 +85,14 @@ public class ZephyrOpen {
 
 	/** decimal points truncated for display, not rounded */
 	public static final int PRECISION = 2;
-
 	public static final int ERROR = -1;
-
-	public final static String fs = System.getProperty("file.separator");
 
 	/** max time in milliseconds before closing the process */
 	public static final long ONE_MINUTE = 60000;
-
 	public static final long TWO_MINUTES = 120000;
-
 	public static final long FIVE_MINUTES = 300000;
-
 	public static final long TEN_MINUTES = 600000;
-
 	public static final long TIME_OUT = TWO_MINUTES;
-
 
 	/** communication channels to the framework */
 	private InputChannel inputchannel = null;
@@ -125,9 +117,8 @@ public class ZephyrOpen {
 	private boolean locked = false;
 
 	public static ZephyrOpen getReference() {
-		if (singleton == null) {
-			singleton = new ZephyrOpen();
-		}
+		if (singleton == null) singleton = new ZephyrOpen();
+		
 		return singleton;
 	}
 
@@ -161,15 +152,12 @@ public class ZephyrOpen {
 		props.put(userLog, props.getProperty(userHome) + fs + log);
 		props.put(propFile, props.getProperty(userHome) + fs + dev + ".properties" );
 
-		if (!parseConfigFile()) {
+		if (!parseConfigFile()){ 
 			System.out.println("error paring file: " + props.getProperty(propFile));
 		}
-
-		// will bring down system on fail
-		createHome();
-
-		// boot me
-		startFramework();
+		
+		createHome(); // will bring down system on fail
+		startFramework(); // boot me
 	}
 
 	/** Configure the Framework with Defaults */
@@ -187,12 +175,8 @@ public class ZephyrOpen {
 		if(!props.containsKey(userLog))
 			put(userLog, props.getProperty(userHome) + fs + log);
 		
-		// will bring down system on fail
-		createHome();
-
-		/** boot me */
-		startFramework();
-		
+		createHome(); // will bring down system on fail
+		startFramework(); // boot me
 	}
 
 	/**
@@ -207,7 +191,7 @@ public class ZephyrOpen {
 			System.err.println("can't re-initalize the framework");
 			return;
 		}
-
+		
 		/** configure the network parameters */
 		try {
 
@@ -305,7 +289,7 @@ public class ZephyrOpen {
 
 			// set up new properties object from file
 			FileInputStream propFile = new FileInputStream(filepath);
-			System.out.println("parsed config file [" + filepath + "]");
+			info("framework parsed config file [" + filepath + "]");
 			props.load(propFile);
 			propFile.close();
 
@@ -319,7 +303,6 @@ public class ZephyrOpen {
 
 		} catch (Exception e) {
 			System.err.println("can't parse config file [" + filepath + "], terminate.");
-			System.exit(0);
 		}
 
 		return true;
@@ -329,7 +312,6 @@ public class ZephyrOpen {
 	 * 
 	 * @return true if written to config file
 	 */
-	
 	public boolean updateConfifFile() {
 
 		final String filepath = props.getProperty(propFile);
@@ -337,7 +319,8 @@ public class ZephyrOpen {
 		new File(filepath).delete();
 
 		Properties hold = (Properties) props.clone();
-		System.out.println("write to: " + propFile);
+		
+		System.out.println("constants, write to file: " + propFile);
 
 		OutputStream out = null;
 		try {
@@ -389,23 +372,23 @@ public class ZephyrOpen {
 			return;
 		}
 
-	//	if (getBoolean(frameworkDebug))
+		if (getBoolean(frameworkDebug))
 			if (props.containsKey(key))
 				System.out.println(".... refreshing property for: " + key + " = " + value);
 
 		props.put(key.trim(), value.trim());
 	}
 
-	public /*synchronized*/ void put(String tag, boolean b) {
+	public  void put(String tag, boolean b) {
 		if (b)put(tag, "true");
 		else put(tag, "false");
 	}
 
-	public /*synchronized*/ void put(String key, int value) {
+	public void put(String key, int value) {
 		put(key, String.valueOf(value));
 	}
 
-	public /*synchronized*/ void put(String key, long value) {
+	public void put(String key, long value) {
 		put(key, String.valueOf(value));
 	}
 
@@ -439,7 +422,7 @@ public class ZephyrOpen {
 	 *            is the lookup value
 	 * @return the matching value from properties file (or false if not found)
 	 */
-	public /*synchronized*/ boolean getBoolean(String key) {
+	public boolean getBoolean(String key) {
 
 		boolean value = false;
 
@@ -461,7 +444,7 @@ public class ZephyrOpen {
 	 *            is the lookup value
 	 * @return the matching value from properties file (or zero if not found)
 	 */
-	public /*synchronized*/ int getInteger(String key) {
+	public int getInteger(String key) {
 
 		String ans = null;
 		int value = ERROR;
@@ -509,57 +492,31 @@ public class ZephyrOpen {
 			if (logger != null)
 				logger.append("ERROR, " + clazz.getClass().getName() + ", " + line);
 
-		System.err.println(Utils.getTime() + " " + clazz.getClass().getName()
-				+ ", " + line);
+		System.err.println(Utils.getTime() + " " + clazz.getClass().getName() + ", " + line);
 	}
 
 	/** */
 	public void error(String line) {
-
-		if (!configured) {
-			System.out.println("not configured, terminate.");
-			System.exit(0);
-		}
-
-		if (getBoolean(frameworkDebug))
-			if (logger != null)
-				logger.append("ERROR, " + zephyropen + ", " + line);
+		if (logger != null)
+			logger.append("ERROR, " + zephyropen + ", " + line);
 
 		System.err.println(Utils.getTime() + " " + line);
 	}
 
 	/** */
 	public void info(String line, Object clazz) {
+		if (logger != null)
+			logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
 
-		if (!configured) {
-			System.err.println("not configured, terminate.");
-			System.exit(0);
-		}
-
-		if (getBoolean(frameworkDebug)) {
-			if (logger != null)
-				logger.append("INFO, " + clazz.getClass().getName() + ", "
-						+ line);
-
-			System.out.println(Utils.getTime() + " "
-					+ clazz.getClass().getName() + " " + line);
-		}
+		System.out.println(Utils.getTime() + " " + clazz.getClass().getName() + " " + line);
 	}
 
 	/** */
 	public void info(String line) {
+		if (logger != null)
+			logger.append("INFO, " + get(deviceName) + ", " + zephyropen + ", " + line);
 
-		if (!configured) {
-			System.err.println("not configured, terminate.");
-			System.exit(0);
-		}
-
-		if (getBoolean(frameworkDebug)) {
-			if (logger != null)
-				logger.append("INFO, " + get(deviceName) + ", " + zephyropen + ", " + line);
-
-			System.out.println(Utils.getTime() + " " + zephyropen + " " + line);
-		}
+		System.out.println(Utils.getTime() + " " + zephyropen + " " + line);
 	}
 
 	public synchronized void lock() {

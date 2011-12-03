@@ -27,7 +27,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
-import javax.swing.UIManager;
 
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
@@ -623,27 +622,16 @@ public class ControlGUI extends JPanel implements Runnable {
 	/** Create the GUI and show it. */
 	@Override
 	public void run() {
-
-		/** make sure we have nice window decorations. */
 		JFrame.setDefaultLookAndFeelDecorated(true);
-
-		/** Turn off metal's use of bold fonts */
-		UIManager.put("swing.boldMetal", Boolean.FALSE);
-
-		/** float on top of all other windows */
-		frame.setAlwaysOnTop(true);
-
-		/** close on gui exit */
+		// UIManager.put("swing.boldMetal", Boolean.FALSE);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		/** create and set up the content pane, content panes must be opaque */
-		this.setOpaque(true);
 		frame.setPreferredSize(new Dimension(XSIZE, YSIZE));
 		frame.setContentPane(this);
 		frame.setResizable(false);
 		frame.setAlwaysOnTop(true);
-		frame.pack();
 		frame.setVisible(true);
+		frame.pack();
+		setOpaque(true);
 	}
 
 	private class RefreshTask extends TimerTask {
