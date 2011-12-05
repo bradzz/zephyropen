@@ -308,20 +308,19 @@ public class ZephyrOpen {
 		return true;
 	}
 
-	/**
-	 * 
-	 * @return true if written to config file
-	 */
+	/** @return true if written to config file */
 	public boolean updateConfifFile() {
 
 		final String filepath = props.getProperty(propFile);
 
-		new File(filepath).delete();
+		File file = new File(filepath);
+		
+		if(file.exists()) file.delete();
 
 		Properties hold = (Properties) props.clone();
-		
+			
 		System.out.println("constants, write to file: " + propFile);
-
+	
 		OutputStream out = null;
 		try {
 			out = new FileOutputStream(filepath);
@@ -335,8 +334,8 @@ public class ZephyrOpen {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			return false;
-		}
-
+		}			
+	
 		return true;
 	}
 
@@ -353,7 +352,7 @@ public class ZephyrOpen {
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
 			String value = ((String) (props.get(key))).trim();
-			str += (key + " : " + value + "\n");
+			str += (key + " : " + value + "\n\r");
 		}
 
 		return str;
@@ -368,13 +367,13 @@ public class ZephyrOpen {
 	public synchronized void put(String key, String value) {
 
 		if (locked) {
-			System.out.println("... framework constants locked, can't put(): " + key);
+			System.out.println("framework constants locked, can't put(): " + key);
 			return;
 		}
 
-		if (getBoolean(frameworkDebug))
-			if (props.containsKey(key))
-				System.out.println(".... refreshing property for: " + key + " = " + value);
+		// if (getBoolean(frameworkDebug))
+		//	if (props.containsKey(key))
+		//		System.out.println(".... refreshing property for: " + key + " = " + value);
 
 		props.put(key.trim(), value.trim());
 	}
@@ -483,10 +482,10 @@ public class ZephyrOpen {
 	 */
 	public void error(String line, Object clazz) {
 
-		if (!configured) {
-			System.err.println("not configured, terminate.");
-			System.exit(0);
-		}
+		//if (!configured) {
+		//	System.err.println("not configured, terminate.");
+		//	System.exit(0);
+		//}
 
 		if (getBoolean(frameworkDebug))
 			if (logger != null)

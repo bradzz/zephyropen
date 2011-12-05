@@ -2,12 +2,15 @@ package zephyropen.device.beamscan;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
 import zephyropen.api.ApiFactory;
+import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
+import zephyropen.state.State;
 import zephyropen.util.Utils;
 import zephyropen.util.google.SendGmail;
 
@@ -48,8 +51,8 @@ public class BeamGUI {
 	public static final String redY2 = "redY2";
 
 	// TODO: get from config
-	public final static int WIDTH = 700;
-	public final static int HEIGHT = 350;
+	public final static int WIDTH = 650;
+	public final static int HEIGHT = 300;
 
 	private final String title = "Beam Scan v2.3";
 	private JFrame frame = new JFrame(title);
@@ -115,16 +118,35 @@ public class BeamGUI {
 
 	/** */
 	public static void main(String[] args) {
-		constants.init();
-		if (constants.get(ZephyrOpen.propFile) == null) {
-			constants.info("started without config file");
+		
+	//	if (constants.get(ZephyrOpen.propFile) == null) {
+			
+			constants.put(ZephyrOpen.deviceName, "beamscan");
+			constants.put(ZephyrOpen.user, "beamscan");
+			constants.put(ZephyrOpen.propFile, "beamscan.properties");
+			constants.put(ZephyrOpen.loggingEnabled, true);
+			constants.put(ZephyrOpen.frameworkDebug, true);
+
+	//		constants.info("started without config file");
 			constants.info(constants.toString());
-		}
+			constants.updateConfifFile();
+			
+	//	}
+		
+		constants.init();
 
-		ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
-		if (ApiFactory.getReference().toString() != null)
-			constants.error("non-null api warning");
+		// ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
+		// if (ApiFactory.getReference().toString() != null)
+		//	constants.error("non-null api warning");
 
+
+	    
+		// constants.put(ZephyrOpen.user, "brad");
+		// constants.put(State.pack, true);
+		// constants.put("drawdelay", "2000");
+		
+	    // constants.put(ZephyrOpen.deviceName, "beamscan"); //PrototypeFactory...);
+		
 		new BeamGUI();
 	}
 
@@ -271,7 +293,7 @@ public class BeamGUI {
 		}
 		launcher.setNewWindowPolicy(true);
 		launcher.openURLinBrowser("http://www.java.com/en/download/manual.jsp");
-		launcher.openURLinBrowser("http://http://code.google.com/p/zephyropen/");
+		launcher.openURLinBrowser("http://code.google.com/p/zephyropen/");
 		launcher.openURLinBrowser("http://verticalchallenge.org");
 	}
 
@@ -295,8 +317,7 @@ public class BeamGUI {
 					BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(fstream)));
 					String strLine;
 					text += "-- prop file -- \r\n";
-					while ((strLine = br.readLine()) != null)
-						text += strLine + "\r\n";
+					while ((strLine = br.readLine()) != null) text += strLine + "\r\n";
 					br.close();
 
 				} catch (Exception e) {
@@ -321,7 +342,9 @@ public class BeamGUI {
 				
 				// System.out.println(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_debug.log");
 				
-				new SendGmail("beamscanner@gmail.com", "beam-scan").sendMessage("debug info", text); //, constants.get(ZephyrOpen.userLog));
+				new SendGmail("beamscanner@gmail.com", "beam-scan").sendMessage("debug info", text); 
+				
+				//, constants.get(ZephyrOpen.userLog));
 			}
 		}.start();
 	}

@@ -21,15 +21,6 @@ public class SendGmail {
 	private String gmail = null;
 	private String gpass = null;
 	
-	/* test driver 
-	public static void main(String[] args) throws Exception {
-		
-		if (sendMessage("Important Event", "testing attachment", ".classpath"))
-			System.out.println("email sent");
-		else
-			System.out.println("email failed, check your settings");
-	}*/
-
 	public SendGmail(String usr, String pass){
 		gmail = usr;
 		gpass = pass;
