@@ -44,7 +44,7 @@ public class SendGmail {
 
 			Session mailSession = Session.getDefaultInstance(props);
 			Transport transport = mailSession.getTransport("smtp");
-			// mailSession.setDebug(true);
+			mailSession.setDebug(true);
 
 			MimeMessage message = new MimeMessage(mailSession);
 			message.setSubject(sub);
@@ -55,6 +55,7 @@ public class SendGmail {
 			transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
 			transport.close();
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 			return false;
 		}
 

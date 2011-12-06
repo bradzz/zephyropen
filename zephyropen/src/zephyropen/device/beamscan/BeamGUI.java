@@ -17,8 +17,11 @@ import zephyropen.util.google.SendGmail;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -33,7 +36,7 @@ import java.util.Vector;
 /**
  * @author brad.zdanivsky@gmal.com
  */
-public class BeamGUI {
+public class BeamGUI implements KeyListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final String beamscan = "beamscan";
@@ -53,6 +56,8 @@ public class BeamGUI {
 	// TODO: get from config
 	public final static int WIDTH = 650;
 	public final static int HEIGHT = 300;
+	private static final int LOW_MAX = 512;
+	private static final int LOW_MIN = -1;
 
 	private final String title = "Beam Scan v2.3";
 	private JFrame frame = new JFrame(title);
@@ -115,39 +120,35 @@ public class BeamGUI {
 	private double orangeX2px = 0.0;
 	private double orangeY1px = 0.0;
 	private double orangeY2px = 0.0;
+	
+	// a2d filter 
+	// private int lowLevel = 0;
 
 	/** */
 	public static void main(String[] args) {
 		
-	//	if (constants.get(ZephyrOpen.propFile) == null) {
-			
-			constants.put(ZephyrOpen.deviceName, "beamscan");
-			constants.put(ZephyrOpen.user, "beamscan");
-			constants.put(ZephyrOpen.propFile, "beamscan.properties");
-			constants.put(ZephyrOpen.loggingEnabled, true);
-			constants.put(ZephyrOpen.frameworkDebug, true);
-
-	//		constants.info("started without config file");
-			constants.info(constants.toString());
-			constants.updateConfifFile();
-			
-	//	}
+		/*
+		constants.put(ZephyrOpen.deviceName, "beamscan");
+		constants.put(ZephyrOpen.user, "beamscan");
+		constants.put(ZephyrOpen.propFile, "beamscan.properties");
+		constants.put(ZephyrOpen.loggingEnabled, true);
+		constants.put(ZephyrOpen.frameworkDebug, true);
+		constants.updateConfifFile();
+		*/
+		// lowLevel = constants.getInteger("lowLevel");
 		
-		constants.init();
-
-		// ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
-		// if (ApiFactory.getReference().toString() != null)
-		//	constants.error("non-null api warning");
-
-
-	    
-		// constants.put(ZephyrOpen.user, "brad");
-		// constants.put(State.pack, true);
-		// constants.put("drawdelay", "2000");
+		constants.init("beamscan", "beamscan");
+//		lowLevel = constants.getInteger("lowLevel");
+		System.out.println(constants);
 		
-	    // constants.put(ZephyrOpen.deviceName, "beamscan"); //PrototypeFactory...);
+		if(constants.get("beamscan")==null)
+			System.out.println("....... not found");
+			
+			//topRight1 = "low = " + lowLevel;
+
 		
 		new BeamGUI();
+	
 	}
 
 	/** create the swing GUI */
@@ -174,7 +175,9 @@ public class BeamGUI {
 		loggingItem.addItemListener(loggingListener);
 
 		/** Add to menu */
-		deviceMenue.add(connectItem);
+		if(constants.get("beamscan")!=null)
+			deviceMenue.add(connectItem);
+		
 		userMenue.add(recordingtem);
 		userMenue.add(loggingItem);
 		userMenue.add(screenshotItem);
@@ -200,6 +203,13 @@ public class BeamGUI {
 		frame.setAlwaysOnTop(true);
 		frame.setVisible(true);
 
+		// 
+		frame.addKeyListener(this);
+		
+		topRight1 = "low = " + constants.get("lowLevel");
+		System.out.println("low = " + constants.get("lowLevel"));
+
+		
 		/** register shutdown hook */
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -324,27 +334,11 @@ public class BeamGUI {
 					return;
 				}
 			
-				/*
-				try {
-					
-					fstream = new FileInputStream(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_debug.log");
-					BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(fstream)));
-					String strLine;
-					text += "-- debug log -- \r\n";
-					while ((strLine = br.readLine()) != null)
-						text += strLine + "\r\n";
-					br.close();
-
-				} catch (Exception e) {
-					return;
-				}
-				*/
 				
-				// System.out.println(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_debug.log");
-				
+				System.out.println("... sending mail ...");
+				//constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + constants.get(ZephyrOpen.deviceName) + "_debug.log");
 				new SendGmail("beamscanner@gmail.com", "beam-scan").sendMessage("debug info", text); 
 				
-				//, constants.get(ZephyrOpen.userLog));
 			}
 		}.start();
 	}
@@ -446,6 +440,11 @@ public class BeamGUI {
 			userMenue.remove(scanItem);
 			deviceMenue.remove(disconnectItem);
 		}
+		
+		if(constants.get("beamscan")==null)
+			deviceMenue.remove(connectItem);
+
+
 	}
 
 	/** take one slice if currently connected */
@@ -648,4 +647,40 @@ public class BeamGUI {
 				g.drawString(topLeft3, 15, 45);
 		}
 	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+		char chr = e.getKeyChar();
+		
+		// int code = e.getKeyCode();
+		
+		if(chr=='u'){
+		//	if(lowLevel >= LOW_MAX)
+			constants.put("lowLevel", String.valueOf(constants.getInteger("lowLevel")+1)); 
+		}
+		
+		if(chr=='d'){
+		//	if(lowLevel <= LOW_MIN)
+				//lowLevel--;
+			//constants.getInteger("lowLevel");
+			constants.put("lowLevel", String.valueOf(constants.getInteger("lowLevel")-1)); 
+
+		}
+		
+		if(chr=='u' || chr=='d'){
+
+			topRight1 = "low = " + constants.get("lowLevel");
+			beamCompent.repaint();
+			constants.updateConfifFile();
+			
+		}
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
 }

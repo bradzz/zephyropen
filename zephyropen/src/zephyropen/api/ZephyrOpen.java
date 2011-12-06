@@ -118,7 +118,6 @@ public class ZephyrOpen {
 
 	public static ZephyrOpen getReference() {
 		if (singleton == null) singleton = new ZephyrOpen();
-		
 		return singleton;
 	}
 
@@ -312,14 +311,18 @@ public class ZephyrOpen {
 	public boolean updateConfifFile() {
 
 		final String filepath = props.getProperty(propFile);
+		File file = new File(filepath);	
+		if(file.exists()){
+			
+			file.delete();
 
-		File file = new File(filepath);
+			System.out.println(".. file exists, delete ..");
+			
+		}
 		
-		if(file.exists()) file.delete();
-
 		Properties hold = (Properties) props.clone();
 			
-		System.out.println("constants, write to file: " + propFile);
+		System.out.println("constants, write to file: " + props.getProperty(propFile));
 	
 		OutputStream out = null;
 		try {
@@ -346,15 +349,13 @@ public class ZephyrOpen {
 
 	@Override
 	public String toString() {
-
 		String str = "";
 		Enumeration<Object> keys = props.keys();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
 			String value = ((String) (props.get(key))).trim();
-			str += (key + " : " + value + "\n\r");
+			str += (key + " = " + value + ", ");
 		}
-
 		return str;
 	}
 
