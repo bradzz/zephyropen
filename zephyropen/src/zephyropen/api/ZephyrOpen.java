@@ -32,7 +32,7 @@ import zephyropen.util.Utils;
 public class ZephyrOpen {
 
 	/** track all major changes here */
-	public static final String VERSION = "2.4.2";
+	public static final String VERSION = "2.5";
 	public static final String DEFAULT_PORT = "4444";
 	public static final String DEFAULT_ADDRESS = "230.0.0.1";
 	public static final String zephyropen = "zephyropen";
@@ -602,7 +602,11 @@ public class ZephyrOpen {
 	}
 
 	/** terminate the application, but clean up first */
-	public void closeLoggers() {
+	public void closeLoggers() {	
+		
+		if (logger != null)
+			logger.close();
+		
 		if (dataLoggers != null) {
 			@SuppressWarnings("rawtypes")
 			Enumeration e = dataLoggers.elements();
@@ -610,8 +614,7 @@ public class ZephyrOpen {
 				((DataLogger) e.nextElement()).close();
 		}
 
-		if (logger != null)
-			logger.close();
+	
 	}
 
 	/** track open loggers */

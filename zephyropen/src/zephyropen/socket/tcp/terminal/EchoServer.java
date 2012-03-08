@@ -48,10 +48,10 @@ public class EchoServer {
 			sendToGroup(" has joined the group!");
 
 			// log to console
-			System.out.println("currently [" + printers.size() + "] users are connected.");
+			System.out.println(printers.size() + " users are now connected.");
 
 			// show newly logged in user how many others are online
-			out.println("[" + clientSocket.getLocalPort() + "] currently [" + printers.size() + "] users are connected.");
+			out.println("[" + clientSocket.getLocalPort() + "] " + printers.size() + " users are connected.");
 
 			try {
 
@@ -68,7 +68,6 @@ public class EchoServer {
 						break;
 
 					// show client input and corresponding server side port
-					// number as well as shared counter
 					System.out.println("address [" + clientSocket + "] message [" + str + "]");
 
 					// echo input out on all open connections
@@ -118,8 +117,7 @@ public class EchoServer {
 				}
 
 				// send to user(s) with sender's port number
-				else
-					pw.println("[" + clientSocket.getPort() + "] " + str);
+				else pw.println("[" + clientSocket.getPort() + "] " + str);
 			}
 		}
 	}
@@ -136,7 +134,7 @@ public class EchoServer {
 
 		// server socket, using the specified port number
 		ServerSocket s = new ServerSocket(port);
-		System.out.println("\nserver: listening with socket [" + s + "] ");
+		System.out.println("server: listening with socket [" + s + "] ");
 
 		// serve new connections until killed
 		while (true) {

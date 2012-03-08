@@ -3,7 +3,6 @@ package zephyropen.socket.tcp.gui;
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
-///import java.util.*;
 
 /**
  * A minimal SWING input field to read from a given socket
@@ -17,7 +16,7 @@ public class OutputArea extends JTextArea implements Runnable {
 
 	public OutputArea(Socket socket) {
 
-		// don't alow editing the textArea
+		// don't allow editing the textArea
 		setEditable(false);
 
 		try {

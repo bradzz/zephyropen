@@ -9,19 +9,20 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 
-//
-// ref: http://www.mkyong.com/java/javamail-api-sending-email-via-gmail-smtp-example/
-//
+/*
+ * ref: http://www.mkyong.com/java/javamail-api-sending-email-via-gmail-smtp-example/
+ *
+ *
+ */
 public class SendGmail {
 	
-	// take this from properties 
 	private static final int SMTP_HOST_PORT = 587;
 	private static final String SMTP_HOST_NAME = "smtp.gmail.com";
 	
 	private String gmail = null;
 	private String gpass = null;
 	
-	public SendGmail(String usr, String pass){
+	public SendGmail(final String usr, final String pass){
 		gmail = usr;
 		gpass = pass;
 	}
@@ -59,7 +60,6 @@ public class SendGmail {
 			return false;
 		}
 
-		// all good
 		return true;
 	}
 	
@@ -74,7 +74,7 @@ public class SendGmail {
 			
 			Session mailSession = Session.getDefaultInstance(props);
 			Transport transport = mailSession.getTransport("smtp");
-			mailSession.setDebug(true);
+			// mailSession.setDebug(true);
 	
 			MimeMessage message = new MimeMessage(mailSession);
 			message.setSubject(sub);
@@ -99,11 +99,9 @@ public class SendGmail {
 			
 	       
 	    }catch (Exception e) {
-	       e.printStackTrace();
 	       return false;
 	    }
     
-	    // all well
 	    return true;
 	}
 }
