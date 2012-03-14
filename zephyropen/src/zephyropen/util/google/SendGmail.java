@@ -74,7 +74,7 @@ public class SendGmail {
 			
 			Session mailSession = Session.getDefaultInstance(props);
 			Transport transport = mailSession.getTransport("smtp");
-			// mailSession.setDebug(true);
+			mailSession.setDebug(true);
 	
 			MimeMessage message = new MimeMessage(mailSession);
 			message.setSubject(sub);
