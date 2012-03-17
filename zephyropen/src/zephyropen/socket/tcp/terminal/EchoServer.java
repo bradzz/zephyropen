@@ -156,8 +156,11 @@ public class EchoServer {
 	// driver
 	public static void main(String args[]) throws IOException {
 
-		// get the arguments from the command line
-		int portNumber = Integer.parseInt(args[0]);
+		   int portNumber = 4444;
+		   
+		   // get the arguments from the command line   
+		if(args.length > 0) portNumber = Integer.parseInt(args[0]);
+
 
 		// instantiate and execute the server
 		new EchoServer(portNumber);

@@ -47,19 +47,17 @@ public class Loader {
 
 		try {
 
-			// for (int i = 0; i < args.length; i++)
-				//constants.info("Launch args [" + i + "] " + args[i]);
+			for (int i = 0; i < args.length; i++)
+				constants.info("Launch args [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
-			// Process proc = 
-			
-			runtime.exec(args);
+			Process proc = runtime.exec(args);
 				
-			// BufferedReader procReader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			BufferedReader procReader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-			// String line = null;
-			// while ((line = procReader.readLine()) != null)
-				// constants.info("proc : " + line);
+			String line = null;
+			while ((line = procReader.readLine()) != null)
+				constants.info("proc : " + line);
 
 		} catch (Exception e) {
 			constants.error("fatal runtime.exec() error: " + e.getMessage());

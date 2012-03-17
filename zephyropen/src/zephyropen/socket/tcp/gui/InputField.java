@@ -22,13 +22,13 @@ public class InputField extends JTextField implements KeyListener {
 	private Vector<String> history = new Vector<String>();
 	int ptr = 0;
 
-	public InputField(Socket s, final String usr, final String pass) {
+	public InputField(Socket s, final String usr) {
 		super("users");
 		socket = s;
 
 		try {
 			out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-			out.println(usr + ":" + pass);
+			out.println(usr);
 		} catch (Exception e) {
 			System.out.println("InputField() : " + e.getMessage());
 		}
