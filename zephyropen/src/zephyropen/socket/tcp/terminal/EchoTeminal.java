@@ -9,7 +9,7 @@ import java.net.*;
  * Created: 2007.11.3
  * @author Brad Zdanivsky 
  */
-public class EchoClient implements Runnable {
+public class EchoTeminal implements Runnable {
    
    private Thread listener = null; 
    private Socket socket = null; 
@@ -24,7 +24,7 @@ public class EchoClient implements Runnable {
     * @param host is the server name.
     * @param port is the server port number.
     */
-   public EchoClient(String host, int port) throws IOException {  
+   public EchoTeminal(String host, int port) throws IOException {  
 	   try {
       
 		   // construct the client socket
@@ -155,6 +155,6 @@ public class EchoClient implements Runnable {
       int port = Integer.parseInt(args[1]);
 
       // instantiate and execute the client
-      new EchoClient(hostname, port).execute();
+      new EchoTeminal(hostname, port).execute();
    }
 }

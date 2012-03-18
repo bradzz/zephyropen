@@ -1,8 +1,5 @@
 package zephyropen.util.google;
 
-//import zephyropen.state.EventCounter;
-import java.net.URL;
-
 import zephyropen.api.ZephyrOpen;
 import zephyropen.state.State;
 import zephyropen.util.Utils;

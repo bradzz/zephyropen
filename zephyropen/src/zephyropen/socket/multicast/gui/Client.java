@@ -9,13 +9,13 @@ public class Client {
 		try {
 
 			// construct the client socket
-			Socket s = new Socket(host, port);
+			MulticastSocket s = null;
 
 			// create a useful title
 			String title = usr + s.getInetAddress().toString();
 
 			// pass socket on to read and write swing components
-			Frame frame = new Frame(new Input(s, usr, pass), new Output(s), title);
+			Frame frame = new Frame(new Input(s), new Output(s), title);
 
 			// create and show this application's GUI.
 			javax.swing.SwingUtilities.invokeLater(frame);
@@ -28,6 +28,6 @@ public class Client {
   
    // driver
    public static void main(String args[]) throws IOException {
-      new Client(args[0], Integer.parseInt(args[1]), args[2], args[3]);
+     
    }
 }

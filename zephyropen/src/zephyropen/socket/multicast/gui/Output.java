@@ -9,13 +9,12 @@ public class Output extends JTextArea implements Runnable {
 	private static final long serialVersionUID = 1L;
 	private BufferedReader in = null;
 
-	public Output(Socket socket) {
+	public Output(MulticastSocket socket) {
 
 		// don't allow editing the textArea
 		setEditable(false);
 
 		try {
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		} catch (Exception e) {
 			System.exit(-1);
 		}

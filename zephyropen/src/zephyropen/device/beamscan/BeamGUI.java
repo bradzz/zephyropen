@@ -1,23 +1,18 @@
 package zephyropen.device.beamscan;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
-import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
-
-import zephyropen.api.ApiFactory;
-import zephyropen.api.PrototypeFactory;
-import zephyropen.api.ZephyrOpen;
-import zephyropen.state.State;
-import zephyropen.util.Utils;
-import zephyropen.util.google.SendGmail;
-
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -33,8 +28,27 @@ import java.net.URL;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
+
+import zephyropen.api.ZephyrOpen;
+import zephyropen.util.Utils;
+import zephyropen.util.google.SendGmail;
+import edu.stanford.ejalbert.BrowserLauncher;
+import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
+import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
+
 /**
- * @author brad.zdanivsky@gmal.com
+ * @author brad.zdanivsky@gmail.com
  */
 public class BeamGUI implements KeyListener {
 
@@ -56,8 +70,8 @@ public class BeamGUI implements KeyListener {
 	// TODO: get from config
 	public final static int WIDTH = 650;
 	public final static int HEIGHT = 300;
-	private static final int LOW_MAX = 512;
-	private static final int LOW_MIN = -1;
+	//private static final int LOW_MAX = 512;
+	//rivate static final int LOW_MIN = -1;
 
 	private final String title = "Beam Scan v2.3";
 	private JFrame frame = new JFrame(title);

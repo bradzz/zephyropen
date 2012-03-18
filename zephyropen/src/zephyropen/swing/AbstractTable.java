@@ -19,8 +19,6 @@ import zephyropen.command.Command;
  */
 public class AbstractTable implements API {
 	
-	private static final long serialVersionUID = 1L;
-	
 	/** framework configuration */ 
 	protected ZephyrOpen constants = ZephyrOpen.getReference();
 	

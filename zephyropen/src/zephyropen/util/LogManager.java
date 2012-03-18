@@ -1,7 +1,6 @@
 package zephyropen.util;
 
 import java.io.RandomAccessFile;
-import java.util.Date;
 
 /**
  * Manage a log file on local storage

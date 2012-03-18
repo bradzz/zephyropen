@@ -1,11 +1,6 @@
 package zephyropen.device;
 
-// import java.util.Random;
-
 import zephyropen.command.Command;
-// import zephyropen.state.Filter;
-// import zephyropen.state.FilterFactory;
-import zephyropen.state.State;
 import zephyropen.util.Utils;
 import zephyropen.api.API;
 import zephyropen.api.ApiFactory;

@@ -117,7 +117,8 @@ public class EchoServer {
 				}
 
 				// send to user(s) with sender's port number
-				else pw.println("[" + clientSocket.getPort() + "] " + str);
+				else
+					pw.println("[" + clientSocket.getPort() + "] " + str);
 			}
 		}
 	}
@@ -156,11 +157,7 @@ public class EchoServer {
 	// driver
 	public static void main(String args[]) throws IOException {
 
-		   int portNumber = 4444;
-		   
-		   // get the arguments from the command line   
-		if(args.length > 0) portNumber = Integer.parseInt(args[0]);
-
+		int portNumber = 4444;
 
 		// instantiate and execute the server
 		new EchoServer(portNumber);

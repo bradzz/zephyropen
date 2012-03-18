@@ -11,7 +11,7 @@ import zephyropen.util.google.GoogleLineGraph;
 
 public class HXMViewer extends AbstractViewer implements Viewer {
 
-	private int seq, last = 0;
+	/// private int seq, last = 0;
 
 	public HXMViewer(API caller) {
 
@@ -31,30 +31,6 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 	/** */
 	public void update(Command command) {
 
-	//	String beat = command.get(PrototypeFactory.heart);
-		//seq = Integer.parseInt(beat);
-
-		/*
-		if (!(seq == (last - 1))) {
-
-			System.out.println("seq: " + seq + " last: " + last);
-		
-		} else if( seq == last ){
-			
-			System.out.println("same beat?");
-			return;
-			
-		}
-
-		*/
-		
-		//
-/*
-		for (int i = 0; i < 4; i++) {
-			String value = command.get(PrototypeFactory.rr + i);
-			System.out.println("[" + i + "]: " + value);
-		}
-*/
 		/*
 		int v1 = Integer.parseInt(command.get("rr1"));
 		int v2 = Integer.parseInt(command.get("rr2"));
@@ -63,7 +39,6 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 		if(result < 300  ) result = 300;
 		if(result > 1600 ) result = 1600;
 		*/
-		// System.out.println("res: " + result);
 		
 		charts[0].add(command.get(PrototypeFactory.heart));
 		charts[1].add("100"); // Integer.toString(result));
@@ -72,6 +47,5 @@ public class HXMViewer extends AbstractViewer implements Viewer {
 		charts[4].add(command.get(PrototypeFactory.beat));
 		charts[5].add(String.valueOf(api.getDelta()));
 		battery = command.get(PrototypeFactory.battery);
-		last = seq;
 	}
 }

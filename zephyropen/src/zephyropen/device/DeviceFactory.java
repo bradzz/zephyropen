@@ -2,7 +2,6 @@ package zephyropen.device;
 
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
-import zephyropen.device.arduino.ArduinoDevice;
 import zephyropen.device.elevation.ElevationDevice;
 import zephyropen.device.polar.PolarDevice;
 import zephyropen.device.zephyr.BioharnessDevice;
@@ -32,24 +31,16 @@ public class DeviceFactory {
 		
 		if (type == PrototypeFactory.HXM) {
 			Device device = new HxmDevice(deviceName);
-        	
-			//if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		//new WatchDog(device).start();
 			return device;
 		}
 
 		if (type == PrototypeFactory.HRM) {
 			Device device = new HrmDevice(deviceName);
-        	
-			//if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		//new WatchDog(device).start();
         	return device;
 		}
 
 		if (type == PrototypeFactory.BIOHARNESS) {
 			Device device = new BioharnessDevice(deviceName);
-        	//if( constants.getBoolean(ZephyrOpen.enableWatchDog))
-        		//new WatchDog(device).start();
 			return device;
 		}
 
@@ -66,9 +57,6 @@ public class DeviceFactory {
 
 		if (type == PrototypeFactory.ELEVATION)
 			return new ElevationDevice(com);
-
-		if (type == PrototypeFactory.ARDUINO)
-			return new ArduinoDevice(com);
 
 	
 		return null;
