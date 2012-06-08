@@ -9,6 +9,7 @@ public class HelloGmail {
 	public static void main(String[] args) throws Exception {
 		
 		System.out.println("args: " + args.length);
+		System.out.println(getProps());
 		
 		if(args.length!=2) return;
 		

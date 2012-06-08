@@ -33,17 +33,58 @@ public class Loader {
 					
 					if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
 						macProc();
-					} else {
+					} else if(constants.get(ZephyrOpen.os).startsWith("windows")){
 						winProc();
+					} else {
+						unixProc();
 					}
-				}	
+				}
 			}).start();
 	}
+	
+	/**
+	 * Start a windows proc for the given class 
+	 */
+	public void unixProc() {
+		
+		String[] param = arg.split(" ");
+		String[] args = null; 
+		
+		if(param.length == 2){
+			
+			args = new String[] { "java", "-classpath", path, code, param[0], param[1] + " &" };
+			
+		} else {
 
+			args = new String[] { "java", "-classpath", path, code, arg + " &"};
+		}
+		
+		try {
+
+			for (int i = 0; i < args.length; i++)
+				constants.info("Launch [" + i + "] " + args[i]);
+
+			/** launch and don't wait for reply */
+			Process proc = runtime.exec(args);
+
+			BufferedReader procReader = new BufferedReader(
+				new InputStreamReader(proc.getInputStream()));
+
+			String line = null;
+			while ((line = procReader.readLine()) != null)
+				constants.info("proc : " + line);
+			
+			constants.info("exit winProc()", this);
+
+		} catch (Exception e) {
+			constants.error("fatal runtime.exec() error: " + e.getMessage());
+			constants.shutdown(e);
+		}
+	}
 	public void macProc() {
 		
 		/** java started as a shell script, note 32 bit mode used on mac */
-		String[] args = new String[] {"/bin/sh", "-c", "java -d32 -classpath " + path + " " + code + " " + arg, "&"};
+		String[] args = new String[] {"/bin/sh", "-c", "java -d32 -classpath " + path + " " + code + " " + arg, " &"};
 
 		try {
 
@@ -104,4 +145,6 @@ public class Loader {
 			constants.shutdown(e);
 		}
 	}
+	
+	
 }

@@ -11,7 +11,7 @@ public class Input extends JTextField implements KeyListener {
 	private static final long serialVersionUID = 1L;
 	private String userInput;
 
-	public Input(MulticastSocket s) { // , final String usr, final String pass) {
+	public Input(MulticastSocket s) { 
 		super();
 		
 		// listen for key input 
@@ -51,8 +51,7 @@ public class Input extends JTextField implements KeyListener {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {		
-	}
+	public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void keyReleased(KeyEvent e) {}

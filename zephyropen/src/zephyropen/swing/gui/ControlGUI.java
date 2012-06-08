@@ -31,6 +31,7 @@ import javax.swing.SpringLayout;
 import zephyropen.api.PrototypeFactory;
 import zephyropen.api.ZephyrOpen;
 import zephyropen.command.Command;
+import zephyropen.demo.HelloGmail;
 import zephyropen.port.bluetooth.Discovery;
 import zephyropen.util.Loader;
 
@@ -171,7 +172,7 @@ public class ControlGUI extends JPanel implements Runnable {
 					addUser(users[i]);
 
 		if (userList.getItemCount() == 0) {
-			addUser("brad");
+			addUser(System.getProperty("user.name", "tim"));
 		}
 
 		/** re-draw list */
@@ -588,6 +589,8 @@ public class ControlGUI extends JPanel implements Runnable {
 		// zephyropen.api.ApiFactory.getReference().remove(ZephyrOpen.zephyropen);
 		constants.init();
 		constants.lock();
+		
+		System.out.println(HelloGmail.getProps());
 
 		/** find devices for prop files */
 		initDevices();

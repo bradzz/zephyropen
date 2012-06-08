@@ -74,6 +74,7 @@ public class EchoTeminal implements Runnable {
             	
             } catch (IOException e) {
 				e.printStackTrace();
+				break;
 			}     
    	   	}  
    	   

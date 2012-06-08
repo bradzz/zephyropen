@@ -73,7 +73,7 @@ public class DeviceServer {
 		
 	    constants.put(ZephyrOpen.loggingEnabled, true);
 	    constants.put(ZephyrOpen.frameworkDebug, true);
-		constants.put(ZephyrOpen.user, "brad");
+		constants.put(ZephyrOpen.user, System.getProperty("user.name", "brad"));
 		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
 		constants.init();
 		

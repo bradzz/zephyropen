@@ -114,8 +114,7 @@ public class ArdunioSerialPort implements SerialPortEventListener {
 						Command cmd = new Command(PrototypeFactory.elevation);
 						cmd.add("back", val[0].trim());
 						cmd.add("seat", val[1].trim());
-						cmd.add(ZephyrOpen.user, "brad");
-						 //System.out.println(cmd.toXML());
+						///cmd.add(ZephyrOpen.user, System.getProperty("user.name", "brad"));
 						
 						// listeners 
 						cmd.send();
@@ -173,7 +172,7 @@ public class ArdunioSerialPort implements SerialPortEventListener {
 		
 		constants = ZephyrOpen.getReference();
 		constants.put(ZephyrOpen.serialPort, "COM4");
-		constants.put(ZephyrOpen.user, "brad");
+		constants.put(ZephyrOpen.user, System.getProperty("user.name", "brad"));
 		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
 
 		constants.init();

@@ -109,7 +109,7 @@ public class DeviceViewer implements API {
 		
 	    constants.put(ZephyrOpen.loggingEnabled, true);
 	    constants.put(ZephyrOpen.frameworkDebug, true);
-		constants.put(ZephyrOpen.user, "brad");
+		constants.put(ZephyrOpen.user, System.getProperty("user.name", "brad"));
 		constants.put(State.pack, true);
 		constants.put("drawdelay", "2000");
 		constants.put(ZephyrOpen.deviceName, PrototypeFactory.elevation);
