@@ -25,7 +25,7 @@ public class ScanResults {
 		if (lowLevel == ZephyrOpen.ERROR) {
 			lowLevel = DEFUALT_LIMIT;
 			constants.put("lowLevel", DEFUALT_LIMIT);
-			constants.updateConfifFile();
+			constants.updateConfigFile();
 		}
 		
 		for(int i = 0 ; i < points.size() ; i++){

@@ -308,21 +308,15 @@ public class ZephyrOpen {
 	}
 
 	/** @return true if written to config file */
-	public boolean updateConfifFile() {
+	public boolean updateConfigFile() {
 
 		final String filepath = props.getProperty(propFile);
 		File file = new File(filepath);	
-		if(file.exists()){
-			
-			file.delete();
-
-			System.out.println(".. file exists, delete ..");
-			
-		}
+		if(file.exists()) file.delete();
 		
 		Properties hold = (Properties) props.clone();
 			
-		System.out.println("constants, write to file: " + props.getProperty(propFile));
+		// System.out.println("constants, write to file: " + props.getProperty(propFile));
 	
 		OutputStream out = null;
 		try {

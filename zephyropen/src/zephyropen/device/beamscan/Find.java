@@ -11,12 +11,10 @@ import zephyropen.util.Utils;
 
 import gnu.io.*;
 
-/**
- * @author brad.zdanivsky@gmal.com
- */
+/** @author brad.zdanivsky@gmal.com */
 public class Find {
 	
-	/** framework configuration */
+	/* framework configuration */
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 
 	/* serial port configuration parameters */

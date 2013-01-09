@@ -20,8 +20,11 @@ public class CommPort implements SerialPortEventListener {
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final byte[] GET_VERSION = { 'y' };
 	public static final byte[] ENABLE_MOTOR = { 'e' };
-	public static final byte[] STOP = { 's' };
-	
+	public static final byte[] SINGLE = { 'q' };
+	public static final byte GAIN = 'a';
+
+	private static final int MAX_ATTEMPTS = 50;
+
 	private Vector<Integer> points = new Vector<Integer>(1000);
 	private String portName = null;
 	private SerialPort serialPort = null;
@@ -31,26 +34,25 @@ public class CommPort implements SerialPortEventListener {
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
 	private ScanResults result = null;
-	
+		
 	/** constructor */
 	public CommPort() {
 
-		portName = constants.get("beamscan");
+		constants.info("looking for beam scaner... ");
 		
-		// need to go look?
-		if (portName == null) {
-			constants.toString();
-			constants.info("looking for beam scaner... ");
+		for(int i = 0 ; i < MAX_ATTEMPTS ; i++){
 			portName = new Find().search("<id:beamscan>");
 			if(portName != null){
 				constants.info("found scanner: " + portName);
 				constants.put("beamscan", portName);
-				constants.updateConfifFile();			
-			}
+				constants.updateConfigFile();	
+				break;
+			} 
 		}
-
-		// not found
-		if (portName == null) constants.error("can't find beamscan");
+			
+		if (portName == null) {
+			constants.error("can't find beamscan", this);
+		}
 	}
 
 	/**@return the name of the port the device is on */
@@ -74,10 +76,10 @@ public class CommPort implements SerialPortEventListener {
 			serialPort.notifyOnDataAvailable(true);
 
 		} catch (Exception e) {
-			constants.error(e.getMessage());
+			constants.error("connection fail: " + e.getMessage(), this);
 			return false;
 		}
-
+		
 		zephyropen.util.Utils.delay(2000);
 		getVersion();
 		constants.info("beamscan port: " + portName);
@@ -143,26 +145,26 @@ public class CommPort implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		// constants.info("_" + response);
+		// constants.info(response);
 		
 		if (response.startsWith("start")) {
 			points.clear(); 
-		} else if (response.startsWith("done")) {	
+		} else if (response.startsWith("done")) { 	
 			if(points.size()>0){
 				String[] data = response.split(" ");
-				System.out.println("scan took: " + data[1]);
+				constants.info("scan took: " + data[1] + " and got: " + points.size());
 				result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
-				points.clear();
+				points.clear();				
 			}
 		} else if (response.startsWith("version:")) {
 			if (version == null)
 				version = response.substring(response.indexOf("version:") + 8, response.length());
-		} else {
+		} else { 
 			int value = -1;
 			try {
 				value = Integer.parseInt(response);
 			} catch (Exception e) {
-				constants.error(e.getMessage());
+				constants.error("not a value: " + response, this);
 			}
 			if (value != -1) {
 				points.add(value);
@@ -208,14 +210,17 @@ public class CommPort implements SerialPortEventListener {
 	 */
 	public ScanResults sample() {	
 		result = null;
-		sendCommand(ENABLE_MOTOR);
-		sendCommand(STOP);
+		sendCommand(SINGLE);
 	
 		// wait
-		while(result==null)
-			zephyropen.util.Utils.delay(200);
+		while(result==null) zephyropen.util.Utils.delay(100);
 		
 		zephyropen.util.Utils.delay(200);
 		return result;
+	}
+
+	public void setGain(int gainLevel) {
+		byte[] command = {GAIN, (byte)gainLevel};
+		sendCommand(command);
 	}
 }

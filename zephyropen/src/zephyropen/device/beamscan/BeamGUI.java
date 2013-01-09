@@ -47,9 +47,7 @@ import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
-/**
- * @author brad.zdanivsky@gmail.com
- */
+/** @author brad.zdanivsky@gmail.com */
 public class BeamGUI implements KeyListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -67,13 +65,15 @@ public class BeamGUI implements KeyListener {
 	public static final String redY1 = "redY1";
 	public static final String redY2 = "redY2";
 
-	// TODO: get from config
-	public final static int WIDTH = 650;
-	public final static int HEIGHT = 300;
-	//private static final int LOW_MAX = 512;
-	//rivate static final int LOW_MIN = -1;
+	public static final int WIDTH = 650;
+	public static final int HEIGHT = 300;
+	
+	private static final int LOW_MAX = 256;
+	private static final int LOW_MIN = 0;
+	private static final int GAIN_MAX = 64;
+	private static final int GAIN_MIN = 0;
 
-	private final String title = "Beam Scan v2.3";
+	private final String title = "Beam Scan v2.3.2";
 	private JFrame frame = new JFrame(title);
 	private JLabel curve = new JLabel();
 	private CommPort device = new CommPort();
@@ -85,7 +85,7 @@ public class BeamGUI implements KeyListener {
 	private boolean isScanning = false;
 
 	// TODO: TAKE FROM FILE
-	private long scanDelay = 2000;
+	private long scanDelay = 4000;
 
 	private String topLeft1 = "NOT Connected";
 	private String topLeft2 = "try, device -> connect";
@@ -97,6 +97,12 @@ public class BeamGUI implements KeyListener {
 	private String bottomRight2 = null;
 	private String bottomRight3 = null;
 
+	private JMenuItem gainUpItem = new JMenuItem("up (p)");
+	private JMenuItem gainDownItem = new JMenuItem("down (l)");
+	
+	private JMenuItem lowDownItem = new JMenuItem("down (d)");
+	private JMenuItem lowUpItem = new JMenuItem("up (u)");
+	
 	private JMenuItem connectItem = new JMenuItem("connect");
 	private JMenuItem disconnectItem = new JMenuItem("disconnect");
 	private JMenuItem startItem = new JMenuItem("start");
@@ -106,15 +112,14 @@ public class BeamGUI implements KeyListener {
 	private JMenuItem javaItem = new JMenuItem("get software updates");
 	private JMenuItem screenshotItem = new JMenuItem("screen capture");
 
-	private JMenuItem debugItem = new JCheckBoxMenuItem("debugging",
-			constants.getBoolean(ZephyrOpen.frameworkDebug));
-	private JMenuItem recordingtem = new JCheckBoxMenuItem("recording",
-			constants.getBoolean(ZephyrOpen.recording));
-	private JMenuItem loggingItem = new JCheckBoxMenuItem("log files",
-			constants.getBoolean(ZephyrOpen.loggingEnabled));
+	private JMenuItem debugItem = new JCheckBoxMenuItem("debugging", constants.getBoolean(ZephyrOpen.frameworkDebug));
+	private JMenuItem recordingtem = new JCheckBoxMenuItem("recording", constants.getBoolean(ZephyrOpen.recording));
+	private JMenuItem loggingItem = new JCheckBoxMenuItem("log files", constants.getBoolean(ZephyrOpen.loggingEnabled));
 
 	private JMenu userMenue = new JMenu("Scan");
 	private JMenu deviceMenue = new JMenu("Device");
+	private JMenu gainMenue = new JMenu("Gain");
+	private JMenu lowMenue = new JMenu("Low Level");
 	private JMenu helpMenue = new JMenu("Help");
 
 	private ScanResults results = null;
@@ -134,47 +139,27 @@ public class BeamGUI implements KeyListener {
 	private double orangeX2px = 0.0;
 	private double orangeY1px = 0.0;
 	private double orangeY2px = 0.0;
+	private int lowLevel = 0;
+	private int gainLevel = 0;
 	
-	// a2d filter 
-	// private int lowLevel = 0;
-
-	/** */
+	/** driver */
 	public static void main(String[] args) {
-		
-		/*
-		constants.put(ZephyrOpen.deviceName, "beamscan");
-		constants.put(ZephyrOpen.user, "beamscan");
-		constants.put(ZephyrOpen.propFile, "beamscan.properties");
-		constants.put(ZephyrOpen.loggingEnabled, true);
-		constants.put(ZephyrOpen.frameworkDebug, true);
-		constants.updateConfifFile();
-		*/
-		// lowLevel = constants.getInteger("lowLevel");
-		
 		constants.init("beamscan", "beamscan");
-//		lowLevel = constants.getInteger("lowLevel");
-		System.out.println(constants);
-		
-		if(constants.get("beamscan")==null)
-			System.out.println("....... not found");
-			
-			//topRight1 = "low = " + lowLevel;
-
-		
-		new BeamGUI();
-	
+		new BeamGUI();	
 	}
 
 	/** create the swing GUI */
 	public BeamGUI() {
 
 		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture";
+		if ((new File(path)).mkdirs()) constants.info("created: " + path);
 
-		// create log dir if not there
-		if ((new File(path)).mkdirs())
-			constants.info("created: " + path);
-
-		/** Resister listener */
+		lowLevel = constants.getInteger("lowLevel");
+		gainLevel = constants.getInteger("gainLevel");
+		
+		topRight1 = "low level = " + lowLevel;
+		topRight2 = "gain level = " + gainLevel;
+		
 		startItem.addActionListener(listener);
 		stopItem.addActionListener(listener);
 		screenshotItem.addActionListener(listener);
@@ -183,19 +168,30 @@ public class BeamGUI implements KeyListener {
 		connectItem.addActionListener(listener);
 		emailItem.addActionListener(listener);
 		javaItem.addActionListener(listener);
-
+		
 		debugItem.addItemListener(debugListener);
 		recordingtem.addItemListener(recodingListener);
 		loggingItem.addItemListener(loggingListener);
 
 		/** Add to menu */
-		if(constants.get("beamscan")!=null)
-			deviceMenue.add(connectItem);
-		
+		deviceMenue.add(connectItem);
 		userMenue.add(recordingtem);
 		userMenue.add(loggingItem);
 		userMenue.add(screenshotItem);
+		
+		/** Resister listener */
+		gainUpItem.addActionListener(gainListener);
+		gainDownItem.addActionListener(gainListener);
 
+		gainMenue.add(gainUpItem);
+		gainMenue.add(gainDownItem);
+
+		lowUpItem.addActionListener(lowListener);
+		lowDownItem.addActionListener(lowListener);
+
+		lowMenue.add(lowUpItem);
+		lowMenue.add(lowDownItem);
+		
 		helpMenue.add(debugItem);
 		helpMenue.add(emailItem);
 		helpMenue.add(javaItem);
@@ -204,6 +200,8 @@ public class BeamGUI implements KeyListener {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(userMenue);
 		menuBar.add(deviceMenue);
+		menuBar.add(gainMenue);
+		menuBar.add(lowMenue);
 		menuBar.add(helpMenue);
 
 		/** Create frame */
@@ -215,14 +213,8 @@ public class BeamGUI implements KeyListener {
 		frame.setSize(WIDTH + 6, (HEIGHT * 2) + 48); // room for the menu
 		frame.setResizable(false);
 		frame.setAlwaysOnTop(true);
-		frame.setVisible(true);
-
-		// 
+		frame.setVisible(true); 
 		frame.addKeyListener(this);
-		
-		topRight1 = "low = " + constants.get("lowLevel");
-		System.out.println("low = " + constants.get("lowLevel"));
-
 		
 		/** register shutdown hook */
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -276,7 +268,7 @@ public class BeamGUI implements KeyListener {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 				constants.put(ZephyrOpen.frameworkDebug, true);
 
-			constants.updateConfifFile();
+			constants.updateConfigFile();
 		}
 	};
 
@@ -289,7 +281,7 @@ public class BeamGUI implements KeyListener {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 				constants.put(ZephyrOpen.loggingEnabled, true);
 
-			constants.updateConfifFile();
+			constants.updateConfigFile();
 		}
 	};
 
@@ -302,10 +294,62 @@ public class BeamGUI implements KeyListener {
 			if (e.getStateChange() == ItemEvent.SELECTED)
 				constants.put(ZephyrOpen.recording, true);
 
-			constants.updateConfifFile();
+			constants.updateConfigFile();
 		}
 	};
+	
+	/** Listen for gain info */
+	private ActionListener gainListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			
+			if( ! isConnected) return;
 
+			Object source = event.getSource();
+
+			if (source.equals(gainUpItem)) {				
+				if(gainLevel < GAIN_MAX) 
+					gainLevel++;
+
+			} else if(source.equals(gainDownItem)){	
+				if(gainLevel > GAIN_MIN) 
+					gainLevel--;
+			}
+				
+			device.setGain(gainLevel);
+			topRight2 = "gain Level = " + gainLevel;
+			beamCompent.repaint();
+			constants.put("gainLevel", gainLevel);
+			constants.updateConfigFile();
+		}
+	};
+	
+	/** Listen for gain info */
+	private ActionListener lowListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+
+			if( ! isConnected) return;
+			
+			Object source = event.getSource();
+
+			if (source.equals(lowUpItem)) {				
+				if(lowLevel < LOW_MAX) 
+					lowLevel++;
+
+			} else if(source.equals(lowDownItem)){	
+				if(lowLevel > LOW_MIN) 
+					lowLevel--;
+			}
+				
+			topRight1 = "low level = " + lowLevel;
+			beamCompent.repaint();
+			constants.put("lowLevel", lowLevel);
+			constants.updateConfigFile();
+			device.setGain(gainLevel);
+		}
+	};
+	
 	private void openBrowser() {
 		BrowserLauncher launcher = null;
 		try {
@@ -363,7 +407,7 @@ public class BeamGUI implements KeyListener {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			Object source = event.getSource();
-
+			
 			if (source.equals(javaItem)) {
 				openBrowser();
 			} else if (source.equals(emailItem)) {
@@ -391,8 +435,7 @@ public class BeamGUI implements KeyListener {
 				device.close();
 				isConnected = false;
 				isScanning = false;
-				if (timer != null)
-					timer.cancel();
+				if (timer != null) timer.cancel();
 				topLeft1 = "DISCONNECTED";
 				topLeft2 = "try: Device -> connect";
 				topLeft3 = null;
@@ -482,9 +525,8 @@ public class BeamGUI implements KeyListener {
 		xCenterpx = (((double) WIDTH) * 0.25);
 		yCenterpx = (((double) WIDTH) * 0.75);
 
-		int[] slice = results.getSlice(constants.getInteger("lowLevel") + 5);
-		if (slice == null)
-			return;
+		int[] slice = results.getSlice(lowLevel + 5);
+		if (slice == null) return;
 
 		// constants.put("yellowSlice", 100);
 		constants.put(yellowX1, slice[0]);
@@ -504,8 +546,8 @@ public class BeamGUI implements KeyListener {
 		// Utils.formatFloat(yellowY2px,0) + ")";
 
 		slice = results.getSlice(100);
-		if (slice == null)
-			return;
+		if (slice == null) return;
+		
 		// constants.put("orangeSlice", 300);
 		constants.put(orangeX1, slice[0]);
 		constants.put(orangeX2, slice[1]);
@@ -522,8 +564,8 @@ public class BeamGUI implements KeyListener {
 		// Utils.formatFloat(orangeY2px,0) + ")";
 
 		slice = results.getSlice(400);
-		if (slice == null)
-			return;
+		if (slice == null) return;
+		
 		// constants.put("redSlice", 800);
 		constants.put("redX1", slice[0]);
 		constants.put("redX2", slice[1]);
@@ -543,29 +585,27 @@ public class BeamGUI implements KeyListener {
 
 		curve.setIcon(lineGraph(results.points));
 		beamCompent.repaint();
-		if (constants.getBoolean(ZephyrOpen.recording))
-			screenCapture(frame);
+		if (constants.getBoolean(ZephyrOpen.recording)) screenCapture(frame);
 	}
+	
 
 	/** create graph */
 	public static Icon lineGraph(Vector<Integer> points) {
 
-		BeamLineGraph chart = new BeamLineGraph(); // "beam", "ma",
-													// com.googlecode.charts4j.Color.BLUEVIOLET);
+		BeamLineGraph chart = new BeamLineGraph(); 
+		
 		Icon icon = null;
 		for (int j = 0; j < points.size(); j += 2)
 			chart.add(String.valueOf(points.get(j)));
 
 		try {
-			String str = chart.getURLString(WIDTH, HEIGHT,
-					"data: " + (points.size() / 5));
+			String str = chart.getURLString(WIDTH, HEIGHT, "data: " + (points.size() / 5));
 
-			System.out.println(constants.toString());
-			System.out.println(str);
+			// System.out.println(constants.toString());
+			// System.out.println(str);
 
-			if (str != null) {
-				icon = new ImageIcon(new URL(str));
-			}
+			if (str != null) icon = new ImageIcon(new URL(str));
+			
 		} catch (final Exception e) {
 			constants.error(e.getMessage());
 		}
@@ -577,13 +617,11 @@ public class BeamGUI implements KeyListener {
 		private static final long serialVersionUID = 1L;
 
 		// TODO: TAKE FROM PROPS
-		private boolean drawLines = false;
+		private boolean drawLines = true;
 
 		public void paint(Graphics g) {
 			final int w = getWidth();
 			final int h = getHeight();
-
-			// nonSystem.out.println("reddaw");
 
 			g.setColor(Color.lightGray);
 			g.fillOval((int) yellowX1px, (int) yellowY1px, (int) yellowX2px
@@ -620,76 +658,63 @@ public class BeamGUI implements KeyListener {
 			g.drawLine(0, h - 1, w, h - 1);
 			Graphics2D g2d = (Graphics2D) g;
 			Stroke stroke2 = new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
-					BasicStroke.JOIN_BEVEL, 1.0f, new float[] { 6.0f, 2.0f,
-							1.0f, 2.0f }, 0.0f);
+					BasicStroke.JOIN_BEVEL, 1.0f, new float[] { 6.0f, 2.0f, 1.0f, 2.0f }, 0.0f);
 			g2d.setStroke(stroke2);
 			g.drawLine(0, h / 2, w, h / 2);
 			g.drawLine(w / 2, 0, w / 2, h);
 
 			if (results != null) {
-				topRight1 = new java.util.Date().toString();
-				topRight2 = "Data Points: " + results.points.size();
-				topRight3 = "Spin Time:   " + results.scanTime() + " ms";
+			//	topRight1 = new java.util.Date().toString();
+			//	topRight2 = "Data Points: " + results.points.size();
+				topRight3 = "data points = " + results.points.size() + " (" + results.scanTime() + " ms)";
 
-				// TODO:
-				bottomRight2 = " x: " + results.getMaxIndexX() + " y: "
-						+ results.getMaxIndexY();
+				bottomRight2 = " x: " + results.getMaxIndexX() + " y: " + results.getMaxIndexY();
 			}
 
-			// bottomRight1 = " h: " + h + " w: " + w;
-
 			// draw text
-			if (topRight1 != null)
-				g.drawString(topRight1, (w / 2 + 5), 15);
-			if (topRight2 != null)
-				g.drawString(topRight2, (w / 2 + 5), 30);
-			if (topRight3 != null)
-				g.drawString(topRight3, (w / 2 + 5), 45);
+			if (topRight1 != null) g.drawString(topRight1, (w / 2 + 5), 15);
+			if (topRight2 != null) g.drawString(topRight2, (w / 2 + 5), 30);
+			if (topRight3 != null) g.drawString(topRight3, (w / 2 + 5), 45);
 
-			if (bottomRight1 != null)
-				g.drawString(bottomRight1, (w / 2 + 5), h - 10);
-			if (bottomRight2 != null)
-				g.drawString(bottomRight2, (w / 2 + 5), h - 25);
-			if (bottomRight3 != null)
-				g.drawString(bottomRight3, (w / 2 + 5), h - 40);
+			if (bottomRight1 != null) g.drawString(bottomRight1, (w / 2 + 5), h - 10);
+			if (bottomRight2 != null) g.drawString(bottomRight2, (w / 2 + 5), h - 25);
+			if (bottomRight3 != null) g.drawString(bottomRight3, (w / 2 + 5), h - 40);
 
-			if (topLeft1 != null)
-				g.drawString(topLeft1, 15, 15);
-			if (topLeft2 != null)
-				g.drawString(topLeft2, 15, 30);
-			if (topLeft3 != null)
-				g.drawString(topLeft3, 15, 45);
+			if (topLeft1 != null) g.drawString(topLeft1, 15, 15);
+			if (topLeft2 != null) g.drawString(topLeft2, 15, 30);
+			if (topLeft3 != null) g.drawString(topLeft3, 15, 45);
 		}
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		
+		if( ! isConnected) return;
+		
 		char chr = e.getKeyChar();
 		
-		// int code = e.getKeyCode();
+		if(chr=='p') if(gainLevel < GAIN_MAX) gainLevel++; 
 		
-		if(chr=='u'){
-		//	if(lowLevel >= LOW_MAX)
-			constants.put("lowLevel", String.valueOf(constants.getInteger("lowLevel")+1)); 
-		}
+		if(chr=='l') if(gainLevel > GAIN_MIN) gainLevel--;
 		
-		if(chr=='d'){
-		//	if(lowLevel <= LOW_MIN)
-				//lowLevel--;
-			//constants.getInteger("lowLevel");
-			constants.put("lowLevel", String.valueOf(constants.getInteger("lowLevel")-1)); 
-
-		}
-		
-		if(chr=='u' || chr=='d'){
-
-			topRight1 = "low = " + constants.get("lowLevel");
+		if(chr=='p' || chr=='l'){
+			device.setGain(gainLevel);
+			topRight2 = "gain level = " + gainLevel;
 			beamCompent.repaint();
-			constants.updateConfifFile();
-			
+			constants.put("gainLevel", gainLevel);
+			constants.updateConfigFile();
 		}
 		
+		if(chr=='u') if(lowLevel < LOW_MAX) lowLevel++; 
+		
+		if(chr=='d') if(lowLevel > LOW_MIN) lowLevel--;
+
+		if(chr=='u' || chr=='d'){
+			topRight1 = "low level = " + lowLevel; 
+			beamCompent.repaint();
+			constants.put("lowLevel", String.valueOf(lowLevel)); 
+			constants.updateConfigFile();
+		}
 	}
 
 	@Override
