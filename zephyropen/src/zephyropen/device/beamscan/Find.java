@@ -65,6 +65,13 @@ public class Find {
 			inputStream = serialPort.getInputStream();
 			outputStream = serialPort.getOutputStream();
 
+			// clear all 
+			/*
+			while(inputStream.available()>0) {
+				constants.error("avail: " + inputStream.available(), this);
+				inputStream.read();
+			}*/
+			
 		} catch (Exception e) {
 			constants.info("error connecting to: " + address);
 			close();
@@ -74,7 +81,14 @@ public class Find {
 		// be sure
 		if (inputStream == null) return false;
 		if (outputStream == null) return false;
-
+/*		
+		try {
+			inputStream.skip(inputStream.available());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	*/
+		
 		return true;
 	}
 

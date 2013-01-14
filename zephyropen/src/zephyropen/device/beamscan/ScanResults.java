@@ -8,25 +8,17 @@ import zephyropen.util.LogManager;
 public class ScanResults {
 
 	private ZephyrOpen constants = ZephyrOpen.getReference();
-	public static final int DEFUALT_LIMIT = 10;
+	private int lowLevel = constants.getInteger("lowLevel");
 	private LogManager log = new LogManager();
 	public Vector<Integer> points = null;
-	private int delta = 0;
 	private int filtered = 0;
-	private int lowLevel = 0;
+	private int delta = 0;
 
 	/** */
 	public ScanResults(final Vector<Integer> data, int ms) {
 
 		points = data;
 		delta = ms;
-
-		lowLevel = constants.getInteger("lowLevel");
-		if (lowLevel == ZephyrOpen.ERROR) {
-			lowLevel = DEFUALT_LIMIT;
-			constants.put("lowLevel", DEFUALT_LIMIT);
-			constants.updateConfigFile();
-		}
 		
 		for(int i = 0 ; i < points.size() ; i++){
 			if(points.get(i) < lowLevel){
@@ -43,7 +35,7 @@ public class ScanResults {
 		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + ".log");
 		log.append(new java.util.Date().toString());
 		log.append("filtered : " + filtered);
-		log.append("filter : " + constants.get("lowLevel"));
+		log.append("filter level: " + constants.get("lowLevel"));
 		log.append("time : " + delta + " ms");
 		log.append("size : " + points.size());
 		for (int j = 0; j < points.size(); j++)
@@ -151,7 +143,7 @@ public class ScanResults {
 		return getMaxIndex(points.size() / 2, points.size());
 	}
 
-	public void setFiltered(int filtered) {
-		this.filtered = filtered;
-	}
+//	public void setFiltered(int filtered) {
+//		this.filtered = filtered;
+//	}
 }

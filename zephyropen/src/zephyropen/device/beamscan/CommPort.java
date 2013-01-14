@@ -24,22 +24,28 @@ public class CommPort implements SerialPortEventListener {
 	public static final byte GAIN = 'a';
 
 	private static final int MAX_ATTEMPTS = 50;
+	private static final int MIN_RESULTS = 400;
+
 
 	private Vector<Integer> points = new Vector<Integer>(1000);
-	private String portName = null;
+//	private String portName = null;
 	private SerialPort serialPort = null;
 	private InputStream in;
 	private OutputStream out;
 	private String version = null;
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
-	private ScanResults result = null;
-		
+	private static ScanResults result = null;
+	private static BeamGUI app = null;	
+	
 	/** constructor */
-	public CommPort() {
+	public CommPort(BeamGUI gui) {
+		
+		app = gui;
 
 		constants.info("looking for beam scaner... ");
 		
+		String portName = null;
 		for(int i = 0 ; i < MAX_ATTEMPTS ; i++){
 			portName = new Find().search("<id:beamscan>");
 			if(portName != null){
@@ -52,16 +58,19 @@ public class CommPort implements SerialPortEventListener {
 			
 		if (portName == null) {
 			constants.error("can't find beamscan", this);
+			app.errorMessage("can't find beam scanner on any port");
 		}
-	}
-
-	/**@return the name of the port the device is on */
-	public String getPortName() {
-		return portName;
 	}
 
 	/** open port, enable read and write, enable events */
 	public boolean connect() {
+		
+		String portName = constants.get("beamscan");
+		if(portName==null){
+			app.errorMessage("can't find beam scanner on any port");
+			return false;
+		}
+		
 		try {
 
 			serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(portName).open(CommPort.class.getName(), 2000);
@@ -74,16 +83,26 @@ public class CommPort implements SerialPortEventListener {
 			// register for serial events
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
-
+			
+			// clear all 
+			while(in.available()>0) {
+				constants.error("avail: " + in.available(), this);
+				in.skip(in.available());
+			}
 		} catch (Exception e) {
 			constants.error("connection fail: " + e.getMessage(), this);
 			return false;
 		}
 		
 		zephyropen.util.Utils.delay(2000);
+		
 		getVersion();
 		constants.info("beamscan port: " + portName);
 		constants.info("beamscan version: " + version);
+		
+		// set gain on start up
+		setGain(constants.getInteger("gainLevel"));
+		zephyropen.util.Utils.delay(500);
 		return true;
 	}
 
@@ -118,6 +137,8 @@ public class CommPort implements SerialPortEventListener {
 	protected void sendCommand(final byte[] command) {
 		try {
 
+			constants.error("sending: " + command[0], true);
+			
 			// send
 			out.write(command);
 
@@ -213,9 +234,17 @@ public class CommPort implements SerialPortEventListener {
 		sendCommand(SINGLE);
 	
 		// wait
-		while(result==null) zephyropen.util.Utils.delay(100);
+		while(result==null) zephyropen.util.Utils.delay(200);
 		
-		zephyropen.util.Utils.delay(200);
+		zephyropen.util.Utils.delay(300);
+		
+		// error check
+		if(result.points.size() < MIN_RESULTS) {
+			constants.error("read too few data points, reset", this);
+			// app.disconnect();
+		}
+		
+		
 		return result;
 	}
 

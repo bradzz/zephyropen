@@ -65,18 +65,16 @@ public class BeamGUI implements KeyListener {
 	public static final String redY1 = "redY1";
 	public static final String redY2 = "redY2";
 
-	public static final int WIDTH = 650;
-	public static final int HEIGHT = 300;
-	
-	private static final int LOW_MAX = 256;
+	private static final int LOW_MAX = 500;
 	private static final int LOW_MIN = 0;
 	private static final int GAIN_MAX = 64;
 	private static final int GAIN_MIN = 0;
+	private static final int MIN_READ = 100;
 
 	private final String title = "Beam Scan v2.3.2";
 	private JFrame frame = new JFrame(title);
 	private JLabel curve = new JLabel();
-	private CommPort device = new CommPort();
+	private CommPort device = null; 
 	private BeamComponent beamCompent = new BeamComponent();
 
 	private java.util.Timer timer = null;
@@ -85,7 +83,10 @@ public class BeamGUI implements KeyListener {
 	private boolean isScanning = false;
 
 	// TODO: TAKE FROM FILE
-	private long scanDelay = 4000;
+	private long scanDelay = 3000;
+	public static final int WIDTH = 650;
+	public static final int HEIGHT = 300;
+	public static final int MAX_SCANS = 3;
 
 	private String topLeft1 = "NOT Connected";
 	private String topLeft2 = "try, device -> connect";
@@ -108,7 +109,6 @@ public class BeamGUI implements KeyListener {
 	private JMenuItem startItem = new JMenuItem("start");
 	private JMenuItem stopItem = new JMenuItem("stop");
 	private JMenuItem emailItem = new JMenuItem("send email report");
-	private JMenuItem scanItem = new JMenuItem("single scan");
 	private JMenuItem javaItem = new JMenuItem("get software updates");
 	private JMenuItem screenshotItem = new JMenuItem("screen capture");
 
@@ -141,6 +141,7 @@ public class BeamGUI implements KeyListener {
 	private double orangeY2px = 0.0;
 	private int lowLevel = 0;
 	private int gainLevel = 0;
+	private int counter = 0;
 	
 	/** driver */
 	public static void main(String[] args) {
@@ -154,8 +155,21 @@ public class BeamGUI implements KeyListener {
 		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture";
 		if ((new File(path)).mkdirs()) constants.info("created: " + path);
 
+		// low cut off point  
 		lowLevel = constants.getInteger("lowLevel");
-		gainLevel = constants.getInteger("gainLevel");
+		if (lowLevel == ZephyrOpen.ERROR) {
+			constants.put("lowLevel", 160);
+			lowLevel = 160;
+		}
+	
+		// set gain level 
+		int gainLevel = constants.getInteger("gainLevel");
+		if (gainLevel == ZephyrOpen.ERROR) {
+			constants.put("gainLevel", 0);
+			gainLevel = 0;
+		}
+				
+		constants.updateConfigFile();
 		
 		topRight1 = "low level = " + lowLevel;
 		topRight2 = "gain level = " + gainLevel;
@@ -163,7 +177,6 @@ public class BeamGUI implements KeyListener {
 		startItem.addActionListener(listener);
 		stopItem.addActionListener(listener);
 		screenshotItem.addActionListener(listener);
-		scanItem.addActionListener(listener);
 		disconnectItem.addActionListener(listener);
 		connectItem.addActionListener(listener);
 		emailItem.addActionListener(listener);
@@ -216,12 +229,39 @@ public class BeamGUI implements KeyListener {
 		frame.setVisible(true); 
 		frame.addKeyListener(this);
 		
+		device = new CommPort(this);
+		beamCompent.repaint();
+		
 		/** register shutdown hook */
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				device.close();
 			}
 		});
+	}
+	
+	public void errorMessage(String message) {
+		disconnect();
+		bottomRight2 = "ERROR: " + message;
+		beamCompent.repaint();
+	}
+
+	private void disconnect() {
+		counter = 0;
+		if(device!=null) device.close();
+		isConnected = false;
+		isScanning = false;
+		if (timer != null) timer.cancel();
+		topLeft1 = "DISCONNECTED";
+		topLeft2 = "try: Device -> connect";
+		topLeft3 = null;
+		bottomRight1 = null;
+		bottomRight2 = null;
+		bottomRight3 = "usb device disconected";
+		userMenue.remove(stopItem);
+		deviceMenue.add(connectItem);
+		deviceMenue.remove(disconnectItem);
+		beamCompent.repaint();
 	}
 
 	/** Methods to create Image corresponding to the frame. */
@@ -255,6 +295,14 @@ public class BeamGUI implements KeyListener {
 	private class ScanTask extends TimerTask {
 		@Override
 		public void run() {
+			if(counter++ > MAX_SCANS) {
+				disconnect();
+				bottomRight2 = "scans completed";
+				beamCompent.repaint();
+				return;
+			}
+			
+			topLeft1 = "CONNECTED: [" + counter + "]";
 			singleScan();
 		}
 	}
@@ -373,10 +421,8 @@ public class BeamGUI implements KeyListener {
 						+ new File(path).list().length + "\r\n";
 
 				text += "number of files in "
-						+ constants.get(ZephyrOpen.userLog)
-						+ " "
-						+ new File(constants.get(ZephyrOpen.userLog)).list().length
-						+ "\r\n";
+						+ constants.get(ZephyrOpen.userLog) + " "
+						+ new File(constants.get(ZephyrOpen.userLog)).list().length + "\r\n";
 
 				FileInputStream fstream;
 				try {
@@ -412,19 +458,13 @@ public class BeamGUI implements KeyListener {
 				openBrowser();
 			} else if (source.equals(emailItem)) {
 				sendReport();
-			} else if (source.equals(scanItem)) {
-				new Thread() {
-					public void run() {
-						if (timer == null)
-							singleScan();
-					}
-				}.start();
 			} else if (source.equals(connectItem)) {
 				if (!isConnected) {
+					if(device==null) return;
 					isConnected = device.connect();
 					if (isConnected) {
-						topLeft1 = "CONNECTED";
-						topLeft2 = "Port: " + device.getPortName();
+						topLeft1 = "CONNECTED: [" + counter + "]";
+						topLeft2 = "Port: " + constants.get("beamscan");
 						topLeft3 = "Version: " + device.getVersion();
 						bottomRight2 = null;
 						beamCompent.repaint();
@@ -432,21 +472,7 @@ public class BeamGUI implements KeyListener {
 				}
 			} else if (source.equals(disconnectItem)) {
 
-				device.close();
-				isConnected = false;
-				isScanning = false;
-				if (timer != null) timer.cancel();
-				topLeft1 = "DISCONNECTED";
-				topLeft2 = "try: Device -> connect";
-				topLeft3 = null;
-				bottomRight1 = null;
-				bottomRight2 = null;
-				bottomRight2 = "usb device disconected";
-				userMenue.remove(stopItem);
-				deviceMenue.add(connectItem);
-				deviceMenue.remove(disconnectItem);
-				beamCompent.repaint();
-				return;
+				disconnect();
 
 			} else if (source.equals(screenshotItem)) {
 				new Thread() {
@@ -455,16 +481,18 @@ public class BeamGUI implements KeyListener {
 						screenCapture(frame);
 					}
 				}.start();
-			} else if (source.equals(startItem)) {
+			} else if (source.equals(startItem)) {		
 				timer = new java.util.Timer();
 				timer.scheduleAtFixedRate(new ScanTask(), 0, scanDelay);
-				isScanning = true;
 				userMenue.remove(startItem);
-			} else if (source.equals(stopItem)) {
+				isScanning = true;
+
+			} else if (source.equals(stopItem)) {	
 				timer.cancel();
 				timer = null;
+				userMenue.remove(stopItem);	
 				isScanning = false;
-				userMenue.remove(stopItem);
+				
 			}
 
 			updateMenu();
@@ -472,20 +500,19 @@ public class BeamGUI implements KeyListener {
 		}
 	};
 
+	/** */
 	public void updateMenu() {
 		if (isConnected) {
 			topLeft1 = "CONNECTED";
-			topLeft2 = "Port: " + device.getPortName();
+			topLeft2 = "Port: " + constants.get("beamscan");
 			topLeft3 = "Version: " + device.getVersion();
 			bottomRight2 = null;
 			beamCompent.repaint();
 			if (isScanning) {
 				userMenue.remove(startItem);
-				userMenue.remove(scanItem);
 				userMenue.add(stopItem);
 			} else {
 				userMenue.add(startItem);
-				userMenue.add(scanItem);
 			}
 
 			deviceMenue.add(disconnectItem);
@@ -494,14 +521,8 @@ public class BeamGUI implements KeyListener {
 		} else {
 			deviceMenue.add(connectItem);
 			userMenue.remove(startItem);
-			userMenue.remove(scanItem);
 			deviceMenue.remove(disconnectItem);
 		}
-		
-		if(constants.get("beamscan")==null)
-			deviceMenue.remove(connectItem);
-
-
 	}
 
 	/** take one slice if currently connected */
@@ -519,6 +540,11 @@ public class BeamGUI implements KeyListener {
 		}
 
 		results = device.sample();
+		if(results.points.size() < MIN_READ) {
+			device.close();
+			device.connect();
+			return;
+		}
 
 		dataPoints = results.points.size();
 		scale = (double) WIDTH / dataPoints;
