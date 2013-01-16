@@ -24,8 +24,25 @@ public class ScanResults {
 			if(points.get(i) < lowLevel){
 				points.set(i, 0);
 				filtered++;
+			} else {
+				// subtract noise level 
+				points.set(i, points.get(i)-lowLevel);
 			}
 		}	
+		
+		//
+		// take 3 points average 
+		//
+		/*
+		Vector<Integer> hold = new Vector<Integer>(points.size()/3);
+		for(int j = 0 ; j < points.size() ; j++){
+			
+			hold.add( (points.get(j) + points.get(j++) + points.get(j++))/3 );
+			
+		}
+		
+		points = hold;
+		*/
 		
 		if(constants.getBoolean(ZephyrOpen.loggingEnabled)) writeLog();
 	}

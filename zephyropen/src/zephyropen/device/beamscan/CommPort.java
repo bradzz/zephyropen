@@ -12,9 +12,7 @@ import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
-/**
- * @author brad.zdanivsky@gmal.com
- */
+/** @author brad.zdanivsky@gmal.com */
 public class CommPort implements SerialPortEventListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
@@ -26,9 +24,7 @@ public class CommPort implements SerialPortEventListener {
 	private static final int MAX_ATTEMPTS = 50;
 	private static final int MIN_RESULTS = 400;
 
-
 	private Vector<Integer> points = new Vector<Integer>(1000);
-//	private String portName = null;
 	private SerialPort serialPort = null;
 	private InputStream in;
 	private OutputStream out;
@@ -137,7 +133,7 @@ public class CommPort implements SerialPortEventListener {
 	protected void sendCommand(final byte[] command) {
 		try {
 
-			constants.error("sending: " + command[0], true);
+			// constants.error("sending: " + command[0], this);
 			
 			// send
 			out.write(command);
@@ -173,7 +169,9 @@ public class CommPort implements SerialPortEventListener {
 		} else if (response.startsWith("done")) { 	
 			if(points.size()>0){
 				String[] data = response.split(" ");
-				constants.info("scan took: " + data[1] + " and got: " + points.size());
+				
+				// constants.info("scan took: " + data[1] + " and got: " + points.size());
+				
 				result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
 				points.clear();				
 			}
@@ -185,7 +183,7 @@ public class CommPort implements SerialPortEventListener {
 			try {
 				value = Integer.parseInt(response);
 			} catch (Exception e) {
-				constants.error("not a value: " + response, this);
+				// constants.error("not a value: " + response, this);
 			}
 			if (value != -1) {
 				points.add(value);
