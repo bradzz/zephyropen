@@ -133,7 +133,7 @@ public class CommPort implements SerialPortEventListener {
 	protected void sendCommand(final byte[] command) {
 		try {
 
-			// constants.error("sending: " + command[0], this);
+			constants.error("sending: " + command[0], this);
 			
 			// send
 			out.write(command);
@@ -170,7 +170,7 @@ public class CommPort implements SerialPortEventListener {
 			if(points.size()>0){
 				String[] data = response.split(" ");
 				
-				// constants.info("scan took: " + data[1] + " and got: " + points.size());
+				constants.info("scan took: " + data[1] + " and got: " + points.size());
 				
 				result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
 				points.clear();				

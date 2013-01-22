@@ -31,18 +31,27 @@ public class ScanResults {
 		}	
 		
 		//
-		// take 3 points average 
+		// take average 
 		//
-		/*
-		Vector<Integer> hold = new Vector<Integer>(points.size()/3);
-		for(int j = 0 ; j < points.size() ; j++){
-			
-			hold.add( (points.get(j) + points.get(j++) + points.get(j++))/3 );
-			
+		
+		int avg = constants.getInteger("averageLevel");
+		if(avg < 1){
+			constants.put("averageLevel", 1);
+			constants.updateConfigFile();
 		}
 		
-		points = hold;
-		*/
+		if(avg >= 2){
+		Vector<Integer> hold = new Vector<Integer>(0);
+			for(int j = 0 ; j < points.size()-avg ; j++){
+				int sum = 0;
+				for(int k = 0 ; k < avg ; k++)
+					sum += points.get(j++);
+				
+				hold.add( sum / avg );
+			}
+		
+			points = hold;
+		}
 		
 		if(constants.getBoolean(ZephyrOpen.loggingEnabled)) writeLog();
 	}
@@ -160,7 +169,7 @@ public class ScanResults {
 		return getMaxIndex(points.size() / 2, points.size());
 	}
 
-//	public void setFiltered(int filtered) {
-//		this.filtered = filtered;
-//	}
+	public int getMaxValue() {
+		return points.get(getMaxIndex(0,points.size()));
+	}
 }
