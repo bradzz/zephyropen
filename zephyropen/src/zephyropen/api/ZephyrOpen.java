@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -476,15 +477,9 @@ public class ZephyrOpen {
 	 *            that encountered the error
 	 */
 	public void error(String line, Object clazz) {
-
-		//if (!configured) {
-		//	System.err.println("not configured, terminate.");
-		//	System.exit(0);
-		//}
-
 		if (getBoolean(frameworkDebug))
 			if (logger != null)
-				logger.append("ERROR, " + clazz.getClass().getName() + ", " + line);
+				logger.append("ERROR, " + new Date().toString() + ", " + clazz.getClass().getName() + ", " + line);
 
 		System.err.println(Utils.getTime() + " " + clazz.getClass().getName() + ", " + line);
 	}
@@ -492,7 +487,7 @@ public class ZephyrOpen {
 	/** */
 	public void error(String line) {
 		if (logger != null)
-			logger.append("ERROR, " + zephyropen + ", " + line);
+			logger.append("ERROR, " + new Date().toString() + ", " + zephyropen + ", " + line);
 
 		System.err.println(Utils.getTime() + " " + line);
 	}
@@ -500,7 +495,7 @@ public class ZephyrOpen {
 	/** */
 	public void info(String line, Object clazz) {
 		if (logger != null)
-			logger.append("INFO, " + clazz.getClass().getName() + ", " + line);
+			logger.append("INFO, " + new Date().toString() + ", " + clazz.getClass().getName() + ", " + line);
 
 		System.out.println(Utils.getTime() + " " + clazz.getClass().getName() + " " + line);
 	}
@@ -508,7 +503,7 @@ public class ZephyrOpen {
 	/** */
 	public void info(String line) {
 		if (logger != null)
-			logger.append("INFO, " + get(deviceName) + ", " + zephyropen + ", " + line);
+			logger.append("INFO, " + new Date().toString() + ", " + get(deviceName) + ", " + zephyropen + ", " + line);
 
 		System.out.println(Utils.getTime() + " " + zephyropen + " " + line);
 	}
@@ -574,7 +569,7 @@ public class ZephyrOpen {
 
 	/** terminate the application, but clean up first */
 	public void shutdown() {
-		info("shutdown(): closing files");
+		// info("shutdown(): closing files");
 		closeLoggers();
 		System.exit(0);
 	}

@@ -72,8 +72,8 @@ public class BeamGUI implements KeyListener {
 	private static final int GAIN_MIN = 0;
 	private static final int MIN_READ = 100;
 
-	private final String title = "Beam Scan v3.2";
-	private JFrame frame = new JFrame(title);
+	private final String TITLE = "Beam Scan v3.2.1";
+	private JFrame frame = new JFrame(TITLE);
 	private JLabel curve = new JLabel();
 	private BeamComponent beamCompent = new BeamComponent();
 	private CommPort device = null; 
@@ -157,6 +157,8 @@ public class BeamGUI implements KeyListener {
 
 	/** create the swing GUI */
 	public BeamGUI() {
+		
+		// constants.info("startup ", this);
 
 		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture";
 		if ((new File(path)).mkdirs()) constants.info("created: " + path);
@@ -302,8 +304,7 @@ public class BeamGUI implements KeyListener {
 	public static void screenCapture(final Component component) {
 		new Thread() {
 			public void run() {
-				final String fileName = path + ZephyrOpen.fs
-						+ System.currentTimeMillis() + ".png";
+				final String fileName = path + ZephyrOpen.fs + System.currentTimeMillis() + ".png";
 				Point p = new Point(0, 0);
 				SwingUtilities.convertPointToScreen(p, component);
 				Rectangle region = component.getBounds();
@@ -478,18 +479,20 @@ public class BeamGUI implements KeyListener {
 					fstream = new FileInputStream(constants.get(ZephyrOpen.propFile));
 					BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(fstream)));
 					String strLine;
-					text += "-- prop file -- \r\n";
+					text += "\r\n --- prop file --- \r\n";
 					while ((strLine = br.readLine()) != null) text += strLine + "\r\n";
 					br.close();
 
 				} catch (Exception e) {
 					return;
 				}
-			
-				
-				System.out.println("... sending mail ...");
-				new SendGmail("beamscanner@gmail.com", "beam-scan").sendMessage("debug info", text); 
-				
+							
+				SendGmail mail = new SendGmail("beamscanner@gmail.com", "bluestar76beam");
+				if( ! new File(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beamscan.log").exists()){
+					mail.sendMessage(TITLE, text); 
+				} else { 
+					mail.sendMessage(TITLE, text, constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beamscan.log"); 
+				}
 			}
 		}.start();
 	}
@@ -764,13 +767,14 @@ public class BeamGUI implements KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
-		
 		char chr = e.getKeyChar();
 		
 		if(chr=='s') start();
 		
-		if(chr=='c') connect();
+		if(chr=='c') {
+			if( !isConnected)
+				connect();
+		}
 				
 		if(chr=='q') {
 			if(averageLevel >= 4) return;

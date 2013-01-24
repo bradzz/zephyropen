@@ -22,7 +22,7 @@ public class CommPort implements SerialPortEventListener {
 	public static final byte GAIN = 'a';
 
 	private static final int MAX_ATTEMPTS = 50;
-	private static final int MIN_RESULTS = 400;
+	// private static final int MIN_RESULTS = 400;
 
 	private Vector<Integer> points = new Vector<Integer>(1000);
 	private SerialPort serialPort = null;
@@ -133,7 +133,7 @@ public class CommPort implements SerialPortEventListener {
 	protected void sendCommand(final byte[] command) {
 		try {
 
-			constants.error("sending: " + command[0], this);
+			// constants.info("sending: " + command[0], this);
 			
 			// send
 			out.write(command);
@@ -237,10 +237,10 @@ public class CommPort implements SerialPortEventListener {
 		zephyropen.util.Utils.delay(300);
 		
 		// error check
-		if(result.points.size() < MIN_RESULTS) {
-			constants.error("read too few data points, reset", this);
+		// if(result.points.size() < MIN_RESULTS) {
+		//	constants.error("read too few data points, reset", this);
 			// app.disconnect();
-		}
+		//}
 		
 		
 		return result;
