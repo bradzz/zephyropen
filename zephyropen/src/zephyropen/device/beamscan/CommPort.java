@@ -22,7 +22,6 @@ public class CommPort implements SerialPortEventListener {
 	public static final byte GAIN = 'a';
 
 	private static final int MAX_ATTEMPTS = 50;
-	// private static final int MIN_RESULTS = 400;
 
 	private Vector<Integer> points = new Vector<Integer>(1000);
 	private SerialPort serialPort = null;
@@ -32,7 +31,9 @@ public class CommPort implements SerialPortEventListener {
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
 	private static ScanResults result = null;
-	private static BeamGUI app = null;	
+	private static BeamGUI app = null;
+	private static boolean waiting = false;
+	
 	
 	/** constructor */
 	public CommPort(BeamGUI gui) {
@@ -133,7 +134,7 @@ public class CommPort implements SerialPortEventListener {
 	protected void sendCommand(final byte[] command) {
 		try {
 
-			// constants.info("sending: " + command[0], this);
+			constants.info("sending: " + command[0], this);
 			
 			// send
 			out.write(command);
@@ -162,18 +163,25 @@ public class CommPort implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		// constants.info(response);
+		constants.info(response);
 		
+		///if (response.startsWith("fault")) {
+		//	app.errorMessage("scan fault");
+	//		waiting = false;
+	//	} else if (response.startsWith("limit")) {
+		//	app.errorMessage("limit switch failure");
+		//	waiting = false;
+		//} else
+			
 		if (response.startsWith("start")) {
 			points.clear(); 
+			waiting = true;
 		} else if (response.startsWith("done")) { 	
 			if(points.size()>0){
 				String[] data = response.split(" ");
-				
 				constants.info("scan took: " + data[1] + " and got: " + points.size());
-				
 				result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
-				points.clear();				
+				waiting = false;
 			}
 		} else if (response.startsWith("version:")) {
 			if (version == null)
@@ -183,7 +191,8 @@ public class CommPort implements SerialPortEventListener {
 			try {
 				value = Integer.parseInt(response);
 			} catch (Exception e) {
-				// constants.error("not a value: " + response, this);
+				constants.error("not a value: " + response, this);
+				waiting = false;
 			}
 			if (value != -1) {
 				points.add(value);
@@ -228,20 +237,22 @@ public class CommPort implements SerialPortEventListener {
 	 * @return a data set after a blocking call. do one scan only
 	 */
 	public ScanResults sample() {	
-		result = null;
+
 		sendCommand(SINGLE);
 	
 		// wait
-		while(result==null) zephyropen.util.Utils.delay(200);
-		
-		zephyropen.util.Utils.delay(300);
-		
-		// error check
-		// if(result.points.size() < MIN_RESULTS) {
-		//	constants.error("read too few data points, reset", this);
-			// app.disconnect();
-		//}
-		
+		waiting = true;
+		for(int i = 0 ; ; i++){
+			if(!waiting) break;
+			else {
+				if(i>20){
+					constants.error("sample(): time out " + i, this);
+					break;
+				}
+				constants.info("... waiting: " + i, this);
+				zephyropen.util.Utils.delay(100);
+			}
+		}
 		
 		return result;
 	}
