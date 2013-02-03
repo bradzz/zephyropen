@@ -354,6 +354,11 @@ public class ZephyrOpen {
 		return str;
 	}
 
+	public void delete(String key) {
+		if(props.contains(key))
+			props.remove(key);
+	}
+	
 	/**
 	 * Put a name/value pair into the configuration
 	 * 
@@ -494,6 +499,9 @@ public class ZephyrOpen {
 
 	/** */
 	public void info(String line, Object clazz) {
+		
+		if(!getBoolean(frameworkDebug)) return;
+		
 		if (logger != null)
 			logger.append("INFO, " + new Date().toString() + ", " + clazz.getClass().getName() + ", " + line);
 
@@ -502,6 +510,9 @@ public class ZephyrOpen {
 
 	/** */
 	public void info(String line) {
+		
+		if(!getBoolean(frameworkDebug)) return;
+		
 		if (logger != null)
 			logger.append("INFO, " + new Date().toString() + ", " + get(deviceName) + ", " + zephyropen + ", " + line);
 
@@ -602,8 +613,6 @@ public class ZephyrOpen {
 			while (e.hasMoreElements())
 				((DataLogger) e.nextElement()).close();
 		}
-
-	
 	}
 
 	/** track open loggers */

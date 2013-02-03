@@ -40,9 +40,24 @@ public class CommPort implements SerialPortEventListener {
 		
 		app = gui;
 
+		String portName = constants.get("beamscan");
+		if(portName==null){
+			discover();
+		}
+			
+		if (portName == null) {
+			constants.error("can't find beamscan", this);
+			app.errorMessage("can't find beam scanner on any port");
+			return;
+		}
+	}
+	
+	/** */ 
+	private void discover(){
+
 		constants.info("looking for beam scaner... ");
-		
-		String portName = null;
+
+		String portName;
 		for(int i = 0 ; i < MAX_ATTEMPTS ; i++){
 			portName = new Find().search("<id:beamscan>");
 			if(portName != null){
@@ -52,20 +67,17 @@ public class CommPort implements SerialPortEventListener {
 				break;
 			} 
 		}
-			
-		if (portName == null) {
-			constants.error("can't find beamscan", this);
-			app.errorMessage("can't find beam scanner on any port");
-		}
 	}
 
 	/** open port, enable read and write, enable events */
 	public boolean connect() {
-		
 		String portName = constants.get("beamscan");
 		if(portName==null){
-			app.errorMessage("can't find beam scanner on any port");
-			return false;
+			discover();
+			if(constants.get("beamscan") == null){
+				app.errorMessage("can't find beam scanner on any port");
+				return false;
+			}
 		}
 		
 		try {
@@ -87,7 +99,9 @@ public class CommPort implements SerialPortEventListener {
 				in.skip(in.available());
 			}
 		} catch (Exception e) {
-			constants.error("connection fail: " + e.getMessage(), this);
+			constants.error("connection fail: " + portName + " error:" + e.getLocalizedMessage(), this);
+			constants.delete("beamscan");
+			constants.updateConfigFile();
 			return false;
 		}
 		
@@ -99,7 +113,6 @@ public class CommPort implements SerialPortEventListener {
 		
 		// set gain on start up
 		setGain(constants.getInteger("gainLevel"));
-		zephyropen.util.Utils.delay(500);
 		return true;
 	}
 
@@ -134,7 +147,8 @@ public class CommPort implements SerialPortEventListener {
 	protected void sendCommand(final byte[] command) {
 		try {
 
-			constants.info("sending: " + command[0], this);
+			if(constants.getBoolean(ZephyrOpen.frameworkDebug))
+				constants.info("sending: " + command[0], this);
 			
 			// send
 			out.write(command);
@@ -163,21 +177,22 @@ public class CommPort implements SerialPortEventListener {
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
 
-		constants.info(response);
+		// constants.info(response);
 		
-		///if (response.startsWith("fault")) {
-		//	app.errorMessage("scan fault");
-	//		waiting = false;
-	//	} else if (response.startsWith("limit")) {
-		//	app.errorMessage("limit switch failure");
-		//	waiting = false;
-		//} else
-			
-		if (response.startsWith("start")) {
+		if (response.startsWith("amp")) {
+			String[] data = response.split(" ");
+			constants.info("amp now: " + data[1]);
+		} else if (response.startsWith("fault")) {
+			constants.error("scanner fault", this);
+			waiting = false;
+		} else if (response.startsWith("limit")) {
+			constants.error("limit switch error", this);
+			waiting = false;
+		} else if (response.startsWith("start")) {
 			points.clear(); 
 			waiting = true;
 		} else if (response.startsWith("done")) { 	
-			if(points.size()>0){
+			if(points.size() > 0){
 				String[] data = response.split(" ");
 				constants.info("scan took: " + data[1] + " and got: " + points.size());
 				result = new ScanResults((Vector<Integer>) points.clone(), Integer.parseInt(data[1]));
@@ -192,7 +207,6 @@ public class CommPort implements SerialPortEventListener {
 				value = Integer.parseInt(response);
 			} catch (Exception e) {
 				constants.error("not a value: " + response, this);
-				waiting = false;
 			}
 			if (value != -1) {
 				points.add(value);
@@ -249,8 +263,10 @@ public class CommPort implements SerialPortEventListener {
 					constants.error("sample(): time out " + i, this);
 					break;
 				}
-				constants.info("... waiting: " + i, this);
-				zephyropen.util.Utils.delay(100);
+				
+				// constants.info("sample(): waiting " + i, this);
+		
+				zephyropen.util.Utils.delay(50);
 			}
 		}
 		

@@ -79,9 +79,7 @@ public class BeamGUI implements KeyListener {
 	private static final int GAIN_MAX = 64;
 	private static final int GAIN_MIN = 0;
 
-	// private static final int MIN_READ = 100;
-
-	private final String TITLE = "Beam Scan v3.3.3";
+	private final String TITLE = "Beam Scan v3.3.3.1";
 	private JFrame frame = new JFrame(TITLE);
 	private JLabel curve = new JLabel();
 	private BeamComponent beamCompent = new BeamComponent();
@@ -96,9 +94,6 @@ public class BeamGUI implements KeyListener {
 	// TODO: TAKE FROM FILE
 	public static final int WIDTH = 700;
 	public static final int HEIGHT = 350;
-	public static final int MAX_SCANS = 50;	
-	public static final long SCAN_DELAY = 4000;
-	public static final int MAX_SCAN_TIME = (int)(SCAN_DELAY) * 2;
 	public static final boolean drawLines = false;
 	
 	private String topLeft1 = "NOT Connected";
@@ -111,6 +106,12 @@ public class BeamGUI implements KeyListener {
 	private String bottomRight2 = null;
 	private String bottomRight3 = null;
 
+	private JMenuItem delay1 = new JCheckBoxMenuItem("1 sec (no recomended)", false);
+	private JMenuItem delay2 = new JCheckBoxMenuItem("2 sec", false);
+	private JMenuItem delay3 = new JCheckBoxMenuItem("3 sec (default)", true);
+	private JMenuItem delay4 = new JCheckBoxMenuItem("4 sec", false);
+	private JMenuItem delay5 = new JCheckBoxMenuItem("5 sec (slow)", false);
+	
 	private JMenuItem gainUpItem = new JMenuItem("down (l)");
 	private JMenuItem gainDownItem = new JMenuItem("up (p)");
 	private JMenuItem lowDownItem = new JMenuItem("down (d)");
@@ -134,6 +135,7 @@ public class BeamGUI implements KeyListener {
 	private JMenu deviceMenue = new JMenu("Device");
 	private JMenu gainMenue = new JMenu("Gain Control");
 	private JMenu lowMenue = new JMenu("Noise Suppress");
+	private JMenu delayMenue = new JMenu("Scan Delay");
 	private JMenu helpMenue = new JMenu("Help");
 
 	private ScanResults results = null;
@@ -159,6 +161,10 @@ public class BeamGUI implements KeyListener {
 	private int gainLevel = 0;
 	private int averageLevel = 0;
 	private int counter = 0;
+	private int error = 0;
+	private long scan_delay = 3000;
+	private int max_scan_time = (int)(scan_delay) * 2;
+	
 	
 	/** driver */
 	public static void main(String[] args) {
@@ -184,8 +190,8 @@ public class BeamGUI implements KeyListener {
 		// set gain level 
 		gainLevel = constants.getInteger("gainLevel");
 		if (gainLevel == ZephyrOpen.ERROR) {
-			constants.put("gainLevel", 0);
-			gainLevel = 0;
+			constants.put("gainLevel", 32);
+			gainLevel = 32;
 		}
 		
 		// 
@@ -196,9 +202,8 @@ public class BeamGUI implements KeyListener {
 		}
 		
 		constants.updateConfigFile();
-		
 		topRight1 = "Noise Suppress = " + lowLevel;
-		topRight2 = "gain level = " + gainLevel;
+		topRight2 = "Gain Level = " + Math.abs(64-gainLevel);
 
 		replayItem.addActionListener(listener);
 		scanItem.addActionListener(listener);
@@ -224,15 +229,27 @@ public class BeamGUI implements KeyListener {
 		/** Resister listener */
 		gainUpItem.addActionListener(gainListener);
 		gainDownItem.addActionListener(gainListener);
-
-		gainMenue.add(gainUpItem);
 		gainMenue.add(gainDownItem);
+		gainMenue.add(gainUpItem);
 
 		lowUpItem.addActionListener(lowListener);
 		lowDownItem.addActionListener(lowListener);
-
 		lowMenue.add(lowUpItem);
 		lowMenue.add(lowDownItem);
+
+		// 
+		delay1.addActionListener(delayListener);
+		delay2.addActionListener(delayListener);
+		delay3.addActionListener(delayListener);
+		delay4.addActionListener(delayListener);
+		delay5.addActionListener(delayListener);
+		
+		delayMenue.add(delay1);
+		delayMenue.add(delay2);
+		delayMenue.add(delay3);
+		delayMenue.add(delay4);
+		delayMenue.add(delay5);
+		
 		
 		helpMenue.add(debugItem);
 		helpMenue.add(emailItem);
@@ -244,8 +261,9 @@ public class BeamGUI implements KeyListener {
 		menuBar.add(deviceMenue);
 		menuBar.add(gainMenue);
 		menuBar.add(lowMenue);
+		menuBar.add(delayMenue);
 		menuBar.add(helpMenue);
-
+		
 		/** Create frame */
 		frame.setJMenuBar(menuBar);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -259,6 +277,7 @@ public class BeamGUI implements KeyListener {
 		frame.addKeyListener(this);
 		
 		device = new CommPort(this);
+		connect();
 		beamCompent.repaint();
 		
 		/** register shutdown hook */
@@ -271,7 +290,6 @@ public class BeamGUI implements KeyListener {
 	
 	/** */
 	public void errorMessage(String message) {
-		disconnect();
 		constants.error("error message: " + message, this);
 		bottomRight2 = "ERROR: " + message;
 		beamCompent.repaint();
@@ -281,8 +299,7 @@ public class BeamGUI implements KeyListener {
 	private void disconnect() {
 		counter = 0;
 		isConnected = false;
-		isScanning = false;
-		device.close();
+		if(device!=null) device.close();
 		
 		try {
 			if(stuck!=null) stuck.cancel();
@@ -315,6 +332,7 @@ public class BeamGUI implements KeyListener {
 		isConnected = device.connect();
 		if (isConnected) {
 			counter = 0;
+			error = 0;
 			topLeft1 = "CONNECTED: [" + counter + "]";
 			topLeft2 = "Port: " + constants.get("beamscan");
 			topLeft3 = "Version: " + device.getVersion();
@@ -356,13 +374,6 @@ public class BeamGUI implements KeyListener {
 	private class ScanTask extends TimerTask {
 		@Override
 		public void run() {
-			if(counter >= MAX_SCANS) {
-				disconnect();
-				bottomRight2 = "scans completed";
-				beamCompent.repaint();
-				return;
-			}
-			
 			topLeft1 = "CONNECTED: [" + counter + "]";
 			start = System.currentTimeMillis();
 			singleScan();
@@ -373,10 +384,10 @@ public class BeamGUI implements KeyListener {
 	private class StuckTask extends TimerTask {
 		@Override
 		public void run() {
-			if((System.currentTimeMillis() - start) > MAX_SCAN_TIME){
-				constants.info( "delta: " + (System.currentTimeMillis() - start), this);
+			if((System.currentTimeMillis() - start) > max_scan_time){
+				constants.error("stuck scanner delta: " + (System.currentTimeMillis() - start), this);	
 				disconnect();
-				errorMessage("stuck scanner");
+				connect();
 			}	
 		}
 	}
@@ -439,7 +450,7 @@ public class BeamGUI implements KeyListener {
 			}
 				
 			device.setGain(gainLevel);
-			topRight2 = "gain Level = " + gainLevel;
+			topRight2 = "Gain Level = " + Math.abs(64 - gainLevel);
 			beamCompent.repaint();
 			constants.put("gainLevel", gainLevel);
 			constants.updateConfigFile();
@@ -458,7 +469,6 @@ public class BeamGUI implements KeyListener {
 			if (source.equals(lowUpItem)) {				
 				if(lowLevel < LOW_MAX) 
 					lowLevel++;
-
 			} else if(source.equals(lowDownItem)){	
 				if(lowLevel > LOW_MIN) 
 					lowLevel--;
@@ -472,6 +482,40 @@ public class BeamGUI implements KeyListener {
 		}
 	};
 	
+	/** Listen for delay info */
+	private ActionListener delayListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			
+			delay1.setSelected(false);
+			delay2.setSelected(false);
+			delay3.setSelected(false);
+			delay4.setSelected(false);
+			delay5.setSelected(false);
+			
+			Object source = event.getSource();
+			if (source.equals(delay1)) {
+				delay1.setSelected(true);
+				scan_delay = 1000;
+			} else if(source.equals(delay2)){
+				delay2.setSelected(true);
+				scan_delay = 2000;
+			} else if(source.equals(delay3)){
+				delay3.setSelected(true);
+				scan_delay = 3000;
+			} else if(source.equals(delay4)){
+				delay4.setSelected(true);
+				scan_delay = 4000;
+			} else if(source.equals(delay5)){
+				delay5.setSelected(true);
+				scan_delay = 5000;
+			}
+			
+			// re-start 
+			start();
+		}
+	};
+		
 	private void openBrowser() {
 		BrowserLauncher launcher = null;
 		try {
@@ -550,18 +594,19 @@ public class BeamGUI implements KeyListener {
 				}.start();
 			} else if (source.equals(replayItem)) {	
 				replay();
-			}// else if (source.equals(scanItem)) {	
-			//	singleScan();
-			//}
-			else if (source.equals(startItem)) {	
+			} else if (source.equals(scanItem)) {	
+				singleScan();
+			} else if (source.equals(startItem)) {	
 				start();
 			} else if (source.equals(stopItem)) {	
-				timer.cancel();
-				timer = null;
-				stuck.cancel();
-				stuck = null;
-				userMenue.remove(stopItem);	
-				isScanning = false;
+				if(timer!=null){ 
+					timer.cancel();
+					timer = null;
+				}
+				if(stuck!=null){
+					stuck.cancel();
+					stuck = null;
+				}
 			}
 
 			updateMenu();
@@ -570,12 +615,12 @@ public class BeamGUI implements KeyListener {
 	
 	/** */
 	private void start() {
+		if(timer!=null) timer.cancel();
 		timer = new java.util.Timer();
-		timer.scheduleAtFixedRate(new ScanTask(), 0, SCAN_DELAY);
+		timer.scheduleAtFixedRate(new ScanTask(), 0, scan_delay);
+		if(stuck!=null) stuck.cancel();
 		stuck = new java.util.Timer();
-		stuck.scheduleAtFixedRate(new StuckTask(), 0, SCAN_DELAY/3);
-		userMenue.remove(startItem);
-		isScanning = true;	
+		stuck.scheduleAtFixedRate(new StuckTask(), 0, scan_delay/3);
 		updateMenu();
 	}
 	
@@ -597,7 +642,6 @@ public class BeamGUI implements KeyListener {
 			beamCompent.repaint();
 			
 			if (isScanning) {
-				userMenue.remove(scanItem);
 				userMenue.remove(startItem);
 				userMenue.add(stopItem);
 			} else {
@@ -630,23 +674,30 @@ public class BeamGUI implements KeyListener {
 			return;
 		}
 		
+		if(isScanning) {
+			constants.info("... busy scanner", this);
+			return;
+		}
+		
 		counter++;
 		isScanning = true;
 		results = device.sample();
 		if(results == null) {
-			constants.error("error in scan results ", this);
-			device.close();
-			device.connect();
+			errorMessage("Error in scan results: " + error++);
+			if(error % 5 == 0) {
+				device.close();
+				device.connect();
+			}
 			isScanning = false;
 			return;
-		}
+		} else error = 0;
 		
 		dataPoints = results.points.size();
 		scale = (double) WIDTH / dataPoints;
 		xCenterpx = (((double) WIDTH) * 0.25);
 		yCenterpx = (((double) WIDTH) * 0.75);
 
-		int[] slice = results.getSlice(lowLevel + 5);
+		int[] slice = results.getSlice(lowLevel + 10);
 		if (slice == null) return;
 
 		constants.put(yellowX1, slice[0]);
@@ -661,7 +712,7 @@ public class BeamGUI implements KeyListener {
 		yellowY2px = (HEIGHT / 2) - (yCenterpx - ((double) slice[3] * scale));
 
 		// TODO: slice better 
-		slice = results.getSlice(lowLevel+300);//100);
+		slice = results.getSlice((results.getMaxValue() - lowLevel)  / 2);
 		if (slice == null) return;
 		
 		constants.put(orangeX1, slice[0]);
@@ -673,8 +724,7 @@ public class BeamGUI implements KeyListener {
 		orangeY1px = (HEIGHT / 2) - (yCenterpx - ((double) slice[2] * scale));
 		orangeY2px = (HEIGHT / 2) - (yCenterpx - ((double) slice[3] * scale));
 
-		// TODO: take top slice 
-		slice = results.getSlice(results.getMaxValue() - 5);//lowLevel + 400);
+		slice = results.getSlice(results.getMaxValue() - 10);
 		if (slice == null) return;
 		
 		constants.put("redX1", slice[0]);
@@ -769,11 +819,7 @@ public class BeamGUI implements KeyListener {
 			g.drawLine(w / 2, 0, w / 2, h);
 
 			if (results != null) {
-			//	topRight1 = new java.util.Date().toString();
-			//	topRight2 = "Data Points: " + results.points.size();
 				topRight3 = "data points = " + results.points.size() + " (" + results.scanTime() + " ms)";
-
-			//	bottomRight2 = " x: " + results.getMaxIndexX() + " y: " + results.getMaxIndexY();
 			}
 
 			// draw text
@@ -799,7 +845,7 @@ public class BeamGUI implements KeyListener {
 		
 		if(chr=='s') start();
 		
-		if(chr=='t') if(!isScanning) singleScan();
+		if(chr=='t') if(timer==null) singleScan();
 		
 		if(chr=='c') {
 			if(!isConnected)
@@ -832,7 +878,7 @@ public class BeamGUI implements KeyListener {
 		
 		if(chr=='p' || chr=='l'){
 			device.setGain(gainLevel);
-			topRight2 = "gain level = " + gainLevel;
+			topRight2 = "Gain Level = " + Math.abs(64 - gainLevel);
 			beamCompent.repaint();
 			constants.put("gainLevel", gainLevel);
 			constants.updateConfigFile();
