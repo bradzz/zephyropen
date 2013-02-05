@@ -95,7 +95,7 @@ public class CommPort implements SerialPortEventListener {
 			
 			// clear all 
 			while(in.available()>0) {
-				constants.error("avail: " + in.available(), this);
+				constants.info("avail: " + in.available(), this);
 				in.skip(in.available());
 			}
 		} catch (Exception e) {
@@ -148,7 +148,7 @@ public class CommPort implements SerialPortEventListener {
 		try {
 
 			if(constants.getBoolean(ZephyrOpen.frameworkDebug))
-				constants.info("sending: " + command[0], this);
+				constants.info("sending command: " + (char)command[0], this);
 			
 			// send
 			out.write(command);

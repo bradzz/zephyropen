@@ -60,6 +60,7 @@ public class ScanResults {
 	public void writeLog() {
 		log.open(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + System.currentTimeMillis() + ".log");
 		log.append(new java.util.Date().toString());
+		log.append("average level: " + constants.get("averageLevel"));
 		log.append("filtered : " + filtered);
 		log.append("filter level: " + constants.get("lowLevel"));
 		log.append("time : " + delta + " ms");
