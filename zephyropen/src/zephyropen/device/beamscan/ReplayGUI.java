@@ -1,25 +1,16 @@
 package zephyropen.device.beamscan;
 
-import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.URL;
 import java.util.Date;
-import java.util.Random;
 import java.util.TimerTask;
-import java.util.Vector;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -27,19 +18,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.util.Loader;
 import zephyropen.util.Utils;
 
 /** 
- * 
  * @author brad.zdanivsky@gmail.com 
- * 
- * 
  */
 public class ReplayGUI implements KeyListener {
 	
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
-	public static final String beamscan = "beamscan";
-
 	private final String TITLE = "Replay Scan v3.1";
 	private JFrame frame = new JFrame(TITLE);
 	private JLabel imageLable = new JLabel();
@@ -47,17 +34,19 @@ public class ReplayGUI implements KeyListener {
 	
 	private java.util.Timer timer = new java.util.Timer();
 	
-	private JMenuItem replayItem = new JMenuItem("Start (r)");
+	private JMenuItem startItem = new JMenuItem("Start (r)");
 	private JMenuItem stopItem = new JMenuItem("Stop (s)");
-
+	private JMenuItem resetItem = new JMenuItem("Re-Start (q)");
+	private JMenuItem scanItem = new JMenuItem("Scan Application (z)");
 	private JMenuItem forwardItem = new JMenuItem("Forward (f)");
 	private JMenuItem backItem = new JMenuItem("Back (b)");
 	private JMenuItem deleteItem = new JMenuItem("Delete (d)");
+	private JMenuItem reloadItem = new JMenuItem("Reload Frames (u)");
 	private JMenuItem archiveItem = new JMenuItem("Archive All");
 	
 	private JMenuItem speed1Item = new JCheckBoxMenuItem("1 FPS (1 second)", true);
 	private JMenuItem speed2Item = new JCheckBoxMenuItem("2 FPS (500 ms)");
-	private JMenuItem speed3Item = new JCheckBoxMenuItem("3 FPS (300 ms)");
+	private JMenuItem speed3Item = new JCheckBoxMenuItem("3 FPS (333 ms)");
 	private JMenuItem speed2SecItem = new JCheckBoxMenuItem("Slow (2 seconds)");
 	
 	private JMenu frameMenue = new JMenu("Frame");
@@ -76,9 +65,14 @@ public class ReplayGUI implements KeyListener {
 		
 		if(chr=='r') start();
 		
+		if(chr=='q') restart();
+		
 		if(chr=='f') forward();
 
 		if(chr=='b') back();
+		
+		if(chr=='u') getFiles();  
+		
 	}
 	
 	/** driver */
@@ -86,23 +80,29 @@ public class ReplayGUI implements KeyListener {
 		constants.init("beamscan", "beamscan");
 		new ReplayGUI();	
 	}
-
+	
 	/** create the swing GUI */
 	public ReplayGUI() {
 				
-		replayItem.addActionListener(listener);
+		scanItem.addActionListener(listener);
+		startItem.addActionListener(listener);
 		stopItem.addActionListener(listener);
+		resetItem.addActionListener(listener);
 		forwardItem.addActionListener(listener);
 		backItem.addActionListener(listener);
 		deleteItem.addActionListener(listener);
+		reloadItem.addActionListener(listener);
 		archiveItem.addActionListener(listener);
 
-		replayMenue.add(replayItem);
+		replayMenue.add(scanItem);
+		replayMenue.add(startItem);
 		replayMenue.add(stopItem);
+		replayMenue.add(resetItem);
 		
 		frameMenue.add(forwardItem);
 		frameMenue.add(backItem);
 		frameMenue.add(deleteItem);
+		frameMenue.add(reloadItem);
 		frameMenue.add(archiveItem);
 		
 		speedMenue.add(speed1Item);
@@ -137,6 +137,11 @@ public class ReplayGUI implements KeyListener {
 		frame.addKeyListener(this);
 		
 		getFiles();
+		if(files.length == 0){
+			constants.error("no files found to replay!", this);
+		} else {
+			setImage();
+		}
 	}
 
 	/** */
@@ -147,21 +152,25 @@ public class ReplayGUI implements KeyListener {
 	        }
 	    };
 	    
-	    files = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture").listFiles(filter);		
+	    files = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture").listFiles(filter);	
+	 
+	    frame.setTitle(TITLE + " found frames: " + files.length + " " 
+	    			+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " mbytes");
+	   
+	}
+	
+	/** */
+	public void scanner(){
+		new Loader("zephyropen.device.beamscan.BeamGUI","");
+		Utils.delay(1000);
+		System.exit(0);
 	}
 
 	/** run on timer */
 	private class replayTimer extends TimerTask {
 		@Override
-		public void run() {
-			
-			System.out.println(new Date().toString() + " " + i + " " + files[i].getName());
-			
-			frame.setTitle(TITLE + " (" + i + " of " + files.length + ")");
-			imageLable.setIcon(new ImageIcon(files[i].getAbsolutePath()));
-			if(++i >= files.length){
-				stop();
-			}
+		public void run() {		
+			forward();
 		}
 	}
 
@@ -169,15 +178,16 @@ public class ReplayGUI implements KeyListener {
 	private ActionListener listener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			Object source = event.getSource();			
-			if(source == replayItem) start();
+			Object source = event.getSource();
+			if(source == scanItem) scanner();
+			if(source == startItem) start();
 			if(source == stopItem) stop();
+			if(source == resetItem) restart();
 			if(source == forwardItem) forward();
 			if(source == backItem) back();
 			if(source == deleteItem) delete();
-			if(source == archiveItem) acrchive();
-			
-			System.out.println("act: " + source.toString());
+			if(source == archiveItem) archive();
+			if(source == reloadItem) getFiles();
 		}
 	};
 
@@ -200,13 +210,11 @@ public class ReplayGUI implements KeyListener {
 				scan_delay = 500;
 			} else if(source.equals(speed3Item)){
 				speed3Item.setSelected(true);
-				scan_delay = 300;
+				scan_delay = 333;
 			} else if(source.equals(speed2SecItem)){
 				speed2SecItem.setSelected(true);
 				scan_delay = 2000;
 			} 
-			
-			System.out.println("scan delay = " + scan_delay);
 		}
 	};
 	
@@ -224,38 +232,78 @@ public class ReplayGUI implements KeyListener {
 	}
 	
 	/** */
+	private void restart() {
+		stop();
+		getFiles();
+		i=0;
+		setImage();
+	//	forward();
+	}
+	
+	/** */
 	private void back(){
 		stop();
 		if(i <= 0) return;
 		i--;
-		frame.setTitle(TITLE + " (" + i + " of " + files.length + ")");
-		imageLable.setIcon(new ImageIcon(files[i].getAbsolutePath()));
+		setImage();
 	}
 	
 	/** */
 	private void forward(){
-		stop();
-		if(i >= files.length-1) return;
+		if(i >= files.length-1) {
+			stop();
+			return;
+		}
 		i++;
-		frame.setTitle(TITLE + " (" + i + " of " + files.length + ")");
-		imageLable.setIcon(new ImageIcon(files[i].getAbsolutePath()));
+		setImage();
 	}
 	
 	/** */
-	private void acrchive() {
-		System.out.println("archive.....");
+	private void archive() {
+		
+		//TODO:// 
+		
+		stop();		
+		getFiles();
+		
+		if(files.length == 0) return;
+
+		new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive").mkdirs();
+
+		File capture = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive");
+		String number = String.valueOf(capture.listFiles().length);
+
+		new File(capture.getAbsoluteFile() + ZephyrOpen.fs + "archive_"+number).mkdirs();
+				
+		if(files==null) getFiles();
+		
+		if(files.length==0) return;
+		
+		String[] names = new String[files.length];
+		for(int i = 0 ; i < files.length ; i++){
+			names[i] = files[i].getAbsolutePath();
+			names[i] = names[i].replaceFirst("capture", "archive" + ZephyrOpen.fs + "archive_"+number);
+			if( ! new File(files[i].getAbsolutePath()).renameTo(new File(names[i])))
+				constants.error("rename fail: " + names[i], this);
+		}
 	}
 
 	/** */
 	private void delete() {
-		System.out.println("delete: " + i);
+		stop();
 		files[i].delete();
 		getFiles();
-		frame.setTitle(TITLE + " (" + i + " of " + files.length + ")");
-		imageLable.setIcon(new ImageIcon(files[i].getAbsolutePath()));
+		setImage();
 	}
 	
-
+	/** */
+	private void setImage(){
+		if(files==null) return;
+		if(files.length <= 0) return;
+		
+		frame.setTitle(TITLE + " (" + i + " of " + (files.length-1) + ")");
+		imageLable.setIcon(new ImageIcon(files[i].getAbsolutePath()));
+	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {}

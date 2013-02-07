@@ -1,7 +1,10 @@
 package zephyropen.util;
 
+import java.io.File;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -20,6 +23,36 @@ import zephyropen.api.ZephyrOpen;
  */
 public class Utils {
 
+	public static void addTree(File file, Collection<File> all) {
+        File[] children = file.listFiles();
+        if (children != null) {
+                for (File child : children) {
+                        all.add(child);
+                        addTree(child, all);
+                }
+        }
+	}
+	
+	public static int countFiles(String path){
+       Collection<File> all = new ArrayList<File>();
+       addTree(new File(path), all);
+       return all.size();
+	}
+	
+	public static long countFileSizes(String path){
+	
+		long total = 0;
+		Collection<File> all = new ArrayList<File>();
+		addTree(new File(path), all);
+		for (Object tmp : all) {
+           File file = (File) tmp;
+           total+= file.getFreeSpace();
+		}
+   
+       return total;
+	}
+
+	
     /**
      * Delays program execution for the specified delay.
      * 

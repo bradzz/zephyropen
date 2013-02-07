@@ -40,7 +40,7 @@ public class CommPort implements SerialPortEventListener {
 		
 		app = gui;
 
-		String portName = constants.get("beamscan");
+		String portName = constants.get(BeamGUI.beamscan);
 		if(portName==null){
 			discover();
 		}
@@ -59,10 +59,10 @@ public class CommPort implements SerialPortEventListener {
 
 		String portName;
 		for(int i = 0 ; i < MAX_ATTEMPTS ; i++){
-			portName = new Find().search("<id:beamscan>");
+			portName = new Find().search("<id:" + BeamGUI.beamscan + ">");
 			if(portName != null){
 				constants.info("found scanner: " + portName);
-				constants.put("beamscan", portName);
+				constants.put(BeamGUI.beamscan, portName);
 				constants.updateConfigFile();	
 				break;
 			} 
@@ -71,10 +71,10 @@ public class CommPort implements SerialPortEventListener {
 
 	/** open port, enable read and write, enable events */
 	public boolean connect() {
-		String portName = constants.get("beamscan");
+		String portName = constants.get(BeamGUI.beamscan);
 		if(portName==null){
 			discover();
-			if(constants.get("beamscan") == null){
+			if(constants.get(BeamGUI.beamscan) == null){
 				app.errorMessage("can't find beam scanner on any port");
 				return false;
 			}
@@ -100,7 +100,7 @@ public class CommPort implements SerialPortEventListener {
 			}
 		} catch (Exception e) {
 			constants.error("connection fail: " + portName + " error:" + e.getLocalizedMessage(), this);
-			constants.delete("beamscan");
+			constants.delete(BeamGUI.beamscan);
 			constants.updateConfigFile();
 			return false;
 		}

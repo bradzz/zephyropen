@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.util.Loader;
 import zephyropen.util.Utils;
 import zephyropen.util.google.SendGmail;
 import edu.stanford.ejalbert.BrowserLauncher;
@@ -60,6 +61,8 @@ public class BeamGUI implements KeyListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final String beamscan = "beamscan";
+	
+	
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
 	public static final String yellowY1 = "yellowY1";
@@ -168,15 +171,13 @@ public class BeamGUI implements KeyListener {
 	
 	/** driver */
 	public static void main(String[] args) {
-		constants.init("beamscan", "beamscan");
+		constants.init(beamscan, beamscan);
 		new BeamGUI();	
 	}
 
 	/** create the swing GUI */
 	public BeamGUI() {
 		
-		constants.info("startup ", this);
-
 		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture";
 		if ((new File(path)).mkdirs()) constants.info("created: " + path);
 
@@ -334,7 +335,7 @@ public class BeamGUI implements KeyListener {
 			counter = 0;
 			error = 0;
 			topLeft1 = "CONNECTED: [" + counter + "]";
-			topLeft2 = "Port: " + constants.get("beamscan");
+			topLeft2 = "Port: " + constants.get(beamscan);
 			topLeft3 = "Version: " + device.getVersion();
 			bottomRight1 = "";
 			bottomRight2 = "";
@@ -556,7 +557,7 @@ public class BeamGUI implements KeyListener {
 				}
 							
 				SendGmail mail = new SendGmail("beamscanner@gmail.com", "bluestar76beam");
-				if( ! new File(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beamscan.log").exists()){
+				if( ! new File(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + beamscan + ".log").exists()){
 					mail.sendMessage(TITLE, text); 
 				} else { 
 					mail.sendMessage(TITLE, text, constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + "beamscan.log"); 
@@ -626,17 +627,16 @@ public class BeamGUI implements KeyListener {
 	
 	/** */
 	public void replay(){
-		constants.info("replay..", this);
-		
-		// disconnect();
-		// TODO:
+		new Loader("zephyropen.device.beamscan.ReplayGUI","");
+		Utils.delay(1000);
+		System.exit(0);
 	}
 	
 	/** */
 	public void updateMenu() {
 		if (isConnected) {
 			topLeft1 = "CONNECTED";
-			topLeft2 = "Port: " + constants.get("beamscan");
+			topLeft2 = "Port: " + constants.get(beamscan);
 			topLeft3 = "Version: " + device.getVersion();
 			bottomRight2 = null;
 			beamCompent.repaint();
@@ -675,7 +675,7 @@ public class BeamGUI implements KeyListener {
 		}
 		
 		if(isScanning) {
-			constants.info("... busy scanner", this);
+			constants.error("busy scanner", this);
 			return;
 		}
 		
