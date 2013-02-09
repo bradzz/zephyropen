@@ -182,8 +182,9 @@ public class BeamGUI implements KeyListener {
 		if ((new File(path)).mkdirs()) constants.info("created: " + path);
 		
 		// show size
-		frame.setTitle(TITLE + "  storage: " + Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " files");
-		
+		frame.setTitle(TITLE + "    [frames: " + Utils.countFiles(path) + "  total: " 
+				+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " files]");
+	
 		// low cut off point  
 		lowLevel = constants.getInteger("lowLevel");
 		if (lowLevel == ZephyrOpen.ERROR) {
@@ -574,11 +575,6 @@ public class BeamGUI implements KeyListener {
 			}
 		}.start();
 	}
-	
-	//TODO: 
-	private void archive(){
-		
-	}
 
 	/** Listen for menu */
 	private ActionListener listener = new ActionListener() {
@@ -763,7 +759,8 @@ public class BeamGUI implements KeyListener {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				frame.setTitle(TITLE + "  storage: " + Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " files");
+				frame.setTitle(TITLE + "    [frames: " + Utils.countFiles(path) + "  total: " 
+						+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " files]");
 			}
 		}).start();
 	}

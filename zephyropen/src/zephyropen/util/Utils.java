@@ -36,7 +36,7 @@ public class Utils {
 	public static int countFiles(String path){
        Collection<File> all = new ArrayList<File>();
        addTree(new File(path), all);
-       return all.size();
+       return all.size()-1;
 	}
 	
 		/*public static long countFileSizes(String path){

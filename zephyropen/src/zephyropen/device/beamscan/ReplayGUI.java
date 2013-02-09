@@ -6,7 +6,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Date;
 import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
