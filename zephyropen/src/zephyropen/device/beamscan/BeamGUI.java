@@ -83,7 +83,7 @@ public class BeamGUI implements KeyListener {
 	private static final int GAIN_MIN = 0;
 
 	private final String TITLE = "Beam Scan v3.3.3.1";
-	private JFrame frame = new JFrame(TITLE);
+	private JFrame frame = new JFrame();
 	private JLabel curve = new JLabel();
 	private BeamComponent beamCompent = new BeamComponent();
 	private CommPort device = null; 
@@ -180,7 +180,10 @@ public class BeamGUI implements KeyListener {
 		
 		path = constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture";
 		if ((new File(path)).mkdirs()) constants.info("created: " + path);
-
+		
+		// show size
+		frame.setTitle(TITLE + "  storage: " + Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " files");
+		
 		// low cut off point  
 		lowLevel = constants.getInteger("lowLevel");
 		if (lowLevel == ZephyrOpen.ERROR) {
@@ -538,10 +541,16 @@ public class BeamGUI implements KeyListener {
 
 				String text = "number of files in " + path + " " + new File(path).list().length + "\r\n";
 
-				text += "number of files in "
+				text += "number of log files: "
 						+ constants.get(ZephyrOpen.userLog) + " "
 						+ new File(constants.get(ZephyrOpen.userLog)).list().length + "\r\n";
 
+			    //text += "storage used: "
+			    //			+ Utils.countFileSizes(constants.get(ZephyrOpen.userHome)) + " mbytes \r\n";
+			   
+			    text += "frames stored: "
+		    			+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " mbytes \r\n";
+			
 				FileInputStream fstream;
 				try {
 					
@@ -556,7 +565,7 @@ public class BeamGUI implements KeyListener {
 					return;
 				}
 							
-				SendGmail mail = new SendGmail("beamscanner@gmail.com", "bluestar76beam");
+				SendGmail mail = new SendGmail("beamscanner@gmail.com", constants.get("password"));
 				if( ! new File(constants.get(ZephyrOpen.userLog) + ZephyrOpen.fs + beamscan + ".log").exists()){
 					mail.sendMessage(TITLE, text); 
 				} else { 
@@ -564,6 +573,11 @@ public class BeamGUI implements KeyListener {
 				}
 			}
 		}.start();
+	}
+	
+	//TODO: 
+	private void archive(){
+		
 	}
 
 	/** Listen for menu */
@@ -745,6 +759,13 @@ public class BeamGUI implements KeyListener {
 		beamCompent.repaint();
 		if (constants.getBoolean(ZephyrOpen.recording)) screenCapture(frame);
 		isScanning = false;	
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				frame.setTitle(TITLE + "  storage: " + Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " files");
+			}
+		}).start();
 	}
 	
 	/** create graph */

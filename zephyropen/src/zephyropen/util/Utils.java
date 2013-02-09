@@ -39,18 +39,21 @@ public class Utils {
        return all.size();
 	}
 	
-	public static long countFileSizes(String path){
-	
+		/*public static long countFileSizes(String path){
+
 		long total = 0;
 		Collection<File> all = new ArrayList<File>();
 		addTree(new File(path), all);
 		for (Object tmp : all) {
            File file = (File) tmp;
-           total+= file.getFreeSpace();
+           total+= file.getTotalSpace();
 		}
-   
-       return total;
-	}
+		
+		System.out.println("cont: " + total + " lkup: " + new File(path).getTotalSpace());
+	
+		
+		return (new File(path).getTotalSpace() / 1024) / 1000;
+	}*/
 
 	
     /**

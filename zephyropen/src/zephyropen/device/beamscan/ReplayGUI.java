@@ -139,6 +139,7 @@ public class ReplayGUI implements KeyListener {
 		getFiles();
 		if(files.length == 0){
 			constants.error("no files found to replay!", this);
+			frame.setTitle(TITLE + " No files in capture folder"); 
 		} else {
 			setImage();
 		}
@@ -153,10 +154,6 @@ public class ReplayGUI implements KeyListener {
 	    };
 	    
 	    files = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "capture").listFiles(filter);	
-	 
-	    frame.setTitle(TITLE + " found frames: " + files.length + " " 
-	    			+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " mbytes");
-	   
 	}
 	
 	/** */
@@ -259,33 +256,12 @@ public class ReplayGUI implements KeyListener {
 	}
 	
 	/** */
-	private void archive() {
-		
-		//TODO:// 
-		
+	public void archive() {
 		stop();		
 		getFiles();
-		
-		if(files.length == 0) return;
-
-		new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive").mkdirs();
-
-		File capture = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive");
-		String number = String.valueOf(capture.listFiles().length);
-
-		new File(capture.getAbsoluteFile() + ZephyrOpen.fs + "archive_"+number).mkdirs();
-				
-		if(files==null) getFiles();
-		
-		if(files.length==0) return;
-		
-		String[] names = new String[files.length];
-		for(int i = 0 ; i < files.length ; i++){
-			names[i] = files[i].getAbsolutePath();
-			names[i] = names[i].replaceFirst("capture", "archive" + ZephyrOpen.fs + "archive_"+number);
-			if( ! new File(files[i].getAbsolutePath()).renameTo(new File(names[i])))
-				constants.error("rename fail: " + names[i], this);
-		}
+		Util.archive(files);
+		Utils.delay(1500);
+		scanner();
 	}
 
 	/** */
