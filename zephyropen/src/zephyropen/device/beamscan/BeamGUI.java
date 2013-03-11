@@ -82,7 +82,7 @@ public class BeamGUI implements KeyListener {
 	private static final int GAIN_MAX = 64;
 	private static final int GAIN_MIN = 0;
 
-	private final String TITLE = "Beam Scan v3.3.3.1";
+	private final String TITLE = "Beam Scan v3.3.4";
 	private JFrame frame = new JFrame();
 	private JLabel curve = new JLabel();
 	private BeamComponent beamCompent = new BeamComponent();
@@ -109,11 +109,11 @@ public class BeamGUI implements KeyListener {
 	private String bottomRight2 = null;
 	private String bottomRight3 = null;
 
-	private JMenuItem delay1 = new JCheckBoxMenuItem("1 sec (no recomended)", false);
-	private JMenuItem delay2 = new JCheckBoxMenuItem("2 sec", false);
-	private JMenuItem delay3 = new JCheckBoxMenuItem("3 sec (default)", true);
-	private JMenuItem delay4 = new JCheckBoxMenuItem("4 sec", false);
-	private JMenuItem delay5 = new JCheckBoxMenuItem("5 sec (slow)", false);
+	private JMenuItem delay1 = new JCheckBoxMenuItem("1 second (not recomended)", false);
+	private JMenuItem delay2 = new JCheckBoxMenuItem("2 seconds", false);
+	private JMenuItem delay3 = new JCheckBoxMenuItem("3 seconds (default)", true);
+	private JMenuItem delay4 = new JCheckBoxMenuItem("4 seconds", false);
+	private JMenuItem delay5 = new JCheckBoxMenuItem("5 seconds (slow)", false);
 	
 	private JMenuItem gainUpItem = new JMenuItem("down (l)");
 	private JMenuItem gainDownItem = new JMenuItem("up (p)");
@@ -123,7 +123,7 @@ public class BeamGUI implements KeyListener {
 	private JMenuItem connectItem = new JMenuItem("connect (c)");
 	private JMenuItem disconnectItem = new JMenuItem("disconnect");
 	private JMenuItem replayItem = new JMenuItem("replay (r)");
-	private JMenuItem scanItem = new JMenuItem("single scan (q)");
+	private JMenuItem scanItem = new JMenuItem("single scan (t)");
 	private JMenuItem startItem = new JMenuItem("start (s)");
 	private JMenuItem stopItem = new JMenuItem("stop");
 	private JMenuItem emailItem = new JMenuItem("send email report");
@@ -297,6 +297,10 @@ public class BeamGUI implements KeyListener {
 	public void errorMessage(String message) {
 		constants.error("error message: " + message, this);
 		bottomRight2 = "ERROR: " + message;
+		
+		/// TODO: email password error 
+		// bottomRight3 = "ERROR: " + message;
+
 		beamCompent.repaint();
 	}
 
@@ -517,7 +521,7 @@ public class BeamGUI implements KeyListener {
 			}
 			
 			// re-start 
-			start();
+			// start();
 		}
 	};
 		
@@ -537,6 +541,12 @@ public class BeamGUI implements KeyListener {
 	}
 
 	private void sendReport() {
+		
+		if(constants.get("password")==null) {
+			errorMessage("no gmail password in config file!");
+			return;
+		}
+		
 		new Thread() {
 			public void run() {
 
@@ -550,7 +560,7 @@ public class BeamGUI implements KeyListener {
 			    //			+ Utils.countFileSizes(constants.get(ZephyrOpen.userHome)) + " mbytes \r\n";
 			   
 			    text += "frames stored: "
-		    			+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " mbytes \r\n";
+		    			+ Utils.countFiles(constants.get(ZephyrOpen.userHome)) + " \r\n";
 			
 				FileInputStream fstream;
 				try {

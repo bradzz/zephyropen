@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 
-
 import zephyropen.api.ZephyrOpen;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -261,6 +260,7 @@ public class CommPort implements SerialPortEventListener {
 			else {
 				if(i>20){
 					constants.error("sample(): time out " + i, this);
+					// app.errorMessage("scanner time out!");
 					break;
 				}
 				
