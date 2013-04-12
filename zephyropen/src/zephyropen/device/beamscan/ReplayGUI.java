@@ -72,6 +72,8 @@ public class ReplayGUI implements KeyListener {
 		
 		if(chr=='u') getFiles();  
 		
+		if(chr=='d') delete();
+		
 	}
 	
 	/** driver */

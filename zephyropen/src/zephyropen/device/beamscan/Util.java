@@ -11,7 +11,9 @@ public class Util {
 	static ZephyrOpen constants = ZephyrOpen.getReference();
 	
 	/** */
-	public static void archive(File[] files) {
+	public static void archive(final File[] files) {
+		
+		constants.info("archive(" + files.length +")....");
 		
 		new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive").mkdirs();
 		
@@ -94,8 +96,7 @@ public class Util {
      * @return true iff the file and all sub files/directories have been removed
      * @throws FileNotFoundException
      */
-    public static boolean deleteRecursive(File path) { // throws FileNotFoundException{
-        // (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
+    public static boolean deleteRecursive(File path) {
         boolean ret = true;
         if (path.isDirectory()){
             for (File f : path.listFiles()){

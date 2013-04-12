@@ -260,13 +260,12 @@ public class CommPort implements SerialPortEventListener {
 			else {
 				if(i>20){
 					constants.error("sample(): time out " + i, this);
-					// app.errorMessage("scanner time out!");
 					break;
 				}
 				
-				// constants.info("sample(): waiting " + i, this);
+				constants.info("sample(): waiting " + i, this);
 		
-				zephyropen.util.Utils.delay(50);
+				zephyropen.util.Utils.delay(100);
 			}
 		}
 		
