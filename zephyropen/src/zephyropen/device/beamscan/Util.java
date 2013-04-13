@@ -1,7 +1,6 @@
 package zephyropen.device.beamscan;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 
 import zephyropen.api.ZephyrOpen;
@@ -13,12 +12,8 @@ public class Util {
 	/** */
 	public static void archive(final File[] files) {
 		
-		constants.info("archive(" + files.length +")....");
-		
 		new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive").mkdirs();
 		
-	//	checkFolders();
-	
 		File archive = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive");
 		String number = String.valueOf(archive.listFiles().length);
 		
@@ -69,38 +64,5 @@ public class Util {
 	    return new File(path).listFiles(filter);	
 	}
 	
-	/** 
-	public static void checkFolders(){
-		File archive = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive");
-		File[] listing = archive.listFiles();
-		
-		if(listing == null) return;
-		if(listing.length==0) return;
-		
-		for(int i = 0 ; i < listing.length ; i++)
-			if(listing[i].isDirectory())
-				if(getFrames(listing[i].getAbsolutePath()).length == 0)
-					if(getLogs(listing[i].getAbsolutePath()).length == 0)
-						if( ! listing[i].delete()){
-							constants.info("can't delete: " + listing[i].getAbsolutePath());
-							deleteRecursive(listing[i]);
-						}
-	}*/
-	
-	/**
-     * By default File#delete fails for non-empty directories, it works like "rm". 
-     * We need something a little more brutual - this does the equivalent of "rm -r"
-     * @param path Root File Path
-     * @return true iff the file and all sub files/directories have been removed
-     * @throws FileNotFoundException
-     
-    public static boolean deleteRecursive(File path) {
-        boolean ret = true;
-        if (path.isDirectory()){
-            for (File f : path.listFiles()){
-                ret = ret && deleteRecursive(f);
-            }
-        }
-        return ret && path.delete();
-    }*/
+
 }
