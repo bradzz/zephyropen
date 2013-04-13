@@ -82,7 +82,7 @@ public class BeamGUI implements KeyListener {
 	private static final int GAIN_MAX = 64;
 	private static final int GAIN_MIN = 0;
 
-	private final String TITLE = "Beam Scan v3.3.4";
+	private final String TITLE = "Beam Scan v3.5";
 	private JFrame frame = new JFrame();
 	private JLabel curve = new JLabel();
 	private BeamComponent beamCompent = new BeamComponent();

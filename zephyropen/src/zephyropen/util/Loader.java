@@ -33,7 +33,7 @@ public class Loader {
 					
 					if (constants.get(ZephyrOpen.os).startsWith("Mac")) {
 						macProc();
-					} else if(constants.get(ZephyrOpen.os).startsWith("windows")){
+					} else if(constants.get(ZephyrOpen.os).startsWith("Windows")){
 						winProc();
 					} else {
 						unixProc();
@@ -62,7 +62,7 @@ public class Loader {
 		try {
 
 			for (int i = 0; i < args.length; i++)
-				constants.info("Launch [" + i + "] " + args[i]);
+				constants.info("Unix Launch [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
 			Process proc = runtime.exec(args);
@@ -89,7 +89,7 @@ public class Loader {
 		try {
 
 			for (int i = 0; i < args.length; i++)
-				constants.info("Launch args [" + i + "] " + args[i]);
+				constants.info("OSX Launch [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
 			Process proc = runtime.exec(args);
@@ -126,7 +126,7 @@ public class Loader {
 		try {
 
 			for (int i = 0; i < args.length; i++)
-				constants.info("Launch [" + i + "] " + args[i]);
+				constants.info("Windows Launch [" + i + "] " + args[i]);
 
 			/** launch and don't wait for reply */
 			Process proc = runtime.exec(args);

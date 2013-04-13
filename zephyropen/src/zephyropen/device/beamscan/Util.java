@@ -17,7 +17,7 @@ public class Util {
 		
 		new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive").mkdirs();
 		
-		checkFolders();
+	//	checkFolders();
 	
 		File archive = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive");
 		String number = String.valueOf(archive.listFiles().length);
@@ -26,12 +26,11 @@ public class Util {
 		new File(archive.getAbsoluteFile() + ZephyrOpen.fs + "archive_"+number).mkdirs();
 			
 		if(files != null){
-			if(files.length > 0){				
-				// rename 
+			if(files.length > 0){		
 				String[] names = new String[files.length];
 				for(int i = 0 ; i < files.length ; i++){
-					names[i] = files[i].getAbsolutePath();
-					names[i] = names[i].replaceFirst("capture", "archive" + ZephyrOpen.fs + "archive_"+number);
+					names[i] = files[i].getAbsolutePath();	
+					names[i] = names[i].replaceFirst("capture", "archive\\\\archive_"+number);
 					if( ! new File(files[i].getAbsolutePath()).renameTo(new File(names[i])))
 						constants.error("rename fail: " + names[i]);
 				}	
@@ -42,10 +41,9 @@ public class Util {
 		File[] logs = new File(constants.get(ZephyrOpen.userLog)).listFiles();
 		for(int j = 0 ; j < logs.length ; j++){
 			String name = logs[j].getAbsolutePath();			
-			name = name.replaceFirst("log", "archive" + ZephyrOpen.fs + "archive_"+number);
+			name = name.replaceFirst("log", "archive\\\\archive_"+number);
 			if( ! logs[j].renameTo(new File(name)))
-				constants.error("rename fail: " + name);
-			
+				constants.error("rename fail: " + name);		
 		}
 	}
 	
@@ -71,7 +69,7 @@ public class Util {
 	    return new File(path).listFiles(filter);	
 	}
 	
-	/** */
+	/** 
 	public static void checkFolders(){
 		File archive = new File(constants.get(ZephyrOpen.userHome) + ZephyrOpen.fs + "archive");
 		File[] listing = archive.listFiles();
@@ -87,7 +85,7 @@ public class Util {
 							constants.info("can't delete: " + listing[i].getAbsolutePath());
 							deleteRecursive(listing[i]);
 						}
-	}
+	}*/
 	
 	/**
      * By default File#delete fails for non-empty directories, it works like "rm". 
@@ -95,7 +93,7 @@ public class Util {
      * @param path Root File Path
      * @return true iff the file and all sub files/directories have been removed
      * @throws FileNotFoundException
-     */
+     
     public static boolean deleteRecursive(File path) {
         boolean ret = true;
         if (path.isDirectory()){
@@ -104,5 +102,5 @@ public class Util {
             }
         }
         return ret && path.delete();
-    }
+    }*/
 }
