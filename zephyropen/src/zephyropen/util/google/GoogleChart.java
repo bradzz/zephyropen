@@ -44,10 +44,10 @@ public abstract class GoogleChart extends JLabel {
 	
 	/** add new entry */
 	public void add(String data) {
-		if (data == null)
-			return;
-		if (data.equals(""))
-			return;
+		if (data == null) return;
+		if (data.equals("")) return;
+		
+		// constants.info("add: " + data + " " + state.size());
 		
 		// add to state keeping object 
 		state.add(new TimedEntry(data)); 
@@ -55,10 +55,8 @@ public abstract class GoogleChart extends JLabel {
 	
 
 	public void add(String data, long time) {
-		if (data == null)
-			return;
-		if (data.equals(""))
-			return;
+		if (data == null) return;
+		if (data.equals("")) return;
 		
 		// add to state keeping object 
 		state.add(new TimedEntry(data, time)); 

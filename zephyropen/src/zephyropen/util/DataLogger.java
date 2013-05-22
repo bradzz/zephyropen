@@ -22,6 +22,8 @@ public class DataLogger extends Thread implements Runnable {
 	//private final String  fs = System.getProperty("file.separator");
 	public static final String CRLF = "\r\n";
 
+	public static String ext = "xml";
+	
 	private String fileName = null;
 	private RandomAccessFile logfile = null;
 	private FileChannel fileChannel = null;
@@ -39,13 +41,27 @@ public class DataLogger extends Thread implements Runnable {
 		this.start();
 	}
 
+	public DataLogger(String fileExt) {
+
+		/** start logging this data */
+		if (!constants.getBoolean(ZephyrOpen.loggingEnabled)) {
+			constants.info("logging is not enabled", this);
+			return;
+		}
+		
+		ext = fileExt;
+		
+		// this.setDaemon(true);
+		this.start();
+	}
+	
 	/** start() call back */
 	public void run() {
 
 		try {
 			
 			fileName = constants.get(ZephyrOpen.userLog) + System.getProperty("file.separator")
-			+ constants.get(ZephyrOpen.deviceName) + ".xml";
+			+ constants.get(ZephyrOpen.deviceName) + "." + ext;
 
 			try {
 				logfile = new RandomAccessFile(fileName, "rw");
@@ -117,12 +133,12 @@ public class DataLogger extends Thread implements Runnable {
 
 		// sanity check
 		if (!isOpen()) {
-			// constants.error("trying to write to un-open file", this);
+			constants.error("trying to write to un-open file", this);
 			return;
 		}
 
 		if (!isLocked()) {
-			// constants.error("trying to write to un-locked file", this);
+			constants.error("trying to write to un-locked file", this);
 			return;
 		}
 

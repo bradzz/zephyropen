@@ -90,8 +90,7 @@ public class State {
 	 *            is the new current value of this state object
 	 */
 	public void update(double value) {
-		list.setElementAt(new TimedEntry(String.valueOf(value)),
-				list.size() - 1);
+		list.setElementAt(new TimedEntry(String.valueOf(value)), list.size() - 1);
 
 		// track input speed
 		last = System.currentTimeMillis();
@@ -101,8 +100,8 @@ public class State {
 	 * Use the current time for this state objects latest update
 	 */
 	public void touch() {
-		list.setElementAt(new TimedEntry(getNewestValueString()),
-				list.size() - 1);
+		
+		list.setElementAt(new TimedEntry(getNewestValueString()), list.size() - 1);
 
 		// track input speed
 		last = System.currentTimeMillis();
@@ -111,13 +110,13 @@ public class State {
 	/** Add an entry */
 	public void add(TimedEntry timedEntry) {
 
-		double input = Double.valueOf(timedEntry.getValueString());
-
+		//double input = Double.valueOf(timedEntry.getValueString());
+		insert(timedEntry);
+		/*
 		// ignore any extreme input
 		if (FilterFactory.inRange(input, filter)) {
 
 			// only update the timestamp because value is the same
-			/**/
 			if (constants.getBoolean(pack) && (list.size() > PACK_AFTER)) {
 				if (Double.compare(input, getNewestValue()) == 0) {
 					touch();
@@ -136,10 +135,11 @@ public class State {
 				// clear counter
 				filtered = 0;
 
-			} else
+			} else {
 				filtered++;
-		}
-
+			}
+		}*/
+		
 	}
 
 	//
