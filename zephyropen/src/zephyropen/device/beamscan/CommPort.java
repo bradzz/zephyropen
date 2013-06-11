@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Vector;
 
 import zephyropen.api.ZephyrOpen;
+import zephyropen.util.Utils;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
@@ -16,11 +17,11 @@ public class CommPort implements SerialPortEventListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final byte[] GET_VERSION = { 'y' };
-	public static final byte[] ENABLE_MOTOR = { 'e' };
+//	public static final byte[] ENABLE_MOTOR = { 'e' };
 	public static final byte[] SINGLE = { 'q' };
 	public static final byte GAIN = 'a';
 
-	private static final int MAX_ATTEMPTS = 50;
+	private static final int MAX_ATTEMPTS = 10;
 
 	private Vector<Integer> points = new Vector<Integer>(1000);
 	private SerialPort serialPort = null;
@@ -30,14 +31,37 @@ public class CommPort implements SerialPortEventListener {
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
 	private static ScanResults result = null;
-	private static BeamGUI app = null;
+	//private static BeamGUI app = null;
 	private static boolean waiting = false;
 	
 	
-	/** constructor */
-	public CommPort(BeamGUI gui) {
+	public static void main(String[] a){
+	
+		// simple test, no gui.... 
+		constants.init(BeamGUI.beamscan, BeamGUI.beamscan);
+		constants.info("test starting.." + constants.toString());
 		
-		app = gui;
+		//Utils.delay(6000);
+		
+		CommPort port = new CommPort();
+		port.connect();
+		
+		port.sendCommand(new byte[]{'a', 5});
+		Utils.delay(6000);
+
+		port.sendCommand(new byte[]{'q'});
+		Utils.delay(6000);
+		
+		port.close();
+
+		
+		constants.info("..test done");
+	}
+	
+	/** constructor */
+	public CommPort(){//BeamGUI gui) {
+		
+		//app = gui;
 
 		String portName = constants.get(BeamGUI.beamscan);
 		if(portName==null){
@@ -46,7 +70,7 @@ public class CommPort implements SerialPortEventListener {
 			
 		if (portName == null) {
 			constants.error("can't find beamscan", this);
-			app.errorMessage("can't find beam scanner on any port");
+			// app.errorMessage("can't find beam scanner on any port");
 			return;
 		}
 	}
@@ -74,7 +98,7 @@ public class CommPort implements SerialPortEventListener {
 		if(portName==null){
 			discover();
 			if(constants.get(BeamGUI.beamscan) == null){
-				app.errorMessage("can't find beam scanner on any port");
+				//app.errorMessage("can't find beam scanner on any port");
 				return false;
 			}
 		}
@@ -104,9 +128,12 @@ public class CommPort implements SerialPortEventListener {
 			return false;
 		}
 		
-		zephyropen.util.Utils.delay(2000);
+		zephyropen.util.Utils.delay(500);
 		
 		getVersion();
+		
+		zephyropen.util.Utils.delay(2000);
+		
 		constants.info("beamscan port: " + portName);
 		constants.info("beamscan version: " + version);
 		
@@ -175,15 +202,19 @@ public class CommPort implements SerialPortEventListener {
 		String response = "";
 		for (int i = 0; i < buffSize; i++)
 			response += (char) buffer[i];
-
-		// constants.info(response);
 		
-		if (response.startsWith("amp")) {
+		//if(constants.getBoolean(ZephyrOpen.frameworkDebug)) 
+		//	constants.info("___ in: " + response , this);
+		
+		if (response.startsWith("home")){
+			waiting = false;
+		} else if (response.startsWith("amp")) {
 			String[] data = response.split(" ");
 			constants.info("amp now: " + data[1]);
 		} else if (response.startsWith("fault")) {
 			constants.error("scanner fault", this);
 			waiting = false;
+			close();
 		} else if (response.startsWith("limit")) {
 			constants.error("limit switch error", this);
 			waiting = false;
@@ -258,15 +289,16 @@ public class CommPort implements SerialPortEventListener {
 		for(int i = 0 ; ; i++){
 			if(!waiting) break;
 			else {
-				if(i>20){
+				if(i>10){
 					constants.error("sample(): time out " + i, this);
 					break;
 				}
 				
-				constants.info("sample(): waiting " + i, this);
+				//constants.info("sample(): waiting " + i, this);
 		
-				zephyropen.util.Utils.delay(100);
+				zephyropen.util.Utils.delay(500);
 			}
+			
 		}
 		
 		return result;

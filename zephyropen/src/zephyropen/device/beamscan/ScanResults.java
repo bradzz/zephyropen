@@ -6,6 +6,8 @@ import zephyropen.api.ZephyrOpen;
 import zephyropen.util.LogManager;
 
 public class ScanResults {
+	
+	private final int avg = 3;
 
 	private ZephyrOpen constants = ZephyrOpen.getReference();
 	private int lowLevel = constants.getInteger("lowLevel");
@@ -34,24 +36,16 @@ public class ScanResults {
 		// take average 
 		//
 		
-		int avg = constants.getInteger("averageLevel");
-		if(avg < 1){
-			constants.put("averageLevel", 1);
-			constants.updateConfigFile();
-		}
-		
-		if(avg >= 2){
 		Vector<Integer> hold = new Vector<Integer>(0);
-			for(int j = 0 ; j < points.size()-avg ; j++){
-				int sum = 0;
-				for(int k = 0 ; k < avg ; k++)
-					sum += points.get(j++);
-				
-				hold.add( sum / avg );
-			}
-		
-			points = hold;
+		for(int j = 0 ; j < points.size()-avg ; j++){
+			int sum = 0;
+			for(int k = 0 ; k < avg ; k++)
+				sum += points.get(j++);
+			
+			hold.add( sum / avg );
 		}
+	
+		points = hold;
 		
 		if(constants.getBoolean(ZephyrOpen.loggingEnabled)) writeLog();
 	}
