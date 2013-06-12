@@ -48,20 +48,17 @@ import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
-/** @author brad.zdanivsky@gmail.com 
+/** 
  * 
- * -auto-reconnect 
- * -user control of average level 
- * -user control of single, or continuous scan 
- * -user limit on files size 
- * -bundle to jar file 
+ * @author brad.zdanivsky@gmail.com 
  * 
  */
 public class BeamGUI implements KeyListener {
 
+	private final String TITLE = "Beam Scan v3.5.5";
+	
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final String beamscan = "beamscan";
-	
 	public static final String yellowX1 = "yellowX1";
 	public static final String yellowX2 = "yellowX2";
 	public static final String yellowY1 = "yellowY1";
@@ -81,14 +78,12 @@ public class BeamGUI implements KeyListener {
 	private static final int GAIN_MAX = 127;
 	private static final int GAIN_MIN = 0;
 
-	private final String TITLE = "Beam Scan v3.5.4";
+	private BeamComponent beamCompent = new BeamComponent();
+	private java.util.Timer timer = new java.util.Timer();
+
 	private JFrame frame = new JFrame();
 	private JLabel curve = new JLabel();
-	private BeamComponent beamCompent = new BeamComponent();
 	private CommPort device = null; 
-
-	private java.util.Timer timer = new java.util.Timer();
-//	private java.util.Timer stuck = new java.util.Timer();
 	private static String path = null;
 	private boolean isConnected = false;
 	private boolean isScanning = false;
@@ -130,7 +125,8 @@ public class BeamGUI implements KeyListener {
 	private JMenuItem emailItem = new JMenuItem("send email report");
 	private JMenuItem javaItem = new JMenuItem("get software updates");
 	private JMenuItem screenshotItem = new JMenuItem("screen capture");
-
+	
+	private JMenuItem invertItem = new JCheckBoxMenuItem("invert", constants.getBoolean("invert"));
 	private JMenuItem debugItem = new JCheckBoxMenuItem("debugging", constants.getBoolean(ZephyrOpen.frameworkDebug));
 	private JMenuItem recordingtem = new JCheckBoxMenuItem("recording", constants.getBoolean(ZephyrOpen.recording));
 	private JMenuItem loggingItem = new JCheckBoxMenuItem("log files", constants.getBoolean(ZephyrOpen.loggingEnabled));
@@ -162,14 +158,8 @@ public class BeamGUI implements KeyListener {
 	
 	private int lowLevel = 0;
 	private int gainLevel = 0;
-	private int averageLevel = 0;
 	private int counter = 0;
 	private long scan_delay = 3000;
-	
-	// private int error = 0;
-	// private long start = 0;
-	// private int max_scan_time = (int)(scan_delay) * 2;
-	
 	
 	/** driver */
 	public static void main(String[] args) {
@@ -201,13 +191,6 @@ public class BeamGUI implements KeyListener {
 			gainLevel = 32;
 		}
 		
-		// 
-		averageLevel = constants.getInteger("averageLevel");
-		if (averageLevel <= ZephyrOpen.ERROR) {
-			constants.put("averageLevel", 0);
-			averageLevel = 0;
-		}
-		
 		constants.updateConfigFile();
 		constants.info("started: " + TITLE, this);
 		topRight1 = "Noise Suppress = " + lowLevel;
@@ -222,7 +205,8 @@ public class BeamGUI implements KeyListener {
 		connectItem.addActionListener(listener);
 		emailItem.addActionListener(listener);
 		javaItem.addActionListener(listener);
-		
+				
+		invertItem.addItemListener(invertListener);
 		debugItem.addItemListener(debugListener);
 		recordingtem.addItemListener(recodingListener);
 		loggingItem.addItemListener(loggingListener);
@@ -231,9 +215,10 @@ public class BeamGUI implements KeyListener {
 		deviceMenue.add(replayItem);
 		deviceMenue.add(connectItem);
 		userMenue.add(recordingtem);
-		userMenue.add(loggingItem);
+		userMenue.add(loggingItem);		
+		userMenue.add(invertItem);
 		userMenue.add(screenshotItem);
-		
+
 		/** Resister listener */
 		gainUpItem.addActionListener(gainListener);
 		gainDownItem.addActionListener(gainListener);
@@ -245,7 +230,6 @@ public class BeamGUI implements KeyListener {
 		lowMenue.add(lowUpItem);
 		lowMenue.add(lowDownItem);
 
-		// 
 		delay1.addActionListener(delayListener);
 		delay2.addActionListener(delayListener);
 		delay3.addActionListener(delayListener);
@@ -257,7 +241,6 @@ public class BeamGUI implements KeyListener {
 		delayMenue.add(delay3);
 		delayMenue.add(delay4);
 		delayMenue.add(delay5);
-		
 		
 		helpMenue.add(debugItem);
 		helpMenue.add(emailItem);
@@ -322,13 +305,7 @@ public class BeamGUI implements KeyListener {
 		counter = 0;
 		isConnected = false;
 		if(device!=null) device.close();
-	/*	
-		try {
-			if(stuck!=null) stuck.cancel();
-		} catch (Exception e) {
-			constants.error(e.getLocalizedMessage(), this);
-		}
-	*/	
+		
 		try {
 			if(timer!= null) timer.cancel();
 		} catch (Exception e) {
@@ -354,7 +331,6 @@ public class BeamGUI implements KeyListener {
 		isConnected = device.connect();
 		if (isConnected) {
 			counter = 0;
-			// error = 0;
 			topLeft1 = "CONNECTED: [" + counter + "]";
 			topLeft2 = "Port: " + constants.get(beamscan);
 			topLeft3 = "Version: " + device.getVersion();
@@ -397,7 +373,6 @@ public class BeamGUI implements KeyListener {
 		@Override
 		public void run() {
 			topLeft1 = "CONNECTED: [" + counter + "]";
-			// start = System.currentTimeMillis();
 			singleScan();
 		}
 	}
@@ -413,15 +388,27 @@ public class BeamGUI implements KeyListener {
 			}	
 		}
 	}*/
+	
+	public ItemListener invertListener = new ItemListener() {
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			
+			if (e.getStateChange() == ItemEvent.DESELECTED) constants.put("invert", false);
+
+			if (e.getStateChange() == ItemEvent.SELECTED) constants.put("invert", true);
+
+			constants.updateConfigFile();
+			
+		}
+	};
 
 	public ItemListener debugListener = new ItemListener() {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			if (e.getStateChange() == ItemEvent.DESELECTED)
-				constants.put(ZephyrOpen.frameworkDebug, false);
+			
+			if (e.getStateChange() == ItemEvent.DESELECTED) constants.put(ZephyrOpen.frameworkDebug, false);
 
-			if (e.getStateChange() == ItemEvent.SELECTED)
-				constants.put(ZephyrOpen.frameworkDebug, true);
+			if (e.getStateChange() == ItemEvent.SELECTED) constants.put(ZephyrOpen.frameworkDebug, true);
 
 			constants.updateConfigFile();
 		}
@@ -430,11 +417,10 @@ public class BeamGUI implements KeyListener {
 	public ItemListener loggingListener = new ItemListener() {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			if (e.getStateChange() == ItemEvent.DESELECTED)
-				constants.put(ZephyrOpen.loggingEnabled, false);
+			
+			if (e.getStateChange() == ItemEvent.DESELECTED) constants.put(ZephyrOpen.loggingEnabled, false);
 
-			if (e.getStateChange() == ItemEvent.SELECTED)
-				constants.put(ZephyrOpen.loggingEnabled, true);
+			if (e.getStateChange() == ItemEvent.SELECTED) constants.put(ZephyrOpen.loggingEnabled, true);
 
 			constants.updateConfigFile();
 		}
@@ -443,11 +429,10 @@ public class BeamGUI implements KeyListener {
 	public ItemListener recodingListener = new ItemListener() {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			if (e.getStateChange() == ItemEvent.DESELECTED)
-				constants.put(ZephyrOpen.recording, false);
+			
+			if (e.getStateChange() == ItemEvent.DESELECTED) constants.put(ZephyrOpen.recording, false);
 
-			if (e.getStateChange() == ItemEvent.SELECTED)
-				constants.put(ZephyrOpen.recording, true);
+			if (e.getStateChange() == ItemEvent.SELECTED) constants.put(ZephyrOpen.recording, true);
 
 			constants.updateConfigFile();
 		}
@@ -462,7 +447,7 @@ public class BeamGUI implements KeyListener {
 
 			Object source = event.getSource();
 			
-			constants.info("gain.. " + source, this);
+			///constants.info("gain.. " + source, this);
 
 			if (source.equals(gainUpItem)) {				
 				if(gainLevel < GAIN_MAX) 
@@ -535,9 +520,6 @@ public class BeamGUI implements KeyListener {
 				delay5.setSelected(true);
 				scan_delay = 5000;
 			}
-			
-			// re-start 
-			// start();
 		}
 	};
 		
@@ -608,7 +590,7 @@ public class BeamGUI implements KeyListener {
 		public void actionPerformed(ActionEvent event) {
 			Object source = event.getSource();
 			
-			if (source.equals(javaItem)) {
+			if (source.equals(javaItem)) { 
 				openBrowser();
 			} else if (source.equals(emailItem)) {
 				sendReport();
@@ -618,9 +600,7 @@ public class BeamGUI implements KeyListener {
 						connect();
 				}
 			} else if (source.equals(disconnectItem)) {
-
 				disconnect();
-
 			} else if (source.equals(screenshotItem)) {
 				new Thread() {
 					public void run() {
@@ -639,11 +619,7 @@ public class BeamGUI implements KeyListener {
 					timer.cancel();
 					timer = null;
 				}
-			//	if(stuck!=null){
-		//			stuck.cancel();
-		//			stuck = null;
-		//		}
-			}
+			} 
 
 			updateMenu();
 		}
@@ -654,15 +630,12 @@ public class BeamGUI implements KeyListener {
 		if(timer!=null) timer.cancel();
 		timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(new ScanTask(), 0, scan_delay);
-		//if(stuck!=null) stuck.cancel();
-      	//	stuck = new java.util.Timer();
-   	//	stuck.scheduleAtFixedRate(new StuckTask(), 0, scan_delay/3);
 		updateMenu();
 	}
 	
 	/** */
 	public void replay(){
-		new Loader("zephyropen.device.beamscan.ReplayGUI","");
+		new Loader("zephyropen.device.beamscan.ReplayGUI","none");
 		Utils.delay(1000);
 		System.exit(0);
 	}
@@ -697,8 +670,6 @@ public class BeamGUI implements KeyListener {
 
 	/** take one slice if currently connected */
 	public synchronized void singleScan() {
-
-		// constants.info("scan start..", this);
 		
 		if(isScanning) {
 			constants.error("busy scanner", this);
@@ -854,16 +825,13 @@ public class BeamGUI implements KeyListener {
 				g.drawLine(0, (int) redY2px, w, (int) redY2px);
 			}
 		
+			// limit switch indicator 
 			if(isFault || (! isConnected)){
-			
 				g.setColor(Color.RED);
 				g.fillOval( w-25, 5, 20, 20 );
-
 			} else {
-				
 				g.setColor(Color.GREEN);
 				g.fillOval( w-25, 5, 20, 20 );
-				
 			}
 			
 			// draw grid

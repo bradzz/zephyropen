@@ -17,7 +17,6 @@ public class CommPort implements SerialPortEventListener {
 
 	public static ZephyrOpen constants = ZephyrOpen.getReference();
 	public static final byte[] GET_VERSION = { 'y' };
-//	public static final byte[] ENABLE_MOTOR = { 'e' };
 	public static final byte[] SINGLE = { 'q' };
 	public static final byte GAIN = 'a';
 
@@ -31,10 +30,9 @@ public class CommPort implements SerialPortEventListener {
 	private byte[] buffer = new byte[32];
 	private int buffSize = 0;
 	private static ScanResults result = null;
-	//private static BeamGUI app = null;
-	private static boolean waiting = false;
+	private static boolean waiting = false;	
 	
-	
+	/*
 	public static void main(String[] a){
 	
 		// simple test, no gui.... 
@@ -56,13 +54,11 @@ public class CommPort implements SerialPortEventListener {
 
 		
 		constants.info("..test done");
-	}
+	} */
 	
 	/** constructor */
-	public CommPort(){//BeamGUI gui) {
+	public CommPort(){
 		
-		//app = gui;
-
 		String portName = constants.get(BeamGUI.beamscan);
 		if(portName==null){
 			discover();
@@ -70,7 +66,6 @@ public class CommPort implements SerialPortEventListener {
 			
 		if (portName == null) {
 			constants.error("can't find beamscan", this);
-			// app.errorMessage("can't find beam scanner on any port");
 			return;
 		}
 	}
@@ -98,7 +93,6 @@ public class CommPort implements SerialPortEventListener {
 		if(portName==null){
 			discover();
 			if(constants.get(BeamGUI.beamscan) == null){
-				//app.errorMessage("can't find beam scanner on any port");
 				return false;
 			}
 		}
@@ -128,11 +122,11 @@ public class CommPort implements SerialPortEventListener {
 			return false;
 		}
 		
-		zephyropen.util.Utils.delay(500);
+		zephyropen.util.Utils.delay(1500);
 		
 		getVersion();
 		
-		zephyropen.util.Utils.delay(2000);
+		zephyropen.util.Utils.delay(1500);
 		
 		constants.info("beamscan port: " + portName);
 		constants.info("beamscan version: " + version);
@@ -259,8 +253,7 @@ public class CommPort implements SerialPortEventListener {
 					if ((input[j] == '>') || (input[j] == 13) || (input[j] == 10)) {
 
 						// do what ever is in buffer
-						if (buffSize > 0)
-							execute();
+						if (buffSize > 0) execute();
 
 						// reset
 						buffSize = 0;
@@ -291,14 +284,28 @@ public class CommPort implements SerialPortEventListener {
 			else {
 				if(i>10){
 					constants.error("sample(): time out " + i, this);
-					break;
+					return null;
 				}
 				
 				//constants.info("sample(): waiting " + i, this);
 		
 				zephyropen.util.Utils.delay(500);
 			}
+		}
+		
+		// invert data 
+		if(constants.getBoolean("invert")){
 			
+			Vector<Integer> first = new Vector<Integer>(points.size()/2);
+			Vector<Integer> second = new Vector<Integer>(points.size()/2);
+
+			for(int i = 0 ; i < points.size()/2 ; i++) first.add(points.get(i));
+			for(int i = points.size()/2 ; i < points.size() ; i++) second.add(points.get(i));
+
+			points.clear();
+			for(int i = 0 ; i < second.size() ; i++) points.add(second.get(i));
+			for(int i = 0 ; i < first.size() ; i++) points.add(first.get(i));
+						
 		}
 		
 		return result;
